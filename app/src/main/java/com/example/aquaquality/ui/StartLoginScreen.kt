@@ -1,13 +1,20 @@
+@file:OptIn(
+    ExperimentalAnimationApi::class,
+    ExperimentalAnimationApi::class,
+    ExperimentalAnimationApi::class, ExperimentalAnimationApi::class
+)
+
 package com.example.aquaquality.ui
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.*
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,9 +29,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material.icons.rounded.Lock
@@ -47,7 +52,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -57,7 +61,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -87,66 +90,109 @@ fun StartLoginScreen(
             contentDescription = null,
             contentScale = ContentScale.Crop,
             colorFilter = ColorFilter.tint(
-                MaterialTheme.colorScheme.primary,
-                blendMode = BlendMode.Hardlight
+                MaterialTheme.colorScheme.primary, blendMode = BlendMode.Hardlight
             )
         )
+        var isStarted by remember { mutableStateOf(false) }
         Column(
             modifier = Modifier
+                .animateContentSize(
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioNoBouncy,
+                        stiffness = Spring.StiffnessMedium
+                    )
+                )
                 .fillMaxSize()
-                .padding(dimensionResource(id = R.dimen.padding_medium))
-                .verticalScroll(rememberScrollState()),
+                .padding(dimensionResource(id = R.dimen.padding_medium)),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Box(modifier = Modifier.weight(1f)) {
+            //Logo
+            Box(
+                modifier = Modifier.weight(1f)
+            ) {
                 val logo = ImageVector.vectorResource(id = R.drawable.aquaqualitylogo)
-                Image(imageVector = logo , contentDescription = stringResource(
-                    id = R.string.app_name
-                ), modifier = Modifier
-                    .size(250.dp)
-                    .align(Alignment.Center))
+                Image(
+                    imageVector = logo, contentDescription = stringResource(
+                        id = R.string.app_name
+                    ), modifier = Modifier
+                        .size(250.dp)
+                        .align(Alignment.BottomCenter)
+                )
             }
-
 
             Box(
                 modifier = Modifier
-                    .weight(2f)
-            ) {
-                var showSignUp by remember { mutableStateOf(false) }
-                Column {
-                    AnimatedVisibility(
-                        visible = showSignUp,
-                        enter = slideInHorizontally { fullWidth -> fullWidth } + fadeIn(),
-                        exit = slideOutHorizontally { fullWidth -> fullWidth } + fadeOut()
-                    ) {
-                        SignupCard(
-                            signupEmail,
-                            onSignupEmailChange,
-                            signupPassword,
-                            signupRepeatPassword,
-                            onSignupPasswordChange,
-                            onSignupRepeatPasswordChange,
-                            onCancelClick = { showSignUp = !showSignUp }
+                    .padding(bottom = 24.dp)
+                    .fillMaxWidth()
+                    .weight(if (isStarted) 2f else 1f)
+                    .animateContentSize(
+                        animationSpec = tween(
+                            durationMillis = 500,
+                            easing = FastOutSlowInEasing
                         )
-                    }
+                    )
+            ) {
+                Button(
+                    onClick = {
+                        isStarted = !isStarted
+
+                    }, colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    ), modifier = Modifier
+                        .align(Alignment.Center)
+                ) {
+                    Text(text = stringResource(R.string.get_started))
                 }
+
+
                 Column {
                     AnimatedVisibility(
-                        visible = !showSignUp,
-                        enter = slideInHorizontally { fullWidth -> -fullWidth } + fadeIn(),
-                        exit = slideOutHorizontally { fullWidth -> -fullWidth } + fadeOut()
-                    ) {
-                        LoginCard(
-                            email,
-                            onEmailChange,
-                            password,
-                            onPasswordChange,
-                            onCreateAccountClick = { showSignUp = !showSignUp })
+                        visible = isStarted,
+                        enter = slideInVertically { fullHeight -> fullHeight }) {
+                        Box {
+                            var showSignUp by remember { mutableStateOf(false) }
+
+                            Column {
+                                AnimatedVisibility(visible = showSignUp,
+                                    enter = slideInHorizontally { fullWidth -> fullWidth } + fadeIn(),
+                                    exit = slideOutHorizontally { fullWidth -> fullWidth } + fadeOut()) {
+                                    SignupCard(signupEmail,
+                                        onSignupEmailChange,
+                                        signupPassword,
+                                        signupRepeatPassword,
+                                        onSignupPasswordChange,
+                                        onSignupRepeatPasswordChange,
+                                        onCancelClick = { showSignUp = !showSignUp })
+                                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_large)))
+                                }
+                            }
+                            Column {
+                                AnimatedVisibility(visible = !showSignUp,
+                                    enter = slideInHorizontally { fullWidth -> -fullWidth } + fadeIn(),
+                                    exit = slideOutHorizontally { fullWidth -> -fullWidth } + fadeOut()) {
+                                    LoginCard(email,
+                                        onEmailChange,
+                                        password,
+                                        onPasswordChange,
+                                        onCreateAccountClick = { showSignUp = !showSignUp })
+                                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_large)))
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
+        Text(
+            text = stringResource(id = R.string.credits),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = dimensionResource(id = R.dimen.padding_medium)),
+            style = MaterialTheme.typography.bodySmall,
+            color = Color.Gray
+        )
     }
 }
 
@@ -160,8 +206,7 @@ private fun LoginCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier
-            .fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary)
     ) {
         Column(modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large))) {
@@ -171,8 +216,7 @@ private fun LoginCard(
                 onValueChange = onEmailChange,
                 leadingIcon = Icons.Rounded.Email,
                 keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Next
+                    keyboardType = KeyboardType.Email, imeAction = ImeAction.Next
                 )
             )
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
@@ -204,8 +248,7 @@ private fun LoginCard(
             OutlinedButton(onClick = { /*TODO*/ }, modifier = Modifier.fillMaxWidth()) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        painter = painterResource(id = R.drawable.google),
-                        contentDescription = null
+                        painter = painterResource(id = R.drawable.google), contentDescription = null
                     )
                     Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
                     Text(text = stringResource(R.string.label_google_signin))
@@ -227,8 +270,7 @@ private fun SignupCard(
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier
-            .fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.onPrimary)
     ) {
         Column(modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large))) {
@@ -238,8 +280,7 @@ private fun SignupCard(
                 onValueChange = onEmailChange,
                 leadingIcon = Icons.Rounded.Email,
                 keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Next
+                    keyboardType = KeyboardType.Email, imeAction = ImeAction.Next
                 )
             )
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
@@ -282,8 +323,7 @@ private fun SignupCard(
             OutlinedButton(onClick = { /*TODO*/ }, modifier = Modifier.fillMaxWidth()) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        painter = painterResource(id = R.drawable.google),
-                        contentDescription = null
+                        painter = painterResource(id = R.drawable.google), contentDescription = null
                     )
                     Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
                     Text(text = stringResource(R.string.label_google_signin))
@@ -308,8 +348,7 @@ private fun PrimaryOutlinedTextInput(
         false -> VisualTransformation.None
     }
 
-    OutlinedTextField(
-        modifier = Modifier.fillMaxWidth(),
+    OutlinedTextField(modifier = Modifier.fillMaxWidth(),
         value = value,
         onValueChange = onValueChange,
         leadingIcon = if (leadingIcon != null) {
@@ -317,7 +356,8 @@ private fun PrimaryOutlinedTextInput(
         } else null,
         label = {
             Text(
-                text = stringResource(labelResourceId), modifier = Modifier
+                text = stringResource(labelResourceId),
+                modifier = Modifier
                     .background(Color.White)
                     .padding(
                         horizontal = 5.dp
@@ -336,9 +376,8 @@ private fun PrimaryOutlinedTextInput(
 @Preview
 @Composable
 fun DefaultPreview() {
-    AquaqualityTheme() {
-        StartLoginScreen(
-            modifier = Modifier.fillMaxSize(),
+    AquaqualityTheme {
+        StartLoginScreen(modifier = Modifier.fillMaxSize(),
             email = "",
             password = "",
             onEmailChange = {},
@@ -348,7 +387,6 @@ fun DefaultPreview() {
             onSignupEmailChange = {},
             onSignupPasswordChange = {},
             signupRepeatPassword = "",
-            onSignupRepeatPasswordChange = {}
-        )
+            onSignupRepeatPasswordChange = {})
     }
 }

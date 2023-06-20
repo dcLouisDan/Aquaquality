@@ -7,5 +7,7 @@
     <string name="label_create_account">Create Account</string>
     <string name="label_google_signin">Sign-in with Google</string>
     <string name="label_cancel">Cancel</string>
+    <string name="credits">© 2023 IT-39 DHVSU</string>
     <string name="back_button">Back Button</string>
+    <string name="get_started">Get Started</string>
 </resources>
