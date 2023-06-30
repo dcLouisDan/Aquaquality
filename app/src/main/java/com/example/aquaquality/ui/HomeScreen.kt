@@ -5,11 +5,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Analytics
@@ -17,7 +20,10 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Thermostat
+import androidx.compose.material.icons.filled.Water
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
@@ -99,9 +105,9 @@ fun AquaQualityHomeScreen() {
                         items(3) {
                             FishpondCard(
                                 modifier = Modifier.padding(
-                                    vertical = dimensionResource(id = R.dimen.padding_small),
-                                    horizontal = dimensionResource(id = R.dimen.padding_medium)
-                                )
+                                    dimensionResource(id = R.dimen.padding_small)
+                                ),
+                                isConnected = true
                             )
                         }
                     }
@@ -130,13 +136,12 @@ fun AquaQualityHomeScreen() {
 }
 
 @Composable
-fun FishpondCard(modifier: Modifier = Modifier) {
+fun FishpondCard(isConnected: Boolean = false, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        val isConnected = false
         Column {
             Row(
                 modifier = Modifier
@@ -161,8 +166,31 @@ fun FishpondCard(modifier: Modifier = Modifier) {
             }
 
             if (isConnected) {
-                Column(modifier = Modifier.fillMaxWidth()) {
-
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(dimensionResource(id = R.dimen.padding_medium))
+                ) {
+                    ParameterMonitor(
+                        Icons.Default.Thermostat,
+                        R.string.label_temperature,
+                        "26",
+                        paramaterValueFormat = R.string.parameter_temperature
+                    )
+                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.height_xs)))
+                    ParameterMonitor(
+                        Icons.Default.Science,
+                        R.string.label_pH,
+                        "6.5",
+                        paramaterValueFormat = R.string.parameter_pH
+                    )
+                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.height_xs)))
+                    ParameterMonitor(
+                        Icons.Default.Water,
+                        R.string.label_turbidity,
+                        "150",
+                        paramaterValueFormat = R.string.parameter_turbidity
+                    )
                 }
             } else {
                 Box(
@@ -183,6 +211,47 @@ fun FishpondCard(modifier: Modifier = Modifier) {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun ParameterMonitor(
+    imageVector: ImageVector,
+    parameterLabel: Int,
+    parameterValue: String,
+    modifier: Modifier = Modifier,
+    paramaterValueFormat: Int
+) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.primary)
+                .padding(dimensionResource(id = R.dimen.padding_small)),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = imageVector,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
+            Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_small)))
+            Text(
+                text = stringResource(parameterLabel),
+                color = MaterialTheme.colorScheme.onPrimary,
+                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                text = stringResource(paramaterValueFormat, parameterValue),
+                color = MaterialTheme.colorScheme.onPrimary,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+        }
+
     }
 }
 
