@@ -24,8 +24,11 @@ import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.material.icons.filled.Water
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,9 +38,15 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -57,6 +66,9 @@ fun AquaQualityHomeScreen() {
     ) { innerPadding ->
         val isEmpty = false
         val backgroundColor = MaterialTheme.colorScheme.surfaceVariant
+        var isNewDialogVisible by rememberSaveable {
+            mutableStateOf(false)
+        }
 
         val navigationItemContentList = listOf(
             NavigationItemContent(
@@ -114,7 +126,7 @@ fun AquaQualityHomeScreen() {
                 }
 
                 FloatingActionButton(
-                    onClick = { /* Do something */ },
+                    onClick = { isNewDialogVisible = true },
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier
@@ -131,17 +143,44 @@ fun AquaQualityHomeScreen() {
             }
 
             AquaQualityBottomNavigationBar(navigationItemContentList = navigationItemContentList)
+
+            if (isNewDialogVisible) {
+                AlertDialog(
+                    onDismissRequest = { isNewDialogVisible = false },
+                    title = { Text(text = "Add new fishpond") },
+                    confirmButton = {
+                        TextButton(onClick = { /*TODO*/ }) {
+                            Text(text = "Save")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { isNewDialogVisible = false }) {
+                            Text(text = "Cancel")
+                        }
+                    },
+                    text = {
+                        TextField(
+                            value = "",
+                            onValueChange = {},
+                            placeholder = { Text(text = "Enter fishpond name") })
+                    }
+                )
+            }
         }
     }
 }
 
 @Composable
-fun FishpondCard(isConnected: Boolean = false, modifier: Modifier = Modifier) {
+fun FishpondCard(modifier: Modifier = Modifier, isConnected: Boolean = false) {
     Card(
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
+        var isCardMenuVisible by rememberSaveable {
+            mutableStateOf(false)
+        }
+
         Column {
             Row(
                 modifier = Modifier
@@ -157,12 +196,25 @@ fun FishpondCard(isConnected: Boolean = false, modifier: Modifier = Modifier) {
                     style = MaterialTheme.typography.titleMedium
                 )
                 IconButton(
-                    onClick = { /*TODO*/ }, colors = IconButtonDefaults.iconButtonColors(
+                    onClick = {
+                        isCardMenuVisible = !isCardMenuVisible
+//                        pressOffset = DpOffset(it.x.toDp(), it.y.toDp())
+                    },
+                    colors = IconButtonDefaults.iconButtonColors(
                         contentColor = MaterialTheme.colorScheme.onSurface,
                     )
                 ) {
                     Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
+                    DropdownMenu(
+                        expanded = isCardMenuVisible,
+                        onDismissRequest = { isCardMenuVisible = false },
+
+                        ) {
+                        DropdownMenuItem(text = { Text(text = "Edit") }, onClick = { /*TODO*/ })
+                        DropdownMenuItem(text = { Text(text = "Delete") }, onClick = { /*TODO*/ })
+                    }
                 }
+
             }
 
             if (isConnected) {
@@ -175,21 +227,21 @@ fun FishpondCard(isConnected: Boolean = false, modifier: Modifier = Modifier) {
                         Icons.Default.Thermostat,
                         R.string.label_temperature,
                         "26",
-                        paramaterValueFormat = R.string.parameter_temperature
+                        parameterValueFormat = R.string.parameter_temperature
                     )
                     Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.height_xs)))
                     ParameterMonitor(
                         Icons.Default.Science,
                         R.string.label_pH,
                         "6.5",
-                        paramaterValueFormat = R.string.parameter_pH
+                        parameterValueFormat = R.string.parameter_pH
                     )
                     Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.height_xs)))
                     ParameterMonitor(
                         Icons.Default.Water,
                         R.string.label_turbidity,
                         "150",
-                        paramaterValueFormat = R.string.parameter_turbidity
+                        parameterValueFormat = R.string.parameter_turbidity
                     )
                 }
             } else {
@@ -220,7 +272,7 @@ private fun ParameterMonitor(
     parameterLabel: Int,
     parameterValue: String,
     modifier: Modifier = Modifier,
-    paramaterValueFormat: Int
+    parameterValueFormat: Int
 ) {
     Card(
         modifier = modifier,
@@ -246,7 +298,7 @@ private fun ParameterMonitor(
                 modifier = Modifier.weight(1f)
             )
             Text(
-                text = stringResource(paramaterValueFormat, parameterValue),
+                text = stringResource(parameterValueFormat, parameterValue),
                 color = MaterialTheme.colorScheme.onPrimary,
                 style = MaterialTheme.typography.bodyLarge,
             )
