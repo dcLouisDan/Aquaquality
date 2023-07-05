@@ -1,6 +1,18 @@
+@file:OptIn(ExperimentalAnimationApi::class, ExperimentalAnimationApi::class)
+
 package com.example.aquaquality.ui
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.with
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,11 +24,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
@@ -45,10 +58,12 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -56,7 +71,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.aquaquality.R
+import com.example.aquaquality.data.FishpondInfo
 import com.example.aquaquality.ui.theme.AquaqualityTheme
+import com.example.aquaquality.ui.components.ParameterMonitor
+import com.example.aquaquality.ui.components.IndicatorStatus
 
 
 @Composable
@@ -72,82 +90,99 @@ fun AquaQualityHomeScreen() {
 
         val navigationItemContentList = listOf(
             NavigationItemContent(
+                index = 0,
                 icon = Icons.Default.Home,
                 text = "Home"
             ),
             NavigationItemContent(
-                icon = Icons.Filled.Analytics,
+                index = 1,
+                icon = Icons.Filled.Book,
                 text = "Name"
             ),
             NavigationItemContent(
+                index = 2,
                 icon = Icons.Default.Settings,
                 text = "Name"
             ),
             NavigationItemContent(
+                index = 3,
                 icon = Icons.Default.Person,
                 text = "Account"
             ),
         )
 
-        Column(modifier = Modifier.padding(innerPadding)) {
-            Box(modifier = Modifier.weight(1f)) {
-                if (isEmpty) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(backgroundColor),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = stringResource(R.string.home_press_plus_message),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier
-                                .width(250.dp),
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                } else {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(backgroundColor)
-                    ) {
-                        items(3) {
-                            FishpondCard(
-                                modifier = Modifier.padding(
-                                    dimensionResource(id = R.dimen.padding_small)
-                                ),
-                                isConnected = true
-                            )
-                        }
-                    }
-                }
+        val fishpondList: List<FishpondInfo> = listOf(
+            FishpondInfo(
+                id = 1,
+                name = "Fishpond 1",
+                tempValue = 30F,
+                phValue = 6.7F,
+                turbidityValue = 160
+            ),
+            FishpondInfo(
+                id = 2,
+                name = "Fishpond 2",
+                tempValue = 27.5F,
+                phValue = 7.0F,
+                turbidityValue = 154
+            )
+        )
 
-                FloatingActionButton(
-                    onClick = { isNewDialogVisible = true },
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(
-                            end = dimensionResource(id = R.dimen.padding_large),
-                            bottom = dimensionResource(
-                                id = R.dimen.padding_xl
-                            )
-                        )
-                ) {
-                    Icon(Icons.Filled.Add, contentDescription = "Add")
+        var currentScreenIndex by rememberSaveable { mutableStateOf(0) }
+
+        Column(modifier = Modifier.padding(innerPadding)) {
+            val screensNumber = 4
+
+            val swipeableModifier =
+                Modifier
+                    .weight(1f)
+                    .draggable(orientation = Orientation.Horizontal,
+                        state = rememberDraggableState { delta ->
+                            if (delta > 0) {
+                                // The user is swiping right.
+                                currentScreenIndex = (currentScreenIndex + 1) % screensNumber
+                            } else if (delta < 0) {
+                                // The user is swiping left.
+                                currentScreenIndex =
+                                    (currentScreenIndex - 1 + screensNumber) % screensNumber
+                            }
+                        }
+                    )
+
+            AnimatedContent(
+                targetState = currentScreenIndex,
+                modifier = swipeableModifier,
+                transitionSpec = {
+                    slideInHorizontally(initialOffsetX = { fullWidth -> fullWidth }) with slideOutHorizontally(targetOffsetX = {fullWidth -> fullWidth })
+                }
+            ) { targetState ->
+                when (targetState) {
+                    0 -> FishpondCardList(
+                        isEmpty,
+                        backgroundColor,
+                        fishpondList,
+                        onFabClick = { isNewDialogVisible = true },
+                    )
+
+                    1 -> ReferencesScreen()
+                    2 -> SettingsScreen()
+                    3 -> AccountScreen()
                 }
             }
 
-            AquaQualityBottomNavigationBar(navigationItemContentList = navigationItemContentList)
+            AquaQualityBottomNavigationBar(
+                navigationItemContentList = navigationItemContentList,
+                onTabClick = { currentScreenIndex = it })
 
             if (isNewDialogVisible) {
                 AlertDialog(
                     onDismissRequest = { isNewDialogVisible = false },
-                    title = { Text(text = "Add new fishpond") },
+                    title = {
+                        Text(
+                            text = "Add new fishpond",
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    },
                     confirmButton = {
                         TextButton(onClick = { /*TODO*/ }) {
                             Text(text = "Save")
@@ -171,9 +206,79 @@ fun AquaQualityHomeScreen() {
 }
 
 @Composable
-fun FishpondCard(modifier: Modifier = Modifier, isConnected: Boolean = false) {
+private fun FishpondCardList(
+    isEmpty: Boolean,
+    backgroundColor: Color,
+    fishpondList: List<FishpondInfo>,
+    onFabClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(modifier = modifier) {
+        if (isEmpty) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(backgroundColor),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = stringResource(R.string.home_press_plus_message),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .width(250.dp),
+                    textAlign = TextAlign.Center
+                )
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(backgroundColor)
+            ) {
+                items(fishpondList) { fishpond ->
+                    FishpondCard(
+                        fishpond,
+                        modifier = Modifier.padding(
+                            dimensionResource(id = R.dimen.padding_small)
+                        ),
+                        isConnected = true,
+                        onCardClick = {}
+                    )
+                }
+            }
+        }
+
+        FloatingActionButton(
+            onClick = onFabClick,
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(
+                    end = dimensionResource(id = R.dimen.padding_large),
+                    bottom = dimensionResource(
+                        id = R.dimen.padding_xl
+                    )
+                )
+        ) {
+            Icon(Icons.Filled.Add, contentDescription = "Add")
+        }
+    }
+}
+
+@Composable
+fun FishpondCard(
+    fishpondInfo: FishpondInfo,
+    modifier: Modifier = Modifier,
+    isConnected: Boolean = false,
+    onCardClick: () -> Unit
+) {
     Card(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable { onCardClick },
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -191,14 +296,13 @@ fun FishpondCard(modifier: Modifier = Modifier, isConnected: Boolean = false) {
                     ), verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Name",
+                    text = fishpondInfo.name,
                     modifier = Modifier.weight(1f),
                     style = MaterialTheme.typography.titleMedium
                 )
                 IconButton(
                     onClick = {
                         isCardMenuVisible = !isCardMenuVisible
-//                        pressOffset = DpOffset(it.x.toDp(), it.y.toDp())
                     },
                     colors = IconButtonDefaults.iconButtonColors(
                         contentColor = MaterialTheme.colorScheme.onSurface,
@@ -226,22 +330,24 @@ fun FishpondCard(modifier: Modifier = Modifier, isConnected: Boolean = false) {
                     ParameterMonitor(
                         Icons.Default.Thermostat,
                         R.string.label_temperature,
-                        "26",
-                        parameterValueFormat = R.string.parameter_temperature
+                        fishpondInfo.tempValue.toString(),
+                        parameterValueFormat = R.string.parameter_temperature,
+                        indicatorStatus = IndicatorStatus.OVER_RANGE
                     )
                     Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.height_xs)))
                     ParameterMonitor(
                         Icons.Default.Science,
                         R.string.label_pH,
-                        "6.5",
+                        fishpondInfo.phValue.toString(),
                         parameterValueFormat = R.string.parameter_pH
                     )
                     Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.height_xs)))
                     ParameterMonitor(
                         Icons.Default.Water,
                         R.string.label_turbidity,
-                        "150",
-                        parameterValueFormat = R.string.parameter_turbidity
+                        fishpondInfo.turbidityValue.toString(),
+                        parameterValueFormat = R.string.parameter_turbidity,
+                        indicatorStatus = IndicatorStatus.UNDER_RANGE
                     )
                 }
             } else {
@@ -266,46 +372,6 @@ fun FishpondCard(modifier: Modifier = Modifier, isConnected: Boolean = false) {
     }
 }
 
-@Composable
-private fun ParameterMonitor(
-    imageVector: ImageVector,
-    parameterLabel: Int,
-    parameterValue: String,
-    modifier: Modifier = Modifier,
-    parameterValueFormat: Int
-) {
-    Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(8.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.primary)
-                .padding(dimensionResource(id = R.dimen.padding_small)),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = imageVector,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimary
-            )
-            Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_small)))
-            Text(
-                text = stringResource(parameterLabel),
-                color = MaterialTheme.colorScheme.onPrimary,
-                style = MaterialTheme.typography.labelLarge,
-                modifier = Modifier.weight(1f)
-            )
-            Text(
-                text = stringResource(parameterValueFormat, parameterValue),
-                color = MaterialTheme.colorScheme.onPrimary,
-                style = MaterialTheme.typography.bodyLarge,
-            )
-        }
-
-    }
-}
 
 @Composable
 fun AquaQualityAppBar(
@@ -320,7 +386,8 @@ fun AquaQualityAppBar(
                 stringResource(R.string.app_name),
                 style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.primary
             )
         },
         colors = TopAppBarDefaults.mediumTopAppBarColors(
@@ -343,13 +410,14 @@ fun AquaQualityAppBar(
 @Composable
 private fun AquaQualityBottomNavigationBar(
     navigationItemContentList: List<NavigationItemContent>,
+    onTabClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     NavigationBar(modifier = modifier, containerColor = MaterialTheme.colorScheme.background) {
         for (navItem in navigationItemContentList) {
             NavigationBarItem(
                 selected = false,
-                onClick = { },
+                onClick = { onTabClick(navItem.index) },
                 icon = {
                     Icon(
                         imageVector = navItem.icon,
@@ -362,6 +430,7 @@ private fun AquaQualityBottomNavigationBar(
 }
 
 private data class NavigationItemContent(
+    val index: Int,
     val icon: ImageVector,
     val text: String
 )
@@ -374,11 +443,4 @@ fun HomePreview() {
     }
 }
 
-@Preview
-@Composable
-fun CardPreview() {
-    AquaqualityTheme {
-        FishpondCard()
-    }
-}
 
