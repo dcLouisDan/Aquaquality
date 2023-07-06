@@ -17,4 +17,21 @@
     <string name="label_temperature">Temperature</string>
     <string name="label_pH">pH</string>
     <string name="label_turbidity">Turbidity</string>
+    <string name="label_save_changes">Save Changes</string>
+    <string name="title_app_settings">App Settings</string>
+    <string name="label_min_temp">Minimum (℃)</string>
+    <string name="label_max_temp">Maximum (℃)</string>
+    <string name="title_temperature_threshold">Temperature Threshold</string>
+    <string name="title_ph_level_threshold">pH Level Threshold</string>
+    <string name="label_min_ph">Minimum (pH)</string>
+    <string name="label_max_ph">Maximum (pH)</string>
+    <string name="title_turbidity_threshold">Turbidity Threshold</string>
+    <string name="label_min_turb">Minimum (NTU)</string>
+    <string name="label_max_turb">Maximum (NTU)</string>
+    <string name="value_rec_min_temp">28</string>
+    <string name="value_rec_max_temp">32</string>
+    <string name="value_rec_min_ph">6.5</string>
+    <string name="value_rec_max_ph">8.5</string>
+    <string name="value_rec_min_turb">0</string>
+    <string name="value_rec_max_turb">180</string>
 </resources>

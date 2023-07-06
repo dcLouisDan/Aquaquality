@@ -6,6 +6,9 @@ import com.example.aquaquality.ui.LoginViewModel
 import com.example.aquaquality.ui.StartLoginScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import com.example.aquaquality.ui.AquaQualityHomeScreen
 
 @Composable
@@ -14,7 +17,9 @@ fun AquaqualityApp(
 //    navController: NavHostController = rememberNavController()
 ) {
     val loginUiState by loginViewModel.uiState.collectAsState()
-    val isLoggedIn = true
+    var isLoggedIn by remember {
+        mutableStateOf(false)
+    }
     if (isLoggedIn){
         AquaQualityHomeScreen()
     } else {
@@ -28,7 +33,8 @@ fun AquaqualityApp(
             signupRepeatPassword = loginUiState.signup_repeat_password,
             onSignupEmailChange = { loginViewModel.setSignupEmailInput(it) },
             onSignupPasswordChange = { loginViewModel.setSignUpPasswordInput(it) },
-            onSignupRepeatPasswordChange = { loginViewModel.setSignUpRepeatPasswordInput(it) }
+            onSignupRepeatPasswordChange = { loginViewModel.setSignUpRepeatPasswordInput(it) },
+            onLoginPress = {isLoggedIn = true}
         )
     }
 }

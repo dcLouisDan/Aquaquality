@@ -4,15 +4,11 @@ package com.example.aquaquality.ui
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,7 +23,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Home
@@ -58,7 +53,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -131,29 +125,19 @@ fun AquaQualityHomeScreen() {
         var currentScreenIndex by rememberSaveable { mutableStateOf(0) }
 
         Column(modifier = Modifier.padding(innerPadding)) {
-            val screensNumber = 4
+//            val screensNumber = 4
+//            var offsetX by remember { mutableStateOf(0f) }
 
             val swipeableModifier =
                 Modifier
                     .weight(1f)
-                    .draggable(orientation = Orientation.Horizontal,
-                        state = rememberDraggableState { delta ->
-                            if (delta > 0) {
-                                // The user is swiping right.
-                                currentScreenIndex = (currentScreenIndex + 1) % screensNumber
-                            } else if (delta < 0) {
-                                // The user is swiping left.
-                                currentScreenIndex =
-                                    (currentScreenIndex - 1 + screensNumber) % screensNumber
-                            }
-                        }
-                    )
 
             AnimatedContent(
                 targetState = currentScreenIndex,
                 modifier = swipeableModifier,
                 transitionSpec = {
-                    slideInHorizontally(initialOffsetX = { fullWidth -> fullWidth }) with slideOutHorizontally(targetOffsetX = {fullWidth -> fullWidth })
+                    slideInHorizontally(initialOffsetX = { fullWidth -> fullWidth }) with slideOutHorizontally(
+                        targetOffsetX = { fullWidth -> -fullWidth })
                 }
             ) { targetState ->
                 when (targetState) {
@@ -165,7 +149,22 @@ fun AquaQualityHomeScreen() {
                     )
 
                     1 -> ReferencesScreen()
-                    2 -> SettingsScreen()
+                    2 -> SettingsScreen(
+                        minTemp = "28",
+                        maxTemp = "32",
+                        minPh = "6.5",
+                        maxPh = "8.5",
+                        minTurb = "0",
+                        maxTurb = "180",
+                        onMinTempChange = {},
+                        onMaxTempChange = {},
+                        onMinPhChange = {},
+                        onMaxPhChange = {},
+                        onMinTurbChange = {},
+                        onMaxTurbChange = {},
+                        onSaveButtonClick = {},
+                    )
+
                     3 -> AccountScreen()
                 }
             }

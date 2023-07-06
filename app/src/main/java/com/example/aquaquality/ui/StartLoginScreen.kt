@@ -83,6 +83,7 @@ fun StartLoginScreen(
     onSignupEmailChange: (String) -> Unit,
     onSignupPasswordChange: (String) -> Unit,
     onSignupRepeatPasswordChange: (String) -> Unit,
+    onLoginPress: () -> Unit,
 ) {
     Box(modifier = modifier) {
         Image(
@@ -176,7 +177,9 @@ fun StartLoginScreen(
                                         onEmailChange,
                                         password,
                                         onPasswordChange,
-                                        onCreateAccountClick = { showSignUp = !showSignUp })
+                                        onCreateAccountClick = { showSignUp = !showSignUp },
+                                        onLoginPress = onLoginPress
+                                    )
                                     Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_large)))
                                 }
                             }
@@ -203,6 +206,7 @@ private fun LoginCard(
     password: String,
     onPasswordChange: (String) -> Unit,
     onCreateAccountClick: () -> Unit,
+    onLoginPress: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -231,7 +235,7 @@ private fun LoginCard(
                 )
             )
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
-            Button(onClick = { /*TODO*/ }, modifier = Modifier.fillMaxWidth()) {
+            Button(onClick = onLoginPress, modifier = Modifier.fillMaxWidth()) {
                 Text(text = stringResource(R.string.label_login))
             }
             //Create Account Button
@@ -387,6 +391,8 @@ fun DefaultPreview() {
             onSignupEmailChange = {},
             onSignupPasswordChange = {},
             signupRepeatPassword = "",
-            onSignupRepeatPasswordChange = {})
+            onSignupRepeatPasswordChange = {},
+            onLoginPress = {}
+        )
     }
 }
