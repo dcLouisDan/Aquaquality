@@ -14,14 +14,13 @@ import com.example.aquaquality.ui.AquaQualityHomeScreen
 @Composable
 fun AquaqualityApp(
     loginViewModel: LoginViewModel = viewModel(),
-//    navController: NavHostController = rememberNavController()
 ) {
     val loginUiState by loginViewModel.uiState.collectAsState()
     var isLoggedIn by remember {
         mutableStateOf(false)
     }
     if (isLoggedIn){
-        AquaQualityHomeScreen()
+        AquaQualityHomeScreen(onLogoutClick = { isLoggedIn = false })
     } else {
         StartLoginScreen(
             email = loginUiState.email,

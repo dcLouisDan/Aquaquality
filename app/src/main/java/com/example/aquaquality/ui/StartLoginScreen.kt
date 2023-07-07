@@ -31,6 +31,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.rounded.Email
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material3.Button
@@ -40,6 +42,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -50,6 +53,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
@@ -91,7 +95,7 @@ fun StartLoginScreen(
             contentDescription = null,
             contentScale = ContentScale.Crop,
             colorFilter = ColorFilter.tint(
-                MaterialTheme.colorScheme.primary, blendMode = BlendMode.Hardlight
+                Color(0xFF006B59), blendMode = BlendMode.Hardlight
             )
         )
         var isStarted by remember { mutableStateOf(false) }
@@ -139,8 +143,8 @@ fun StartLoginScreen(
                         isStarted = !isStarted
 
                     }, colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        containerColor = Color(0xFF7AF8D9),
+                        contentColor = Color(0xFF002019)
                     ), modifier = Modifier
                         .align(Alignment.Center)
                 ) {
@@ -173,7 +177,8 @@ fun StartLoginScreen(
                                 AnimatedVisibility(visible = !showSignUp,
                                     enter = slideInHorizontally { fullWidth -> -fullWidth } + fadeIn(),
                                     exit = slideOutHorizontally { fullWidth -> -fullWidth } + fadeOut()) {
-                                    LoginCard(email,
+                                    LoginCard(
+                                        email,
                                         onEmailChange,
                                         password,
                                         onPasswordChange,
@@ -347,9 +352,21 @@ private fun PrimaryOutlinedTextInput(
     isPassword: Boolean = false,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ) {
-    val textTransform = when (isPassword) {
-        true -> PasswordVisualTransformation()
-        false -> VisualTransformation.None
+    var isPasswordVisible by rememberSaveable {
+        mutableStateOf(!isPassword)
+    }
+
+    var textTransform =
+        when (isPasswordVisible) {
+            false -> PasswordVisualTransformation()
+            true -> VisualTransformation.None
+        }
+
+
+    val visibilityIcon = if (!isPasswordVisible) {
+        Icons.Default.Visibility
+    } else {
+        Icons.Default.VisibilityOff
     }
 
     OutlinedTextField(modifier = Modifier.fillMaxWidth(),
@@ -362,7 +379,6 @@ private fun PrimaryOutlinedTextInput(
             Text(
                 text = stringResource(labelResourceId),
                 modifier = Modifier
-                    .background(Color.White)
                     .padding(
                         horizontal = 5.dp
                     )
@@ -373,7 +389,25 @@ private fun PrimaryOutlinedTextInput(
             unfocusedBorderColor = MaterialTheme.colorScheme.primary,
             unfocusedLabelColor = MaterialTheme.colorScheme.primary
         ),
-        keyboardOptions = keyboardOptions
+        keyboardOptions = keyboardOptions,
+        trailingIcon = {
+            if (isPassword) {
+                IconButton(onClick = {
+                    if (isPasswordVisible) {
+                        textTransform = PasswordVisualTransformation()
+                        isPasswordVisible = !isPasswordVisible
+                    } else {
+                        textTransform = VisualTransformation.None
+                        isPasswordVisible = !isPasswordVisible
+                    }
+                }) {
+                    Icon(
+                        imageVector = visibilityIcon,
+                        contentDescription = stringResource(R.string.desc_toggle_password_visibility)
+                    )
+                }
+            }
+        }
     )
 }
 

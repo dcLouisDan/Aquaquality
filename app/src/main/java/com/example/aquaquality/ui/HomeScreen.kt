@@ -72,7 +72,7 @@ import com.example.aquaquality.ui.components.IndicatorStatus
 
 
 @Composable
-fun AquaQualityHomeScreen() {
+fun AquaQualityHomeScreen(onLogoutClick: () -> Unit) {
     Scaffold(
         topBar = { AquaQualityAppBar(canNavigateBack = false, navigateUp = { /*TODO*/ }) }
     ) { innerPadding ->
@@ -122,7 +122,7 @@ fun AquaQualityHomeScreen() {
             )
         )
 
-        var currentScreenIndex by rememberSaveable { mutableStateOf(0) }
+        var currentScreenIndex by rememberSaveable { mutableStateOf(3) }
 
         Column(modifier = Modifier.padding(innerPadding)) {
 //            val screensNumber = 4
@@ -165,7 +165,7 @@ fun AquaQualityHomeScreen() {
                         onSaveButtonClick = {},
                     )
 
-                    3 -> AccountScreen()
+                    3 -> AccountScreen(onLogoutClick = onLogoutClick)
                 }
             }
 
@@ -438,7 +438,7 @@ private data class NavigationItemContent(
 @Composable
 fun HomePreview() {
     AquaqualityTheme {
-        AquaQualityHomeScreen()
+        AquaQualityHomeScreen(onLogoutClick = {})
     }
 }
 
