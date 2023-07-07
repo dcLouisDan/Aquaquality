@@ -1,4 +1,4 @@
-package com.example.aquaquality.ui
+package com.example.aquaquality.ui.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize

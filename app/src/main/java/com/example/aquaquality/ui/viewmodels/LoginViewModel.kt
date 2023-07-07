@@ -1,4 +1,4 @@
-package com.example.aquaquality.ui
+package com.example.aquaquality.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import com.example.aquaquality.data.LoginUiState

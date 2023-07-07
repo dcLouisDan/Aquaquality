@@ -1,6 +1,8 @@
-@file:OptIn(ExperimentalAnimationApi::class, ExperimentalAnimationApi::class)
+@file:OptIn(ExperimentalAnimationApi::class, ExperimentalAnimationApi::class,
+    ExperimentalAnimationApi::class
+)
 
-package com.example.aquaquality.ui
+package com.example.aquaquality.ui.screens
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi

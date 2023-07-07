@@ -2,14 +2,14 @@ package com.example.aquaquality
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import com.example.aquaquality.ui.LoginViewModel
-import com.example.aquaquality.ui.StartLoginScreen
+import com.example.aquaquality.ui.viewmodels.LoginViewModel
+import com.example.aquaquality.ui.screens.StartLoginScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import com.example.aquaquality.ui.AquaQualityHomeScreen
+import com.example.aquaquality.ui.screens.AquaQualityHomeScreen
 
 @Composable
 fun AquaqualityApp(

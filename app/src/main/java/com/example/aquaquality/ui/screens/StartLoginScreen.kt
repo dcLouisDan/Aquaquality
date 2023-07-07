@@ -4,7 +4,7 @@
     ExperimentalAnimationApi::class, ExperimentalAnimationApi::class
 )
 
-package com.example.aquaquality.ui
+package com.example.aquaquality.ui.screens
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility

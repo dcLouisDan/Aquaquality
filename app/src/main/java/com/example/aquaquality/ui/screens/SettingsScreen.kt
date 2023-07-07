@@ -1,4 +1,4 @@
-package com.example.aquaquality.ui
+package com.example.aquaquality.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
