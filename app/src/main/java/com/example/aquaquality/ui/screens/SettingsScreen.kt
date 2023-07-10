@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
@@ -32,26 +33,20 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.aquaquality.R
+import com.example.aquaquality.data.SettingsUiState
 import com.example.aquaquality.ui.theme.AquaqualityTheme
+import com.example.aquaquality.ui.viewmodels.SettingsViewModel
+import androidx.compose.runtime.getValue
 
 @Composable
 fun SettingsScreen(
-    minTemp: String,
-    maxTemp: String,
-    minPh: String,
-    maxPh: String,
-    minTurb: String,
-    maxTurb: String,
-    onMinTempChange: (String) -> Unit,
-    onMaxTempChange: (String) -> Unit,
-    onMinPhChange: (String) -> Unit,
-    onMaxPhChange: (String) -> Unit,
-    onMinTurbChange: (String) -> Unit,
-    onMaxTurbChange: (String) -> Unit,
+    settingsViewModel: SettingsViewModel = viewModel(),
     onSaveButtonClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val settingsUiState: SettingsUiState by settingsViewModel.uiState.collectAsState()
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -78,16 +73,16 @@ fun SettingsScreen(
                 )
                 Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
                 ParameterSettingTextField(
-                    value = minTemp,
+                    value = settingsUiState.minTemp,
                     recommendedValue = stringResource(R.string.value_rec_min_temp),
-                    onValueChange = onMinTempChange,
+                    onValueChange = {settingsViewModel.setMinTempInput(it)},
                     label = stringResource(R.string.label_min_temp)
                 )
                 Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
                 ParameterSettingTextField(
-                    value = maxTemp,
+                    value = settingsUiState.maxTemp,
                     recommendedValue = stringResource(R.string.value_rec_max_temp),
-                    onValueChange = onMaxTempChange,
+                    onValueChange = { settingsViewModel.setMaxTempInput(it) },
                     label = stringResource(R.string.label_max_temp)
                 )
 
@@ -100,16 +95,16 @@ fun SettingsScreen(
                 )
                 Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
                 ParameterSettingTextField(
-                    value = minPh,
+                    value = settingsUiState.minPh,
                     recommendedValue = stringResource(R.string.value_rec_min_ph),
-                    onValueChange = onMinPhChange,
+                    onValueChange = {settingsViewModel.setMinPhInput(it)},
                     label = stringResource(R.string.label_min_ph)
                 )
                 Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
                 ParameterSettingTextField(
-                    value = maxPh,
+                    value = settingsUiState.maxPh,
                     recommendedValue = stringResource(R.string.value_rec_max_ph),
-                    onValueChange = onMaxPhChange,
+                    onValueChange = {settingsViewModel.setMaxPhInput(it)},
                     label = stringResource(R.string.label_max_ph)
                 )
 
@@ -122,16 +117,16 @@ fun SettingsScreen(
                 )
                 Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
                 ParameterSettingTextField(
-                    value = minTurb,
+                    value = settingsUiState.minTurb,
                     recommendedValue = stringResource(R.string.value_rec_min_turb),
-                    onValueChange = onMinTurbChange,
+                    onValueChange = { settingsViewModel.setMinTurbInput(it) },
                     label = stringResource(R.string.label_min_turb)
                 )
                 Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
                 ParameterSettingTextField(
-                    value = maxTurb,
+                    value = settingsUiState.maxTurb,
                     recommendedValue = stringResource(R.string.value_rec_max_turb),
-                    onValueChange = onMaxTurbChange,
+                    onValueChange = {settingsViewModel.setMaxTurbInput(it)},
                     label = stringResource(R.string.label_max_turb)
                 )
 
@@ -195,18 +190,6 @@ fun ParameterSettingTextField(
 fun SettingsPreview() {
     AquaqualityTheme {
         SettingsScreen(
-            minTemp = "",
-            maxTemp = "",
-            minPh = "",
-            maxPh = "",
-            minTurb = "",
-            maxTurb = "",
-            onMinTempChange = {},
-            onMaxTempChange = {},
-            onMinPhChange = {},
-            onMaxPhChange = {},
-            onMinTurbChange = {},
-            onMaxTurbChange = {},
             onSaveButtonClick = {},
         )
     }

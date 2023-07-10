@@ -152,18 +152,6 @@ fun AquaQualityHomeScreen(onLogoutClick: () -> Unit) {
 
                     1 -> ReferencesScreen()
                     2 -> SettingsScreen(
-                        minTemp = "28",
-                        maxTemp = "32",
-                        minPh = "6.5",
-                        maxPh = "8.5",
-                        minTurb = "0",
-                        maxTurb = "180",
-                        onMinTempChange = {},
-                        onMaxTempChange = {},
-                        onMinPhChange = {},
-                        onMaxPhChange = {},
-                        onMinTurbChange = {},
-                        onMaxTurbChange = {},
                         onSaveButtonClick = {},
                     )
 
