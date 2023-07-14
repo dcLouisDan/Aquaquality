@@ -17,6 +17,9 @@
     <string name="label_temperature">Temperature</string>
     <string name="label_pH">pH</string>
     <string name="label_turbidity">Turbidity</string>
+    <string name="label_wUnit_temperature">Temperature (℃)</string>
+    <string name="label_wUnit_pH">pH</string>
+    <string name="label_wUnit_turbidity">Turbidity (NTU)</string>
     <string name="label_save_changes">Save Changes</string>
     <string name="title_app_settings">App Settings</string>
     <string name="label_min_temp">Minimum (℃)</string>

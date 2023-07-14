@@ -1,16 +1,24 @@
 package com.example.aquaquality.ui.screens
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Science
+import androidx.compose.material.icons.filled.Thermostat
+import androidx.compose.material.icons.filled.Water
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DatePicker
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -35,26 +43,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.aquaquality.R
 import com.example.aquaquality.data.FishpondInfo
+import com.example.aquaquality.ui.components.IndicatorStatus
+import com.example.aquaquality.ui.components.ParameterMonitor
 import com.example.aquaquality.ui.theme.AquaqualityTheme
+import com.example.aquaquality.ui.theme.rememberChartStyle
 import com.patrykandpatrick.vico.compose.axis.horizontal.bottomAxis
 import com.patrykandpatrick.vico.compose.axis.vertical.startAxis
 import com.patrykandpatrick.vico.compose.chart.Chart
 import com.patrykandpatrick.vico.compose.chart.line.lineChart
 import com.patrykandpatrick.vico.compose.dimensions.dimensionsOf
+import com.patrykandpatrick.vico.compose.style.ProvideChartStyle
 import com.patrykandpatrick.vico.core.entry.entryModelOf
 import kotlinx.coroutines.launch
 
 @ExperimentalMaterial3Api
 @Composable
-fun FishpondScreen(fishpondInfo: FishpondInfo,modifier: Modifier = Modifier) {
-//    val chartEntryModel = entryModelOf(22, 23,23,30,20)
-//    Chart(
-//        chart = lineChart(),
-//        model = chartEntryModel,
-//        startAxis = startAxis(),
-//        bottomAxis = bottomAxis()
-//    )
-    val isConnected = false
+fun FishpondScreen(fishpondInfo: FishpondInfo, modifier: Modifier = Modifier) {
+    val isConnected = true
 
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
@@ -67,6 +72,7 @@ fun FishpondScreen(fishpondInfo: FishpondInfo,modifier: Modifier = Modifier) {
             modifier = modifier
                 .background(MaterialTheme.colorScheme.surfaceVariant)
                 .padding(contentPadding)
+                .verticalScroll(rememberScrollState())
         ) {
             Card(
                 modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_small)),
@@ -74,9 +80,7 @@ fun FishpondScreen(fishpondInfo: FishpondInfo,modifier: Modifier = Modifier) {
             ) {
                 Column(
                     modifier = Modifier
-                        .fillMaxSize()
                         .padding(dimensionResource(id = R.dimen.padding_medium))
-                        .verticalScroll(rememberScrollState())
                 ) {
                     Text(
                         text = stringResource(R.string.label_name),
@@ -87,7 +91,24 @@ fun FishpondScreen(fishpondInfo: FishpondInfo,modifier: Modifier = Modifier) {
                     Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
 
                     if (isConnected) {
+                        IndicatorList(fishpondInfo = fishpondInfo)
+                        Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
 
+                        Text(
+                            text = "Data Visualization",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
+
+                        DataGraph(chartTitle = R.string.label_wUnit_temperature)
+                        Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
+
+                        DataGraph(chartTitle = R.string.label_wUnit_pH)
+                        Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
+
+                        DataGraph(chartTitle = R.string.label_wUnit_turbidity)
+                        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_large)))
                     } else {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
@@ -117,10 +138,12 @@ fun FishpondScreen(fishpondInfo: FishpondInfo,modifier: Modifier = Modifier) {
                 containerColor = MaterialTheme.colorScheme.surface,
                 scrimColor = Color.Black.copy(alpha = 0.5f)
             ) {
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .height(700.dp)
-                    .padding(dimensionResource(id = R.dimen.padding_medium))) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(700.dp)
+                        .padding(dimensionResource(id = R.dimen.padding_medium))
+                ) {
                     Text(
                         text = "Connect to a device",
                         style = MaterialTheme.typography.titleLarge,
@@ -129,6 +152,88 @@ fun FishpondScreen(fishpondInfo: FishpondInfo,modifier: Modifier = Modifier) {
                     Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun IndicatorList(fishpondInfo: FishpondInfo, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+    ) {
+        ParameterMonitor(
+            Icons.Default.Thermostat,
+            R.string.label_temperature,
+            fishpondInfo.tempValue.toString(),
+            parameterValueFormat = R.string.parameter_temperature,
+            indicatorStatus = IndicatorStatus.OVER_RANGE
+        )
+        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.height_xs)))
+        ParameterMonitor(
+            Icons.Default.Science,
+            R.string.label_pH,
+            fishpondInfo.phValue.toString(),
+            parameterValueFormat = R.string.parameter_pH
+        )
+        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.height_xs)))
+        ParameterMonitor(
+            Icons.Default.Water,
+            R.string.label_turbidity,
+            fishpondInfo.turbidityValue.toString(),
+            parameterValueFormat = R.string.parameter_turbidity,
+            indicatorStatus = IndicatorStatus.UNDER_RANGE
+        )
+    }
+}
+
+@Composable
+fun DataGraph(@StringRes chartTitle: Int, modifier: Modifier = Modifier) {
+    val chartEntryModel = entryModelOf(
+        22,
+        23,
+        23,
+        30,
+        20,
+        22,
+        23,
+        23,
+        30,
+        20,
+        22,
+        23,
+        23,
+        30,
+        20,
+        22,
+        23,
+        23,
+        30,
+        20,
+        22,
+        23,
+        23,
+        30,
+        20,
+    )
+
+    Column(modifier = modifier) {
+        Text(
+            text = stringResource(id = chartTitle),
+            style = MaterialTheme.typography.titleMedium,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = dimensionResource(id = R.dimen.padding_small))
+        )
+
+        ProvideChartStyle(rememberChartStyle(chartColors = listOf(MaterialTheme.colorScheme.primary))) {
+            Chart(
+                chart = lineChart(),
+                model = chartEntryModel,
+                startAxis = startAxis(),
+                bottomAxis = bottomAxis(),
+            )
         }
     }
 }
