@@ -36,4 +36,7 @@
     <string name="value_rec_max_turb">180</string>
     <string name="label_user_profile_photo_placeholder">User Profile Photo Placeholder</string>
     <string name="desc_toggle_password_visibility">Toggle password visibility</string>
+    <string name="label_name">Name</string>
+    <string name="message_no_device">Connect a AquaQuality Monitoring Device to see water quality parameter measurements</string>
+    <string name="label_add_device">Add Device</string>
 </resources>

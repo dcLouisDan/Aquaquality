@@ -173,9 +173,9 @@ fun ParameterSettingTextField(
         },
         onValueChange = onValueChange,
         modifier = modifier.fillMaxWidth(),
-        colors = TextFieldDefaults.textFieldColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            textColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        colors = TextFieldDefaults.colors(
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            focusedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
         ),
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Number,
