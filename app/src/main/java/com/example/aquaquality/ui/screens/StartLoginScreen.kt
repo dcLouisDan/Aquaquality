@@ -74,6 +74,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.aquaquality.R
+import com.example.aquaquality.data.InputError
+import com.example.aquaquality.data.InputField
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 
 @Composable
@@ -91,6 +93,7 @@ fun StartLoginScreen(
     onSignupRepeatPasswordChange: (String) -> Unit,
     onLoginPress: () -> Unit,
     onGoogleSignClick: () -> Unit,
+    inputError: InputError? = null
     ) {
     Box(modifier = modifier) {
         Image(
@@ -101,7 +104,7 @@ fun StartLoginScreen(
                 Color(0xFF006B59), blendMode = BlendMode.Hardlight
             )
         )
-        var isStarted by remember { mutableStateOf(false) }
+        var isStarted by remember { mutableStateOf(true) }
         Column(
             modifier = Modifier
                 .animateContentSize(
@@ -160,7 +163,7 @@ fun StartLoginScreen(
                         visible = isStarted,
                         enter = slideInVertically { fullHeight -> fullHeight }) {
                         Box {
-                            var showSignUp by remember { mutableStateOf(false) }
+                            var showSignUp by remember { mutableStateOf(true) }
 
                             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                                 AnimatedVisibility(visible = showSignUp,
@@ -173,7 +176,8 @@ fun StartLoginScreen(
                                         onSignupPasswordChange,
                                         onSignupRepeatPasswordChange,
                                         onCancelClick = { showSignUp = !showSignUp },
-                                        onGoogleSignClick = onGoogleSignClick
+                                        onGoogleSignClick = onGoogleSignClick,
+                                        inputError = inputError
                                     )
                                     Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_large)))
                                 }
@@ -219,6 +223,7 @@ private fun LoginCard(
     onCreateAccountClick: () -> Unit,
     onLoginPress: () -> Unit,
     onGoogleSignClick: () -> Unit,
+    inputError: InputError? = null ,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -264,7 +269,8 @@ private fun LoginCard(
             OutlinedButton(onClick = onGoogleSignClick, modifier = Modifier.fillMaxWidth()) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        painter = painterResource(id = R.drawable.google), contentDescription = null
+                        painter = painterResource(id = R.drawable.google), contentDescription = stringResource(
+                            R.string.desc_sign_in_with_google)
                     )
                     Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
                     Text(text = stringResource(R.string.label_google_signin))
@@ -284,6 +290,7 @@ private fun SignupCard(
     onRepeatPasswordChange: (String) -> Unit,
     onCancelClick: () -> Unit,
     onGoogleSignClick: () -> Unit,
+    inputError: InputError? = null ,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -298,9 +305,18 @@ private fun SignupCard(
                 leadingIcon = Icons.Rounded.Email,
                 keyboardOptions = KeyboardOptions.Default.copy(
                     keyboardType = KeyboardType.Email, imeAction = ImeAction.Next
-                )
+                ),
+                isError = inputError?.inputField == InputField.SIGNUP_EMAIL,
+                supportingText =
+                    if (inputError?.inputField == InputField.SIGNUP_EMAIL) {
+                        { Text(text = inputError.errorMessage) }
+                    } else {
+                        null
+                    }
             )
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
+
+            //Signup Password
             PrimaryOutlinedTextInput(
                 value = password,
                 labelResourceId = R.string.label_password,
@@ -309,9 +325,18 @@ private fun SignupCard(
                 leadingIcon = Icons.Rounded.Lock,
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Next
-                )
+                ),
+                isError = inputError?.inputField == InputField.SIGNUP_PASSWORD,
+                supportingText =
+                if (inputError?.inputField == InputField.SIGNUP_PASSWORD) {
+                    { Text(text = inputError.errorMessage) }
+                } else {
+                    null
+                }
             )
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
+
+            //Repeat Password
             PrimaryOutlinedTextInput(
                 value = repeatPassword,
                 labelResourceId = R.string.label_repeat_password,
@@ -340,7 +365,8 @@ private fun SignupCard(
             OutlinedButton(onClick = onGoogleSignClick, modifier = Modifier.fillMaxWidth()) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        painter = painterResource(id = R.drawable.google), contentDescription = null
+                        painter = painterResource(id = R.drawable.google), contentDescription = stringResource(
+                                                    R.string.desc_sign_in_with_google)
                     )
                     Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
                     Text(text = stringResource(R.string.label_google_signin))
@@ -358,7 +384,9 @@ private fun PrimaryOutlinedTextInput(
     onValueChange: (String) -> Unit = {},
     leadingIcon: ImageVector? = null,
     isPassword: Boolean = false,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    isError: Boolean = false,
+    supportingText: @Composable (() -> Unit)? = null
 ) {
     var isPasswordVisible by rememberSaveable {
         mutableStateOf(!isPassword)
@@ -415,7 +443,9 @@ private fun PrimaryOutlinedTextInput(
                     )
                 }
             }
-        }
+        },
+        isError = isError,
+        supportingText = supportingText
     )
 }
 
@@ -435,7 +465,11 @@ fun DefaultPreview() {
             signupRepeatPassword = "",
             onSignupRepeatPasswordChange = {},
             onLoginPress = {},
-            onGoogleSignClick = {}
+            onGoogleSignClick = {},
+            inputError = InputError(
+                InputField.SIGNUP_EMAIL,
+                errorMessage = "Invalid email address"
+            )
         )
     }
 }

@@ -45,6 +45,7 @@ fun AquaqualityApp(
         onSignupPasswordChange = { loginViewModel.setSignUpPasswordInput(it) },
         onSignupRepeatPasswordChange = { loginViewModel.setSignUpRepeatPasswordInput(it) },
         onLoginPress = { isLoggedIn = true },
-        onGoogleSignClick = onGoogleSignInClick
+        onGoogleSignClick = onGoogleSignInClick,
+        inputError = loginUiState.inputError
     )
 }
