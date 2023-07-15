@@ -44,12 +44,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.aquaquality.R
+import com.example.aquaquality.presentation.sign_in.UserData
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 import com.example.aquaquality.ui.viewmodels.FishpondListViewModel
 
 
 @Composable
-fun AquaQualityHomeScreen(onLogoutClick: () -> Unit) {
+fun AquaQualityHomeScreen(userData: UserData?,onLogoutClick: () -> Unit) {
     val fishpondListViewModel: FishpondListViewModel = viewModel()
     val fishpondListUiState = fishpondListViewModel.uiState.collectAsState().value
 
@@ -120,7 +121,7 @@ fun AquaQualityHomeScreen(onLogoutClick: () -> Unit) {
                         onSaveButtonClick = {},
                     )
 
-                    3 -> AccountScreen(onLogoutClick = onLogoutClick)
+                    3 -> AccountScreen(userData = userData, onLogoutClick = onLogoutClick)
                 }
             }
 
@@ -235,7 +236,7 @@ private data class NavigationItemContent(
 @Composable
 fun HomePreview() {
     AquaqualityTheme {
-        AquaQualityHomeScreen(onLogoutClick = {})
+        AquaQualityHomeScreen(userData = UserData("", "", "", null),onLogoutClick = {})
     }
 }
 

@@ -25,7 +25,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
@@ -34,11 +33,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.example.aquaquality.R
+import com.example.aquaquality.presentation.sign_in.UserData
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 
 @Composable
-fun AccountScreen(onLogoutClick: () -> Unit, modifier: Modifier = Modifier) {
+fun AccountScreen(userData: UserData?, onLogoutClick: () -> Unit, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -47,11 +48,20 @@ fun AccountScreen(onLogoutClick: () -> Unit, modifier: Modifier = Modifier) {
     ) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
             Card(modifier = Modifier.size(175.dp), shape = CircleShape) {
-                Image(
-                    painter = painterResource(id = R.drawable.user_placeholder),
-                    contentDescription = stringResource(R.string.label_user_profile_photo_placeholder),
-                    contentScale = ContentScale.Crop
-                )
+                if (userData?.profilePictureUrl != null) {
+                    AsyncImage(
+                        model = userData.profilePictureUrl,
+                        contentDescription = "Profile picture",
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(id = R.drawable.user_placeholder),
+                        contentDescription = stringResource(R.string.label_user_profile_photo_placeholder),
+                        contentScale = ContentScale.Crop
+                    )
+                }
             }
         }
         Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
@@ -66,16 +76,31 @@ fun AccountScreen(onLogoutClick: () -> Unit, modifier: Modifier = Modifier) {
                 mutableStateOf(false)
             }
 
-            Text(
-                text = "email@gmail.com",
-                style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        dimensionResource(id = R.dimen.padding_medium)
-                    ),
-            )
+            userData?.username?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            dimensionResource(id = R.dimen.padding_medium)
+                        ),
+                )
+            }
+            Divider()
+            userData?.email?.let {
+                Text(
+                    text = it,
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            dimensionResource(id = R.dimen.padding_medium)
+                        ),
+                )
+            }
             Divider()
             Row(modifier = Modifier
                 .fillMaxWidth()
@@ -103,7 +128,7 @@ fun AccountScreen(onLogoutClick: () -> Unit, modifier: Modifier = Modifier) {
                         Text(text = "Are you sure you want to logout?")
                     },
                     confirmButton = {
-                        TextButton(onClick = { /*TODO*/ }) { Text(text = "Logout") }
+                        TextButton(onClick = onLogoutClick) { Text(text = "Logout") }
                     },
                     dismissButton = {
                         TextButton(onClick = {
@@ -120,6 +145,8 @@ fun AccountScreen(onLogoutClick: () -> Unit, modifier: Modifier = Modifier) {
 @Composable
 fun AccountScreenPreview() {
     AquaqualityTheme {
-        AccountScreen(onLogoutClick = {})
+        AccountScreen(
+            userData = UserData("1", "Dan Dela Cruz", "dan@email.com", null),
+            onLogoutClick = {})
     }
 }

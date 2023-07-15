@@ -29,7 +29,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -88,7 +90,8 @@ fun StartLoginScreen(
     onSignupPasswordChange: (String) -> Unit,
     onSignupRepeatPasswordChange: (String) -> Unit,
     onLoginPress: () -> Unit,
-) {
+    onGoogleSignClick: () -> Unit,
+    ) {
     Box(modifier = modifier) {
         Image(
             painter = painterResource(id = R.drawable.aquaquality_bg),
@@ -159,7 +162,7 @@ fun StartLoginScreen(
                         Box {
                             var showSignUp by remember { mutableStateOf(false) }
 
-                            Column {
+                            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                                 AnimatedVisibility(visible = showSignUp,
                                     enter = slideInHorizontally { fullWidth -> fullWidth } + fadeIn(),
                                     exit = slideOutHorizontally { fullWidth -> fullWidth } + fadeOut()) {
@@ -169,7 +172,9 @@ fun StartLoginScreen(
                                         signupRepeatPassword,
                                         onSignupPasswordChange,
                                         onSignupRepeatPasswordChange,
-                                        onCancelClick = { showSignUp = !showSignUp })
+                                        onCancelClick = { showSignUp = !showSignUp },
+                                        onGoogleSignClick = onGoogleSignClick
+                                    )
                                     Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_large)))
                                 }
                             }
@@ -183,7 +188,8 @@ fun StartLoginScreen(
                                         password,
                                         onPasswordChange,
                                         onCreateAccountClick = { showSignUp = !showSignUp },
-                                        onLoginPress = onLoginPress
+                                        onLoginPress = onLoginPress,
+                                        onGoogleSignClick = onGoogleSignClick
                                     )
                                     Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_large)))
                                 }
@@ -212,6 +218,7 @@ private fun LoginCard(
     onPasswordChange: (String) -> Unit,
     onCreateAccountClick: () -> Unit,
     onLoginPress: () -> Unit,
+    onGoogleSignClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -254,7 +261,7 @@ private fun LoginCard(
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
             Divider(thickness = 1.dp)
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
-            OutlinedButton(onClick = { /*TODO*/ }, modifier = Modifier.fillMaxWidth()) {
+            OutlinedButton(onClick = onGoogleSignClick, modifier = Modifier.fillMaxWidth()) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         painter = painterResource(id = R.drawable.google), contentDescription = null
@@ -276,6 +283,7 @@ private fun SignupCard(
     onPasswordChange: (String) -> Unit,
     onRepeatPasswordChange: (String) -> Unit,
     onCancelClick: () -> Unit,
+    onGoogleSignClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -329,7 +337,7 @@ private fun SignupCard(
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
             Divider(thickness = 1.dp)
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
-            OutlinedButton(onClick = { /*TODO*/ }, modifier = Modifier.fillMaxWidth()) {
+            OutlinedButton(onClick = onGoogleSignClick, modifier = Modifier.fillMaxWidth()) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         painter = painterResource(id = R.drawable.google), contentDescription = null
@@ -426,7 +434,8 @@ fun DefaultPreview() {
             onSignupPasswordChange = {},
             signupRepeatPassword = "",
             onSignupRepeatPasswordChange = {},
-            onLoginPress = {}
+            onLoginPress = {},
+            onGoogleSignClick = {}
         )
     }
 }
