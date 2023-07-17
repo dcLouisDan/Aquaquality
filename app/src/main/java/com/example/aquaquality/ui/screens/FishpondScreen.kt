@@ -49,7 +49,12 @@ import com.patrykandpatrick.vico.compose.axis.horizontal.bottomAxis
 import com.patrykandpatrick.vico.compose.axis.vertical.startAxis
 import com.patrykandpatrick.vico.compose.chart.Chart
 import com.patrykandpatrick.vico.compose.chart.line.lineChart
+import com.patrykandpatrick.vico.compose.style.ChartStyle
 import com.patrykandpatrick.vico.compose.style.ProvideChartStyle
+import com.patrykandpatrick.vico.core.axis.Axis
+import com.patrykandpatrick.vico.core.axis.AxisPosition
+import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
+import com.patrykandpatrick.vico.core.component.text.TextComponent
 import com.patrykandpatrick.vico.core.entry.entryModelOf
 import kotlinx.coroutines.launch
 
@@ -186,30 +191,59 @@ fun IndicatorList(fishpondInfo: FishpondInfo, modifier: Modifier = Modifier) {
 
 @Composable
 fun DataGraph(@StringRes chartTitle: Int, modifier: Modifier = Modifier) {
+    val hoursOfTheDay = listOf(
+        "0 AM",
+        "1 AM",
+        "2 AM",
+        "3 AM",
+        "4 AM",
+        "5 AM",
+        "6 AM",
+        "7 AM",
+        "8 AM",
+        "9 AM",
+        "10 AM",
+        "11 AM",
+        "12 NN",
+        "1 PM",
+        "2 PM",
+        "3 PM",
+        "4 PM",
+        "5 PM",
+        "6 PM",
+        "7 PM",
+        "8 PM",
+        "9 PM",
+        "10 PM",
+        "11 PM",
+    )
+    val bottomAxisValueFormatter =
+        AxisValueFormatter<AxisPosition.Horizontal.Bottom> { x, _ -> hoursOfTheDay[x.toInt() % hoursOfTheDay.size] }
+
     val chartEntryModel = entryModelOf(
-        22,
+        12,
         23,
         23,
         30,
         20,
         22,
         23,
+        13,
+        15,
+        15,
+        10,
+        3,
         23,
         30,
         20,
         22,
         23,
         23,
-        30,
-        20,
-        22,
-        23,
-        23,
-        30,
-        20,
-        22,
-        23,
-        23,
+        7,
+        9,
+        11,
+        13,
+        18,
         30,
         20,
     )
@@ -224,16 +258,22 @@ fun DataGraph(@StringRes chartTitle: Int, modifier: Modifier = Modifier) {
                 .padding(bottom = dimensionResource(id = R.dimen.padding_small))
         )
 
+
         ProvideChartStyle(rememberChartStyle(chartColors = listOf(MaterialTheme.colorScheme.primary))) {
             Chart(
                 chart = lineChart(),
                 model = chartEntryModel,
-                startAxis = startAxis(),
-                bottomAxis = bottomAxis(),
+                startAxis = startAxis(
+                ),
+                bottomAxis = bottomAxis(
+                    valueFormatter = bottomAxisValueFormatter,
+                    labelRotationDegrees = 90f
+                ),
             )
         }
     }
 }
+
 
 @Preview
 @Composable
