@@ -17,7 +17,6 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,7 +41,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -104,7 +102,7 @@ fun StartLoginScreen(
                 Color(0xFF006B59), blendMode = BlendMode.Hardlight
             )
         )
-        var isStarted by remember { mutableStateOf(true) }
+        var isStarted by remember { mutableStateOf(false) }
         Column(
             modifier = Modifier
                 .animateContentSize(
@@ -163,7 +161,7 @@ fun StartLoginScreen(
                         visible = isStarted,
                         enter = slideInVertically { fullHeight -> fullHeight }) {
                         Box {
-                            var showSignUp by remember { mutableStateOf(true) }
+                            var showSignUp by remember { mutableStateOf(false) }
 
                             Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
                                 AnimatedVisibility(visible = showSignUp,
@@ -223,8 +221,8 @@ private fun LoginCard(
     onCreateAccountClick: () -> Unit,
     onLoginPress: () -> Unit,
     onGoogleSignClick: () -> Unit,
+    modifier: Modifier = Modifier,
     inputError: InputError? = null ,
-    modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -238,7 +236,14 @@ private fun LoginCard(
                 leadingIcon = Icons.Rounded.Email,
                 keyboardOptions = KeyboardOptions.Default.copy(
                     keyboardType = KeyboardType.Email, imeAction = ImeAction.Next
-                )
+                ),
+                isError = inputError?.inputField == InputField.LOGIN_EMAIL,
+                supportingText =
+                if (inputError?.inputField == InputField.LOGIN_EMAIL) {
+                    { Text(text = inputError.errorMessage) }
+                } else {
+                    null
+                }
             )
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
             PrimaryOutlinedTextInput(
@@ -249,7 +254,14 @@ private fun LoginCard(
                 leadingIcon = Icons.Rounded.Lock,
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Done
-                )
+                ),
+                isError = inputError?.inputField == InputField.LOGIN_PASSWORD,
+                supportingText =
+                if (inputError?.inputField == InputField.LOGIN_PASSWORD) {
+                    { Text(text = inputError.errorMessage) }
+                } else {
+                    null
+                }
             )
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
             Button(onClick = onLoginPress, modifier = Modifier.fillMaxWidth()) {
@@ -290,8 +302,8 @@ private fun SignupCard(
     onRepeatPasswordChange: (String) -> Unit,
     onCancelClick: () -> Unit,
     onGoogleSignClick: () -> Unit,
+    modifier: Modifier = Modifier,
     inputError: InputError? = null ,
-    modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -345,7 +357,14 @@ private fun SignupCard(
                 leadingIcon = Icons.Rounded.Lock,
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Done
-                )
+                ),
+                isError = inputError?.inputField == InputField.SIGNUP_REPEAT_PASSWORD,
+                supportingText =
+                if (inputError?.inputField == InputField.SIGNUP_REPEAT_PASSWORD) {
+                    { Text(text = inputError.errorMessage) }
+                } else {
+                    null
+                }
             )
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
             Button(onClick = { /*TODO*/ }, modifier = Modifier.fillMaxWidth()) {
@@ -376,7 +395,6 @@ private fun SignupCard(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PrimaryOutlinedTextInput(
     value: String = "",
@@ -421,9 +439,10 @@ private fun PrimaryOutlinedTextInput(
             )
         },
         visualTransformation = textTransform,
-        colors = TextFieldDefaults.outlinedTextFieldColors(
-            unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-            unfocusedLabelColor = MaterialTheme.colorScheme.primary
+        colors = TextFieldDefaults.colors(
+            unfocusedIndicatorColor = MaterialTheme.colorScheme.primary,
+            unfocusedLabelColor = MaterialTheme.colorScheme.primary,
+            errorLeadingIconColor = MaterialTheme.colorScheme.error
         ),
         keyboardOptions = keyboardOptions,
         trailingIcon = {

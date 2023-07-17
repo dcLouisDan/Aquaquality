@@ -1,4 +1,5 @@
-@file:OptIn(ExperimentalAnimationApi::class, ExperimentalAnimationApi::class,
+@file:OptIn(
+    ExperimentalAnimationApi::class, ExperimentalAnimationApi::class,
     ExperimentalAnimationApi::class, ExperimentalAnimationApi::class,
     ExperimentalAnimationApi::class, ExperimentalAnimationApi::class
 )
@@ -19,7 +20,6 @@ import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,8 +27,6 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -50,7 +48,7 @@ import com.example.aquaquality.ui.viewmodels.FishpondListViewModel
 
 
 @Composable
-fun AquaQualityHomeScreen(userData: UserData?,onLogoutClick: () -> Unit) {
+fun AquaQualityHomeScreen(userData: UserData?, onLogoutClick: () -> Unit) {
     val fishpondListViewModel: FishpondListViewModel = viewModel()
     val fishpondListUiState = fishpondListViewModel.uiState.collectAsState().value
 
@@ -63,9 +61,6 @@ fun AquaQualityHomeScreen(userData: UserData?,onLogoutClick: () -> Unit) {
             )
         }
     ) { innerPadding ->
-        var isNewDialogVisible by rememberSaveable {
-            mutableStateOf(false)
-        }
 
         val navigationItemContentList = listOf(
             NavigationItemContent(
@@ -91,12 +86,17 @@ fun AquaQualityHomeScreen(userData: UserData?,onLogoutClick: () -> Unit) {
         )
 
 
-
         var currentScreenIndex by rememberSaveable { mutableStateOf(0) }
+        var previousScreenIndex by rememberSaveable { mutableStateOf(0) }
 
         Column(modifier = Modifier.padding(innerPadding)) {
-//            val screensNumber = 4
-//            var offsetX by remember { mutableStateOf(0f) }
+
+            val transitionToRight =
+                slideInHorizontally(initialOffsetX = { fullWidth -> fullWidth }) with slideOutHorizontally(
+                    targetOffsetX = { fullWidth -> -fullWidth })
+            val transitionToLeft =
+                slideInHorizontally(initialOffsetX = { fullWidth -> -fullWidth }) with slideOutHorizontally(
+                    targetOffsetX = { fullWidth -> fullWidth })
 
             val swipeableModifier =
                 Modifier
@@ -106,16 +106,19 @@ fun AquaQualityHomeScreen(userData: UserData?,onLogoutClick: () -> Unit) {
                 targetState = currentScreenIndex,
                 modifier = swipeableModifier,
                 transitionSpec = {
-                    slideInHorizontally(initialOffsetX = { fullWidth -> fullWidth }) with slideOutHorizontally(
-                        targetOffsetX = { fullWidth -> -fullWidth })
+                    if (previousScreenIndex < currentScreenIndex) {
+                        transitionToRight
+                    } else {
+                        transitionToLeft
+                    }
                 }
             ) { targetState ->
                 when (targetState) {
                     0 -> FishpondListScreen(
                         fishpondListViewModel = fishpondListViewModel,
-                        uiState =fishpondListUiState,
-                        onFabClick = {isNewDialogVisible = true}
+                        uiState = fishpondListUiState
                     )
+
                     1 -> ReferencesScreen()
                     2 -> SettingsScreen(
                         onSaveButtonClick = {},
@@ -127,40 +130,13 @@ fun AquaQualityHomeScreen(userData: UserData?,onLogoutClick: () -> Unit) {
 
             AquaQualityBottomNavigationBar(
                 navigationItemContentList = navigationItemContentList,
-                onTabClick = { currentScreenIndex = it })
-
-            if (isNewDialogVisible) {
-                AlertDialog(
-                    onDismissRequest = { isNewDialogVisible = false },
-                    title = {
-                        Text(
-                            text = "Add new fishpond",
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    },
-                    confirmButton = {
-                        TextButton(onClick = { /*TODO*/ }) {
-                            Text(text = "Save")
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(onClick = { isNewDialogVisible = false }) {
-                            Text(text = "Cancel")
-                        }
-                    },
-                    text = {
-                        TextField(
-                            value = "",
-                            onValueChange = {},
-                            placeholder = { Text(text = "Enter fishpond name") })
-                    }
-                )
-            }
+                onTabClick = {
+                    previousScreenIndex = currentScreenIndex
+                    currentScreenIndex = it
+                })
         }
     }
 }
-
-
 
 
 @Composable
@@ -236,7 +212,7 @@ private data class NavigationItemContent(
 @Composable
 fun HomePreview() {
     AquaqualityTheme {
-        AquaQualityHomeScreen(userData = UserData("", "", "", null),onLogoutClick = {})
+        AquaQualityHomeScreen(userData = UserData("", "", "", null), onLogoutClick = {})
     }
 }
 

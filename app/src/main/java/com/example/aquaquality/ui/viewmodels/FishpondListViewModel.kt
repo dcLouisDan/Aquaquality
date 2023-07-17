@@ -43,4 +43,35 @@ class FishpondListViewModel : ViewModel() {
             )
         }
     }
+
+    fun setNewFishpondNameInput(name: String) {
+        _uiState.update {
+            it.copy(
+                newFishpondName = name
+            )
+        }
+    }
+
+    fun setEditFishpondNameInput(name: String) {
+        _uiState.update {
+            it.copy(
+                editFishpondName = name
+            )
+        }
+    }
+
+    fun setFishpondInfoToModify(fishpond: FishpondInfo) {
+        _uiState.update {
+            it.copy(
+                fishpondInfoToModify = fishpond
+            )
+        }
+    }
+    fun resetFishpondInfoToModify() {
+        _uiState.update {
+            it.copy(
+                fishpondInfoToModify = null
+            )
+        }
+    }
 }

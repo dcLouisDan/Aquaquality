@@ -44,4 +44,6 @@
     <string name="label_add_device">Add Device</string>
     <string name="web_client_id">645304250386-r97t99t2fdnuu11ogq91pgn05n6poet2.apps.googleusercontent.com</string>
     <string name="desc_sign_in_with_google">Sign-in with Google</string>
+    <string name="label_edit">Edit</string>
+    <string name="label_delete">Delete</string>
 </resources>

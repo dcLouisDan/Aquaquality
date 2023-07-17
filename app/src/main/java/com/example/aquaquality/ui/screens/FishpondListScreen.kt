@@ -52,16 +52,54 @@ import com.example.aquaquality.ui.components.IndicatorStatus
 import com.example.aquaquality.ui.components.ParameterMonitor
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 import com.example.aquaquality.ui.viewmodels.FishpondListViewModel
+import com.example.aquaquality.ui.components.*
 
 
 @Composable
 fun FishpondListScreen(
     fishpondListViewModel: FishpondListViewModel = viewModel(),
     uiState: FishpondListUiState,
-    onFabClick: () -> Unit
 ) {
+    var isNewDialogVisible by rememberSaveable {
+        mutableStateOf(false)
+    }
+    var isEditDialogVisible by rememberSaveable {
+        mutableStateOf(false)
+    }
+    var isDeleteDialogVisible by rememberSaveable {
+        mutableStateOf(false)
+    }
+
     BackHandler(!uiState.isShowingHomepage) {
         fishpondListViewModel.resetHomeScreenStates()
+    }
+
+    if (isNewDialogVisible) {
+        NewFishpondCardDialog(
+            value = uiState.newFishpondName,
+            onValueChange = { fishpondListViewModel.setNewFishpondNameInput(it) },
+            onConfirmClick = {},
+            onDismissRequest = { isNewDialogVisible = false }
+        )
+    }
+
+    if (isEditDialogVisible) {
+        EditFishpondCardDialog(
+            value = uiState.editFishpondName,
+            onValueChange = { fishpondListViewModel.setEditFishpondNameInput(it) },
+            onConfirmClick = {},
+            onDismissRequest = {
+                isEditDialogVisible = false
+            }
+        )
+    }
+
+    if (isDeleteDialogVisible) {
+        DeleteFishpondCardDialog(
+            name = uiState.fishpondInfoToModify?.name,
+            onConfirmClick = {},
+            onDismissRequest = { isDeleteDialogVisible = false }
+        )
     }
 
     if (!uiState.isShowingHomepage) {
@@ -70,10 +108,20 @@ fun FishpondListScreen(
         FishpondCardList(
             isEmpty = false,
             fishpondList = uiState.fishpondList,
-            onFabClick = onFabClick,
-            onCardClick = {fishpondInfo: FishpondInfo ->
+            onFabClick = { isNewDialogVisible = true },
+            onCardClick = { fishpondInfo: FishpondInfo ->
                 fishpondListViewModel.updateDetailsScreenStates(fishpondInfo)
-            })
+            },
+            onDeleteClick = {
+                fishpondListViewModel.setFishpondInfoToModify(it)
+                isDeleteDialogVisible = true
+            },
+            onEditClick = {
+                fishpondListViewModel.setFishpondInfoToModify(it)
+                fishpondListViewModel.setEditFishpondNameInput(it.name)
+                isEditDialogVisible = true
+            }
+        )
     }
 
 
@@ -86,7 +134,9 @@ private fun FishpondCardList(
     fishpondList: List<FishpondInfo>,
     onFabClick: () -> Unit,
     onCardClick: (FishpondInfo) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onEditClick: (FishpondInfo) -> Unit,
+    onDeleteClick: (FishpondInfo) -> Unit,
 ) {
     Box(modifier = modifier) {
         if (isEmpty) {
@@ -119,7 +169,9 @@ private fun FishpondCardList(
                             dimensionResource(id = R.dimen.padding_small)
                         ),
                         isConnected = true,
-                        onCardClick = onCardClick
+                        onCardClick = onCardClick,
+                        onEditClick = { onEditClick(fishpond) },
+                        onDeleteClick = { onDeleteClick(fishpond) }
                     )
                 }
             }
@@ -148,7 +200,9 @@ fun FishpondCard(
     fishpondInfo: FishpondInfo,
     modifier: Modifier = Modifier,
     isConnected: Boolean = false,
-    onCardClick: (FishpondInfo) -> Unit
+    onCardClick: (FishpondInfo) -> Unit,
+    onEditClick: () -> Unit,
+    onDeleteClick: () -> Unit,
 ) {
     Card(
         modifier = modifier
@@ -189,8 +243,14 @@ fun FishpondCard(
                         onDismissRequest = { isCardMenuVisible = false },
 
                         ) {
-                        DropdownMenuItem(text = { Text(text = "Edit") }, onClick = { /*TODO*/ })
-                        DropdownMenuItem(text = { Text(text = "Delete") }, onClick = { /*TODO*/ })
+                        DropdownMenuItem(
+                            text = { Text(text = stringResource(R.string.label_edit)) },
+                            onClick = onEditClick
+                        )
+                        DropdownMenuItem(
+                            text = { Text(text = stringResource(R.string.label_delete)) },
+                            onClick = onDeleteClick
+                        )
                     }
                 }
 
@@ -256,7 +316,6 @@ fun FishpondsPreview() {
         FishpondListScreen(
             fishpondListViewModel = fishpondListViewModel,
             uiState = fishpondListUiState,
-            onFabClick = {}
         )
     }
 }
