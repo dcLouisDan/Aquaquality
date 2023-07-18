@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -18,15 +19,23 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.DeviceThermostat
+import androidx.compose.material.icons.filled.Devices
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Science
+import androidx.compose.material.icons.filled.SensorsOff
 import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.material.icons.filled.Water
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -142,6 +151,56 @@ fun FishpondScreen(fishpondInfo: FishpondInfo, modifier: Modifier = Modifier) {
                     Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
 
                     if (isConnected) {
+                        Text(
+                            text = "Connected Device:",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
+
+                        var isDeviceMenuVisible by remember {
+                            mutableStateOf(false)
+                        }
+
+                        var isDeviceOnline = false
+
+                        val deviceIcon =
+                            if (isDeviceOnline) Icons.Default.Devices else Icons.Default.SensorsOff
+
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(imageVector = deviceIcon, contentDescription = null)
+                            Text(
+                                text = "Device 1",
+                                color = MaterialTheme.colorScheme.primary,
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.weight(1f),
+                                textAlign = TextAlign.Center
+                            )
+                            IconButton(
+                                onClick = {
+                                    isDeviceMenuVisible = !isDeviceMenuVisible
+                                },
+                                colors = IconButtonDefaults.iconButtonColors(
+                                    contentColor = MaterialTheme.colorScheme.onSurface,
+                                )
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = null
+                                )
+                                DropdownMenu(
+                                    expanded = isDeviceMenuVisible,
+                                    onDismissRequest = { isDeviceMenuVisible = false },
+
+                                    ) {
+                                    DropdownMenuItem(
+                                        text = { Text(text = "Disconnect") },
+                                        onClick = {}
+                                    )
+                                }
+                            }
+                        }
+                        Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
                         IndicatorList(fishpondInfo = fishpondInfo)
                         Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
 
