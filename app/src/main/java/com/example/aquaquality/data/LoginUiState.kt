@@ -7,6 +7,7 @@ data class LoginUiState(
     val signup_password: String = "",
     val signup_repeat_password: String = "",
     val isSignInSuccessful: Boolean = false,
+    val isSignUpSuccessful: Boolean = false,
     val signInError: String? = null,
     val inputError: InputError? = null
 )

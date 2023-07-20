@@ -16,7 +16,9 @@ import com.example.aquaquality.data.LoginUiState
 fun AquaqualityApp(
     loginViewModel: LoginViewModel,
     loginUiState: LoginUiState,
-    onGoogleSignInClick: () -> Unit
+    onGoogleSignInClick: () -> Unit,
+    onSignUpClick: () -> Unit,
+    onLoginClick: () -> Unit
 ) {
     val context = LocalContext.current
     var isLoggedIn by remember {
@@ -44,8 +46,9 @@ fun AquaqualityApp(
         onSignupEmailChange = { loginViewModel.setSignupEmailInput(it) },
         onSignupPasswordChange = { loginViewModel.setSignUpPasswordInput(it) },
         onSignupRepeatPasswordChange = { loginViewModel.setSignUpRepeatPasswordInput(it) },
-        onLoginPress = { isLoggedIn = true },
+        onLoginClick = onLoginClick,
         onGoogleSignClick = onGoogleSignInClick,
+        onSignUpClick = onSignUpClick,
         inputError = loginUiState.inputError
     )
 }

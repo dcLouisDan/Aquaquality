@@ -107,6 +107,23 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
 
+                            LaunchedEffect(key1 = loginUiState.isSignUpSuccessful) {
+                                if (loginUiState.isSignUpSuccessful) {
+                                    Toast.makeText(
+                                        applicationContext,
+                                        "Account successfully created",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+
+                                    val result = loginViewModel.signInWithEmailPassword(
+                                        loginUiState.signup_email,
+                                        loginUiState.signup_password
+                                    )
+
+                                    loginViewModel.onSignInResult(result)
+                                }
+                            }
+
                             val launcher = rememberLauncherForActivityResult(
                                 contract = ActivityResultContracts.StartIntentSenderForResult(),
                                 onResult = { result ->
@@ -124,6 +141,16 @@ class MainActivity : ComponentActivity() {
                             AquaqualityApp(
                                 loginViewModel = loginViewModel,
                                 loginUiState = loginUiState,
+                                onLoginClick = {
+                                    lifecycleScope.launch {
+                                        val result = loginViewModel.signInWithEmailPassword(
+                                            loginUiState.email,
+                                            loginUiState.password
+                                        )
+
+                                        loginViewModel.onSignInResult(result)
+                                    }
+                                },
                                 onGoogleSignInClick = {
                                     lifecycleScope.launch {
                                         val signInIntentSender = googleAuthUiClient.signIn()
@@ -133,7 +160,16 @@ class MainActivity : ComponentActivity() {
                                             ).build()
                                         )
                                     }
-                                })
+                                },
+                                onSignUpClick = {
+                                    lifecycleScope.launch {
+                                        loginViewModel.createNewUser(
+                                            loginUiState.signup_email,
+                                            loginUiState.signup_password
+                                        )
+                                    }
+                                }
+                            )
                         }
 
                         composable("home") {

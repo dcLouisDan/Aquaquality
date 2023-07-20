@@ -46,4 +46,7 @@
     <string name="desc_sign_in_with_google">Sign-in with Google</string>
     <string name="label_edit">Edit</string>
     <string name="label_delete">Delete</string>
+    <string name="warning_password_format">The password must be at least 8 characters long and at least one uppercase letter, one lowercase letter, and one number</string>
+    <string name="warning_incorrect_repeat_password">Passwords do not match.</string>
+    <string name="warning_invalid_email">Invalid email address.</string>
 </resources>

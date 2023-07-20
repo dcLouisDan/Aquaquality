@@ -1,5 +1,7 @@
 package com.example.aquaquality.ui.viewmodels
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import com.example.aquaquality.data.FishpondInfo
 import com.example.aquaquality.data.FishpondListUiState
@@ -9,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
+@RequiresApi(Build.VERSION_CODES.O)
 class FishpondListViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(FishpondListUiState())
     val uiState: StateFlow<FishpondListUiState> = _uiState.asStateFlow()
@@ -17,6 +20,7 @@ class FishpondListViewModel : ViewModel() {
         initializeUiState()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun initializeUiState() {
         val fishpondList = LocalFishpondsDataProvider.fishpondInfoList
         _uiState.value =

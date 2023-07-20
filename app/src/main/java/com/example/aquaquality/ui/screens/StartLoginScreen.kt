@@ -47,6 +47,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -89,8 +90,9 @@ fun StartLoginScreen(
     onSignupEmailChange: (String) -> Unit,
     onSignupPasswordChange: (String) -> Unit,
     onSignupRepeatPasswordChange: (String) -> Unit,
-    onLoginPress: () -> Unit,
+    onLoginClick: () -> Unit,
     onGoogleSignClick: () -> Unit,
+    onSignUpClick: () -> Unit,
     inputError: InputError? = null
     ) {
     Box(modifier = modifier) {
@@ -175,7 +177,8 @@ fun StartLoginScreen(
                                         onSignupRepeatPasswordChange,
                                         onCancelClick = { showSignUp = !showSignUp },
                                         onGoogleSignClick = onGoogleSignClick,
-                                        inputError = inputError
+                                        inputError = inputError,
+                                        onSignUpClick = onSignUpClick
                                     )
                                     Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_large)))
                                 }
@@ -190,7 +193,7 @@ fun StartLoginScreen(
                                         password,
                                         onPasswordChange,
                                         onCreateAccountClick = { showSignUp = !showSignUp },
-                                        onLoginPress = onLoginPress,
+                                        onLoginClick = onLoginClick,
                                         onGoogleSignClick = onGoogleSignClick
                                     )
                                     Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_large)))
@@ -219,7 +222,7 @@ private fun LoginCard(
     password: String,
     onPasswordChange: (String) -> Unit,
     onCreateAccountClick: () -> Unit,
-    onLoginPress: () -> Unit,
+    onLoginClick: () -> Unit,
     onGoogleSignClick: () -> Unit,
     modifier: Modifier = Modifier,
     inputError: InputError? = null ,
@@ -264,7 +267,7 @@ private fun LoginCard(
                 }
             )
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
-            Button(onClick = onLoginPress, modifier = Modifier.fillMaxWidth()) {
+            Button(onClick = onLoginClick, modifier = Modifier.fillMaxWidth()) {
                 Text(text = stringResource(R.string.label_login))
             }
             //Create Account Button
@@ -304,6 +307,7 @@ private fun SignupCard(
     onGoogleSignClick: () -> Unit,
     modifier: Modifier = Modifier,
     inputError: InputError? = null ,
+    onSignUpClick: () -> Unit,
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -367,7 +371,8 @@ private fun SignupCard(
                 }
             )
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
-            Button(onClick = { /*TODO*/ }, modifier = Modifier.fillMaxWidth()) {
+            //Create Account
+            Button(onClick = onSignUpClick, modifier = Modifier.fillMaxWidth()) {
                 Text(text = stringResource(R.string.label_create_account))
             }
             //Cancel Button
@@ -439,8 +444,7 @@ private fun PrimaryOutlinedTextInput(
             )
         },
         visualTransformation = textTransform,
-        colors = TextFieldDefaults.colors(
-            unfocusedIndicatorColor = MaterialTheme.colorScheme.primary,
+        colors = OutlinedTextFieldDefaults.colors(
             unfocusedLabelColor = MaterialTheme.colorScheme.primary,
             errorLeadingIconColor = MaterialTheme.colorScheme.error
         ),
@@ -483,8 +487,9 @@ fun DefaultPreview() {
             onSignupPasswordChange = {},
             signupRepeatPassword = "",
             onSignupRepeatPasswordChange = {},
-            onLoginPress = {},
+            onLoginClick = {},
             onGoogleSignClick = {},
+            onSignUpClick = {},
             inputError = InputError(
                 InputField.SIGNUP_EMAIL,
                 errorMessage = "Invalid email address"

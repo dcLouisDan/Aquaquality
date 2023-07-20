@@ -1,25 +1,57 @@
 package com.example.aquaquality.data.local
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.example.aquaquality.data.FishpondInfo
+import com.example.aquaquality.data.HistoryLog
+import java.time.LocalDate
+import java.time.LocalTime
+import kotlin.random.Random
 
 object LocalFishpondsDataProvider {
     val defaultFishpond = FishpondInfo(-1, "")
 
+    @RequiresApi(Build.VERSION_CODES.O)
     val fishpondInfoList: List<FishpondInfo> = listOf(
         FishpondInfo(
             id = 1,
             name = "Fishpond 1",
-            tempValue = 30F,
-            phValue = 6.7F,
-            turbidityValue = 160
+            connectedDeviceId = null,
+            28f,
+            7f,
+            80,
+            historyLog = createHistoryLogList(),
         ),
         FishpondInfo(
             id = 2,
             name = "Fishpond 2",
-            tempValue = 27.5F,
-            phValue = 7.0F,
-            turbidityValue = 154
+            null,
+            28f,
+            7f,
+            80
         )
     )
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun createHistoryLogList(): List<HistoryLog> {
+        val list = mutableListOf<HistoryLog>()
+
+        for (i in 0..23) {
+            val time = LocalTime.of(i, 0)
+            val tempValue = 20f + (Random.nextFloat()*10)
+            val phValue = 4f + (Random.nextFloat()*10)
+            val turbidityValue = 40 + Random.nextInt(10)
+
+            list.add(HistoryLog(
+                date = LocalDate.of(2023, 7, 21),
+                time = time,
+                tempValue = tempValue,
+                phValue = phValue,
+                turbidityValue = turbidityValue
+            ))
+        }
+
+        return list
+    }
 }
+
