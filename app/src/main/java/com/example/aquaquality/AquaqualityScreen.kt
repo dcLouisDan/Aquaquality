@@ -6,10 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import com.example.aquaquality.ui.viewmodels.LoginViewModel
 import com.example.aquaquality.ui.screens.StartLoginScreen
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import com.example.aquaquality.data.LoginUiState
 @Composable
@@ -21,9 +17,6 @@ fun AquaqualityApp(
     onLoginClick: () -> Unit
 ) {
     val context = LocalContext.current
-    var isLoggedIn by remember {
-        mutableStateOf(false)
-    }
 
     LaunchedEffect(key1 = loginUiState.signInError) {
         loginUiState.signInError?.let { error ->

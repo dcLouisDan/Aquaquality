@@ -1,6 +1,9 @@
 package com.example.aquaquality.ui.screens
 
+import android.os.Build
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +35,7 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +43,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -48,6 +53,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.aquaquality.R
 import com.example.aquaquality.data.FishpondInfo
 import com.example.aquaquality.data.FishpondListUiState
+import com.example.aquaquality.presentation.database.RealtimeDbClient
 import com.example.aquaquality.ui.components.IndicatorStatus
 import com.example.aquaquality.ui.components.ParameterMonitor
 import com.example.aquaquality.ui.theme.AquaqualityTheme
@@ -55,11 +61,14 @@ import com.example.aquaquality.ui.viewmodels.FishpondListViewModel
 import com.example.aquaquality.ui.components.*
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun FishpondListScreen(
     fishpondListViewModel: FishpondListViewModel = viewModel(),
-    uiState: FishpondListUiState,
+    uiState: FishpondListUiState
 ) {
+    val context = LocalContext.current
+
     var isNewDialogVisible by rememberSaveable {
         mutableStateOf(false)
     }
@@ -69,16 +78,32 @@ fun FishpondListScreen(
     var isDeleteDialogVisible by rememberSaveable {
         mutableStateOf(false)
     }
+    var isAddSuccess by rememberSaveable {
+        mutableStateOf(false)
+    }
 
     BackHandler(!uiState.isShowingHomepage) {
         fishpondListViewModel.resetHomeScreenStates()
+    }
+
+    LaunchedEffect(key1 = isAddSuccess) {
+        if (isAddSuccess){
+            Toast.makeText(
+                context,
+                "New Fishpond Added",
+                Toast.LENGTH_LONG
+            ).show()
+        }
     }
 
     if (isNewDialogVisible) {
         NewFishpondCardDialog(
             value = uiState.newFishpondName,
             onValueChange = { fishpondListViewModel.setNewFishpondNameInput(it) },
-            onConfirmClick = {},
+            onConfirmClick = {
+                fishpondListViewModel.addNewFishpond(uiState.newFishpondName)
+                isNewDialogVisible = false
+            },
             onDismissRequest = { isNewDialogVisible = false }
         )
     }
@@ -106,7 +131,7 @@ fun FishpondListScreen(
         FishpondScreen(uiState.currentSelectedFishpondInfo)
     } else {
         FishpondCardList(
-            isEmpty = false,
+            isEmpty = uiState.fishpondList.isEmpty(),
             fishpondList = uiState.fishpondList,
             onFabClick = { isNewDialogVisible = true },
             onCardClick = { fishpondInfo: FishpondInfo ->
@@ -224,11 +249,13 @@ fun FishpondCard(
                         top = dimensionResource(id = R.dimen.padding_small)
                     ), verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = fishpondInfo.name,
-                    modifier = Modifier.weight(1f),
-                    style = MaterialTheme.typography.titleMedium
-                )
+                fishpondInfo.name?.let {
+                    Text(
+                        text = it,
+                        modifier = Modifier.weight(1f),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                }
                 IconButton(
                     onClick = {
                         isCardMenuVisible = !isCardMenuVisible
@@ -307,6 +334,7 @@ fun FishpondCard(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun FishpondsPreview() {

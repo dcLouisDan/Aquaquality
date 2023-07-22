@@ -1,8 +1,7 @@
 package com.example.aquaquality.ui.viewmodels
 
-import android.content.Context
+
 import androidx.lifecycle.ViewModel
-import com.example.aquaquality.R
 import com.example.aquaquality.data.InputError
 import com.example.aquaquality.data.InputField
 import com.example.aquaquality.data.LoginUiState
@@ -11,7 +10,6 @@ import com.example.aquaquality.presentation.sign_in.UserData
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.tasks.await
@@ -28,7 +26,7 @@ val requirements = listOf(String::isLongEnough, String::hasEnoughDigits, String:
 val String.meetsRequirements get() = requirements.all { check -> check(this) }
 
 
-class LoginViewModel() : ViewModel() {
+class LoginViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState = _uiState.asStateFlow()
     private val auth = Firebase.auth
@@ -43,7 +41,7 @@ class LoginViewModel() : ViewModel() {
         }
     }
 
-    fun isEmailValid(email: String): Boolean {
+    private fun isEmailValid(email: String): Boolean {
         val emailRegex = Regex("^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z]+$")
         return emailRegex.matches(email)
     }

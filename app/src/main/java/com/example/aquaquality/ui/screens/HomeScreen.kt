@@ -6,6 +6,8 @@
 
 package com.example.aquaquality.ui.screens
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.slideInHorizontally
@@ -42,13 +44,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.aquaquality.R
+import com.example.aquaquality.presentation.database.RealtimeDbClient
 import com.example.aquaquality.presentation.sign_in.UserData
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 import com.example.aquaquality.ui.viewmodels.FishpondListViewModel
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun AquaQualityHomeScreen(userData: UserData?, onLogoutClick: () -> Unit) {
+fun AquaQualityHomeScreen(
+    userData: UserData?,
+    onLogoutClick: () -> Unit,
+) {
     val fishpondListViewModel: FishpondListViewModel = viewModel()
     val fishpondListUiState = fishpondListViewModel.uiState.collectAsState().value
 
@@ -208,6 +215,7 @@ private data class NavigationItemContent(
     val text: String
 )
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun HomePreview() {

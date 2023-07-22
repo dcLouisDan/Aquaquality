@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -19,7 +18,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.DeviceThermostat
 import androidx.compose.material.icons.filled.Devices
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
@@ -147,7 +145,7 @@ fun FishpondScreen(fishpondInfo: FishpondInfo, modifier: Modifier = Modifier) {
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
-                    Text(text = fishpondInfo.name, style = MaterialTheme.typography.titleLarge)
+                    fishpondInfo.name?.let { Text(text = it, style = MaterialTheme.typography.titleLarge) }
                     Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
 
                     if (isConnected) {
@@ -422,7 +420,6 @@ fun DataGraph(@StringRes chartTitle: Int, modifier: Modifier = Modifier) {
 fun FishpondScreenPreview() {
     AquaqualityTheme {
         val fishpondInfo = FishpondInfo(
-            id = 1,
             name = "Fishpond 1"
         )
         FishpondScreen(fishpondInfo)

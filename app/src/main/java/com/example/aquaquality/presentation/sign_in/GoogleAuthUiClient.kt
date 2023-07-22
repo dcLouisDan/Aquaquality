@@ -18,7 +18,6 @@ class GoogleAuthUiClient(
     private val oneTapClient: SignInClient
 ) {
     private val auth = Firebase.auth
-
     suspend fun signIn(): IntentSender? {
         val result = try {
             oneTapClient.beginSignIn(

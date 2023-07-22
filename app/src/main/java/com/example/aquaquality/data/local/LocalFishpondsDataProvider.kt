@@ -9,28 +9,8 @@ import java.time.LocalTime
 import kotlin.random.Random
 
 object LocalFishpondsDataProvider {
-    val defaultFishpond = FishpondInfo(-1, "")
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    val fishpondInfoList: List<FishpondInfo> = listOf(
-        FishpondInfo(
-            id = 1,
-            name = "Fishpond 1",
-            connectedDeviceId = null,
-            28f,
-            7f,
-            80,
-            historyLog = createHistoryLogList(),
-        ),
-        FishpondInfo(
-            id = 2,
-            name = "Fishpond 2",
-            null,
-            28f,
-            7f,
-            80
-        )
-    )
+
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun createHistoryLogList(): List<HistoryLog> {

@@ -1,6 +1,7 @@
 package com.example.aquaquality
 
 
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -8,6 +9,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -28,6 +30,8 @@ import com.example.aquaquality.ui.screens.LoadingScreen
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 import com.example.aquaquality.ui.viewmodels.LoginViewModel
 import com.google.android.gms.auth.api.identity.Identity
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -40,8 +44,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private lateinit var connectivityObserver: ConnectivityObserver
+    private lateinit var database: FirebaseDatabase
+    private lateinit var fishpondsRef: DatabaseReference
 
-
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         connectivityObserver = NetworkConnectivityObserver(applicationContext)
@@ -56,6 +62,8 @@ class MainActivity : ComponentActivity() {
                         initial = ConnectivityObserver.Status.Unavailable
                     )
                     val navController = rememberNavController()
+
+
                     NavHost(navController = navController, startDestination = "loading") {
                         composable("loading") {
                             LoadingScreen()
@@ -194,7 +202,7 @@ class MainActivity : ComponentActivity() {
 
                                         navController.popBackStack()
                                     }
-                                }
+                                },
                             )
 
                         }
