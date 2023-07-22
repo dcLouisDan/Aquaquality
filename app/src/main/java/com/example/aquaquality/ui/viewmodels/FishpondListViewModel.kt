@@ -3,13 +3,9 @@ package com.example.aquaquality.ui.viewmodels
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.aquaquality.data.FishpondInfo
 import com.example.aquaquality.data.FishpondListUiState
-import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -23,13 +19,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 @RequiresApi(Build.VERSION_CODES.O)
-class FishpondListViewModel() : ViewModel() {
+class FishpondListViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(FishpondListUiState())
     val uiState: StateFlow<FishpondListUiState> = _uiState.asStateFlow()
     private val database = Firebase.database
     private var fishpondsReference: DatabaseReference
 
-    private var list = mutableStateOf(emptyList<FishpondInfo>())
+//    private var list = mutableStateOf(emptyList<FishpondInfo>())
 
     init {
         database.useEmulator("10.0.2.2", 9000)
@@ -37,6 +33,9 @@ class FishpondListViewModel() : ViewModel() {
 
         fishpondsReference.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
+                _uiState.value = FishpondListUiState(
+                    fishpondList = emptyList()
+                )
                 for (info in snapshot.children) {
                     _uiState.value = FishpondListUiState(
                         fishpondList = uiState.value.fishpondList.plus(info.getValue<FishpondInfo>()!!)
@@ -51,21 +50,7 @@ class FishpondListViewModel() : ViewModel() {
 
         })
 
-        initializeUiState(list.value)
     }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun initializeUiState(result: List<FishpondInfo>) {
-
-    }
-
-    fun updateUiState(fishpondList: List<FishpondInfo>) {
-        _uiState.value =
-            FishpondListUiState(
-                fishpondList = fishpondList,
-            )
-    }
-
 
     fun updateDetailsScreenStates(fishpond: FishpondInfo) {
         _uiState.update {
@@ -79,7 +64,7 @@ class FishpondListViewModel() : ViewModel() {
     fun resetHomeScreenStates() {
         _uiState.update {
             it.copy(
-                currentSelectedFishpondInfo = it.fishpondList.get(0),
+                currentSelectedFishpondInfo = it.fishpondList[0],
                 isShowingHomepage = true
             )
         }
