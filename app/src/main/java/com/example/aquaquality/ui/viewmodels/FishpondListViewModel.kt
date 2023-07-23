@@ -3,9 +3,12 @@ package com.example.aquaquality.ui.viewmodels
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.aquaquality.data.FishpondInfo
 import com.example.aquaquality.data.FishpondListUiState
+import com.example.aquaquality.presentation.sign_in.UserData
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -25,23 +28,28 @@ class FishpondListViewModel : ViewModel() {
     private val database = Firebase.database
     private var fishpondsReference: DatabaseReference
 
-//    private var list = mutableStateOf(emptyList<FishpondInfo>())
+    private val auth = Firebase.auth
+
 
     init {
         database.useEmulator("10.0.2.2", 9000)
-        fishpondsReference = database.getReference("fishponds")
+        val userId = getSignedInUser()?.userId
+        fishpondsReference = database.getReference("$userId/fishponds")
 
         fishpondsReference.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 _uiState.value = FishpondListUiState(
-                    fishpondList = emptyList()
+                    fishpondList = emptyList(),
+                    fishpondKeyList = emptyList()
                 )
                 for (info in snapshot.children) {
                     _uiState.value = FishpondListUiState(
-                        fishpondList = uiState.value.fishpondList.plus(info.getValue<FishpondInfo>()!!)
+                        fishpondList = uiState.value.fishpondList.plus(info.getValue<FishpondInfo>()!!),
+                        fishpondKeyList = uiState.value.fishpondKeyList.plus(info.key!!)
                     )
-                    Log.i("Firebase", "AVE value: ${info.getValue<FishpondInfo>()}")
                 }
+                    Log.i("Firebase", "AVE value: ${uiState.value.fishpondList}")
+                    Log.i("Firebase", "Key List: ${uiState.value.fishpondKeyList}")
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -115,5 +123,31 @@ class FishpondListViewModel : ViewModel() {
                 )
             }
         }
+    }
+
+    fun updateFishpondName(name: String, fishpondInfo: FishpondInfo) {
+        val fishpondInfoIndex = uiState.value.fishpondList.indexOf(fishpondInfo)
+        val fishpondKey: String = uiState.value.fishpondKeyList[fishpondInfoIndex]
+        val newInfo = fishpondInfo.copy(name = name)
+        val dataRef = fishpondsReference.child(fishpondKey)
+
+        dataRef.setValue(newInfo)
+    }
+
+    fun deleteFishpondInfo(fishpondInfo: FishpondInfo) {
+        val fishpondInfoIndex = uiState.value.fishpondList.indexOf(fishpondInfo)
+        val fishpondKey: String = uiState.value.fishpondKeyList[fishpondInfoIndex]
+        val dataRef = fishpondsReference.child(fishpondKey)
+
+        dataRef.removeValue()
+    }
+
+    fun getSignedInUser(): UserData? = auth.currentUser?.run {
+        UserData(
+            userId = uid,
+            username = displayName,
+            email = email,
+            profilePictureUrl = photoUrl.toString()
+        )
     }
 }

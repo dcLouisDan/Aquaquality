@@ -87,7 +87,7 @@ fun FishpondListScreen(
     }
 
     LaunchedEffect(key1 = isAddSuccess) {
-        if (isAddSuccess){
+        if (isAddSuccess) {
             Toast.makeText(
                 context,
                 "New Fishpond Added",
@@ -112,7 +112,13 @@ fun FishpondListScreen(
         EditFishpondCardDialog(
             value = uiState.editFishpondName,
             onValueChange = { fishpondListViewModel.setEditFishpondNameInput(it) },
-            onConfirmClick = {},
+            onConfirmClick = {
+                fishpondListViewModel.updateFishpondName(
+                    uiState.editFishpondName,
+                    uiState.fishpondInfoToModify!!
+                )
+                isEditDialogVisible = false
+            },
             onDismissRequest = {
                 isEditDialogVisible = false
             }
@@ -122,7 +128,10 @@ fun FishpondListScreen(
     if (isDeleteDialogVisible) {
         DeleteFishpondCardDialog(
             name = uiState.fishpondInfoToModify?.name,
-            onConfirmClick = {},
+            onConfirmClick = {
+                fishpondListViewModel.deleteFishpondInfo(uiState.fishpondInfoToModify!!)
+                isDeleteDialogVisible = false
+            },
             onDismissRequest = { isDeleteDialogVisible = false }
         )
     }
@@ -283,7 +292,7 @@ fun FishpondCard(
 
             }
 
-            if (isConnected) {
+            if (fishpondInfo.connectedDeviceId != null) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()

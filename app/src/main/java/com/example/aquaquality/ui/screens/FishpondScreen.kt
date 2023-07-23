@@ -148,7 +148,7 @@ fun FishpondScreen(fishpondInfo: FishpondInfo, modifier: Modifier = Modifier) {
                     fishpondInfo.name?.let { Text(text = it, style = MaterialTheme.typography.titleLarge) }
                     Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
 
-                    if (isConnected) {
+                    if (fishpondInfo.connectedDeviceId != null) {
                         Text(
                             text = "Connected Device:",
                             style = MaterialTheme.typography.labelLarge,
