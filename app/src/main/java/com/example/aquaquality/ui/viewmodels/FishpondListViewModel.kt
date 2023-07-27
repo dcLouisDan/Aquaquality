@@ -142,6 +142,13 @@ class FishpondListViewModel : ViewModel() {
         dataRef.removeValue()
     }
 
+    fun getFishpondKey(fishpond: FishpondInfo): String {
+        val fishpondInfoIndex = uiState.value.fishpondList.indexOf(fishpond)
+        val fishpondKey: String = uiState.value.fishpondKeyList[fishpondInfoIndex]
+
+        return fishpondKey
+    }
+
     fun getSignedInUser(): UserData? = auth.currentUser?.run {
         UserData(
             userId = uid,

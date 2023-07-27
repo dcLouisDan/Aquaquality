@@ -49,16 +49,17 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.aquaquality.R
 import com.example.aquaquality.data.FishpondInfo
 import com.example.aquaquality.data.FishpondListUiState
-import com.example.aquaquality.presentation.database.RealtimeDbClient
 import com.example.aquaquality.ui.components.IndicatorStatus
 import com.example.aquaquality.ui.components.ParameterMonitor
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 import com.example.aquaquality.ui.viewmodels.FishpondListViewModel
 import com.example.aquaquality.ui.components.*
+import com.example.aquaquality.ui.viewmodels.FishpondScreenViewModel
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -82,6 +83,9 @@ fun FishpondListScreen(
         mutableStateOf(false)
     }
 
+    //FishpondScreen ViewModel
+    val fishpondScreenViewModel: FishpondScreenViewModel = viewModel()
+    val fishpondScreenUiState by fishpondScreenViewModel.uiState.collectAsStateWithLifecycle()
     BackHandler(!uiState.isShowingHomepage) {
         fishpondListViewModel.resetHomeScreenStates()
     }
@@ -137,7 +141,7 @@ fun FishpondListScreen(
     }
 
     if (!uiState.isShowingHomepage) {
-        FishpondScreen(uiState.currentSelectedFishpondInfo)
+        FishpondScreen(fishpondScreenViewModel, fishpondScreenUiState)
     } else {
         FishpondCardList(
             isEmpty = uiState.fishpondList.isEmpty(),
@@ -145,6 +149,8 @@ fun FishpondListScreen(
             onFabClick = { isNewDialogVisible = true },
             onCardClick = { fishpondInfo: FishpondInfo ->
                 fishpondListViewModel.updateDetailsScreenStates(fishpondInfo)
+                val key = fishpondListViewModel.getFishpondKey(fishpondInfo)
+                fishpondScreenViewModel.setFishpondInfo(key, fishpondInfo)
             },
             onDeleteClick = {
                 fishpondListViewModel.setFishpondInfoToModify(it)
@@ -303,14 +309,15 @@ fun FishpondCard(
                         R.string.label_temperature,
                         fishpondInfo.tempValue.toString(),
                         parameterValueFormat = R.string.parameter_temperature,
-                        indicatorStatus = IndicatorStatus.OVER_RANGE
+                        stringIndicatorStatus = fishpondInfo.tempStatus!!
                     )
                     Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.height_xs)))
                     ParameterMonitor(
                         Icons.Default.Science,
                         R.string.label_pH,
                         fishpondInfo.phValue.toString(),
-                        parameterValueFormat = R.string.parameter_pH
+                        parameterValueFormat = R.string.parameter_pH,
+                        stringIndicatorStatus = fishpondInfo.phStatus!!
                     )
                     Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.height_xs)))
                     ParameterMonitor(
@@ -318,7 +325,7 @@ fun FishpondCard(
                         R.string.label_turbidity,
                         fishpondInfo.turbidityValue.toString(),
                         parameterValueFormat = R.string.parameter_turbidity,
-                        indicatorStatus = IndicatorStatus.UNDER_RANGE
+                        stringIndicatorStatus = fishpondInfo.turbStatus!!
                     )
                 }
             } else {

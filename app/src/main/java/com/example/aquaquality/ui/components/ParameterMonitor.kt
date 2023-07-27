@@ -35,9 +35,9 @@ fun ParameterMonitor(
     parameterValue: String,
     modifier: Modifier = Modifier,
     parameterValueFormat: Int,
-    indicatorStatus: IndicatorStatus? = IndicatorStatus.NORMAL
+    stringIndicatorStatus: String = "NORMAL"
 ) {
-
+    val indicatorStatus = IndicatorStatus.valueOf(stringIndicatorStatus)
     val monitorTheme = when (indicatorStatus) {
         IndicatorStatus.NORMAL -> MonitorTheme(
             backgroundColor = MaterialTheme.colorScheme.primary,

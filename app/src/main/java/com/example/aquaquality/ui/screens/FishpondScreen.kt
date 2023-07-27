@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -54,12 +55,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.aquaquality.R
 import com.example.aquaquality.data.FishpondInfo
+import com.example.aquaquality.data.FishpondScreenUiState
 import com.example.aquaquality.ui.components.IndicatorStatus
 import com.example.aquaquality.ui.components.ParameterMonitor
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 import com.example.aquaquality.ui.theme.rememberChartStyle
+import com.example.aquaquality.ui.viewmodels.FishpondScreenViewModel
 import com.patrykandpatrick.vico.compose.axis.horizontal.bottomAxis
 import com.patrykandpatrick.vico.compose.axis.vertical.startAxis
 import com.patrykandpatrick.vico.compose.chart.Chart
@@ -88,8 +93,7 @@ private val months = listOf(
 
 @ExperimentalMaterial3Api
 @Composable
-fun FishpondScreen(fishpondInfo: FishpondInfo, modifier: Modifier = Modifier) {
-    val isConnected = true
+fun FishpondScreen(fishpondScreenViewModel: FishpondScreenViewModel, uiState: FishpondScreenUiState, modifier: Modifier = Modifier) {
 
     val sheetState = rememberModalBottomSheetState()
 //    val scope = rememberCoroutineScope()
@@ -125,10 +129,11 @@ fun FishpondScreen(fishpondInfo: FishpondInfo, modifier: Modifier = Modifier) {
     )
 
 
-    Scaffold() { contentPadding ->
+    Scaffold { contentPadding ->
         Box(
             modifier = modifier
                 .background(MaterialTheme.colorScheme.surfaceVariant)
+                .fillMaxSize()
                 .padding(contentPadding)
                 .verticalScroll(rememberScrollState())
         ) {
@@ -145,10 +150,10 @@ fun FishpondScreen(fishpondInfo: FishpondInfo, modifier: Modifier = Modifier) {
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
-                    fishpondInfo.name?.let { Text(text = it, style = MaterialTheme.typography.titleLarge) }
+                    uiState.fishpondInfo?.name?.let { Text(text = it, style = MaterialTheme.typography.titleLarge) }
                     Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
 
-                    if (fishpondInfo.connectedDeviceId != null) {
+                    if (uiState.fishpondInfo?.connectedDeviceId != null) {
                         Text(
                             text = "Connected Device:",
                             style = MaterialTheme.typography.labelLarge,
@@ -199,58 +204,8 @@ fun FishpondScreen(fishpondInfo: FishpondInfo, modifier: Modifier = Modifier) {
                             }
                         }
                         Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
-                        IndicatorList(fishpondInfo = fishpondInfo)
-                        Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
+                        IndicatorList(fishpondInfo = uiState.fishpondInfo)
 
-                        Text(
-                            text = "View Data From:",
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
-
-                        OutlinedButton(
-                            onClick = {
-                                mDatePickerDialog.show()
-                            },
-                            shape = RoundedCornerShape(4.dp),
-                            modifier = Modifier.fillMaxWidth(),
-                            contentPadding = PaddingValues(dimensionResource(id = R.dimen.padding_small)),
-                            border = BorderStroke(
-                                width = 1.dp,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    imageVector = Icons.Default.CalendarToday,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.outline
-                                )
-                                Text(
-                                    text = mDate.value,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    modifier = Modifier.weight(1f),
-                                    textAlign = TextAlign.Center
-                                )
-                                Icon(
-                                    imageVector = Icons.Default.Edit,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.outline
-                                )
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
-
-                        DataGraph(chartTitle = R.string.label_wUnit_temperature)
-                        Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
-
-                        DataGraph(chartTitle = R.string.label_wUnit_pH)
-                        Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
-
-                        DataGraph(chartTitle = R.string.label_wUnit_turbidity)
-                        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_large)))
                     } else {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(
@@ -267,6 +222,66 @@ fun FishpondScreen(fishpondInfo: FishpondInfo, modifier: Modifier = Modifier) {
                                 Text(text = stringResource(R.string.label_add_device))
                             }
                         }
+                    }
+                    Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
+
+                    Text(
+                        text = "View Data From:",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
+
+                    OutlinedButton(
+                        onClick = {
+                            mDatePickerDialog.show()
+                        },
+                        shape = RoundedCornerShape(4.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(dimensionResource(id = R.dimen.padding_small)),
+                        border = BorderStroke(
+                            width = 1.dp,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.CalendarToday,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.outline
+                            )
+                            Text(
+                                text = mDate.value,
+                                color = MaterialTheme.colorScheme.primary,
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.weight(1f),
+                                textAlign = TextAlign.Center
+                            )
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.outline
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
+                    if(uiState.timeList.isNotEmpty()){
+                        DataGraph(chartTitle = R.string.label_wUnit_temperature)
+                        Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
+
+                        DataGraph(chartTitle = R.string.label_wUnit_pH)
+                        Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
+
+                        DataGraph(chartTitle = R.string.label_wUnit_turbidity)
+                        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_large)))
+                    } else {
+                        Text(
+                            text = stringResource(R.string.message_no_data),
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.fillMaxWidth().padding(dimensionResource(id = R.dimen.padding_medium))
+                        )
                     }
                 }
             }
@@ -292,6 +307,7 @@ fun FishpondScreen(fishpondInfo: FishpondInfo, modifier: Modifier = Modifier) {
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
+
                 }
             }
         }
@@ -309,14 +325,15 @@ fun IndicatorList(fishpondInfo: FishpondInfo, modifier: Modifier = Modifier) {
             R.string.label_temperature,
             fishpondInfo.tempValue.toString(),
             parameterValueFormat = R.string.parameter_temperature,
-            indicatorStatus = IndicatorStatus.OVER_RANGE
+            stringIndicatorStatus = fishpondInfo.tempStatus!!
         )
         Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.height_xs)))
         ParameterMonitor(
             Icons.Default.Science,
             R.string.label_pH,
             fishpondInfo.phValue.toString(),
-            parameterValueFormat = R.string.parameter_pH
+            parameterValueFormat = R.string.parameter_pH,
+            stringIndicatorStatus = fishpondInfo.phStatus!!
         )
         Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.height_xs)))
         ParameterMonitor(
@@ -324,7 +341,7 @@ fun IndicatorList(fishpondInfo: FishpondInfo, modifier: Modifier = Modifier) {
             R.string.label_turbidity,
             fishpondInfo.turbidityValue.toString(),
             parameterValueFormat = R.string.parameter_turbidity,
-            indicatorStatus = IndicatorStatus.UNDER_RANGE
+            stringIndicatorStatus = fishpondInfo.turbStatus!!
         )
     }
 }
@@ -419,9 +436,9 @@ fun DataGraph(@StringRes chartTitle: Int, modifier: Modifier = Modifier) {
 @Composable
 fun FishpondScreenPreview() {
     AquaqualityTheme {
-        val fishpondInfo = FishpondInfo(
-            name = "Fishpond 1"
-        )
-        FishpondScreen(fishpondInfo)
+        //FishpondScreen ViewModel
+        val fishpondScreenViewModel: FishpondScreenViewModel = viewModel()
+        val fishpondScreenUiState by fishpondScreenViewModel.uiState.collectAsStateWithLifecycle()
+        FishpondScreen(fishpondScreenViewModel = fishpondScreenViewModel, fishpondScreenUiState)
     }
 }
