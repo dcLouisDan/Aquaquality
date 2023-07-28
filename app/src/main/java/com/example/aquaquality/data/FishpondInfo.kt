@@ -1,8 +1,6 @@
 package com.example.aquaquality.data
 
 import com.example.aquaquality.ui.components.IndicatorStatus
-import java.time.LocalDate
-import java.time.LocalTime
 
 data class FishpondInfo(
     val name: String? = "",
@@ -16,8 +14,11 @@ data class FishpondInfo(
     )
 
 data class HistoryLog(
-    val date: LocalDate,
-    val time: LocalTime,
+    val year: Int,
+    val month: Int,
+    val day: Int,
+    val hour: Int,
+    val minute: Int,
     val tempValue: Float = 0.0F,
     val phValue: Float = 0.0F,
     val turbidityValue: Int = 0

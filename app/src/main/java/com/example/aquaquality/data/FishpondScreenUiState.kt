@@ -1,45 +1,23 @@
 package com.example.aquaquality.data
 
 
-import java.util.Calendar
+import com.example.aquaquality.utilities.DateHelper
+import com.patrykandpatrick.vico.core.entry.FloatEntry
 
-
-
-// Initializing a Calendar
-val mCalendar = Calendar.getInstance()
-
-// Fetching current year, month and day
-val mYear = mCalendar.get(Calendar.YEAR)
-val mMonth = mCalendar.get(Calendar.MONTH)
-val mDay = mCalendar.get(Calendar.DAY_OF_MONTH)
-
-private val months = listOf(
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December"
-)
-
-// Declaring a string value to
-// store date in string format
-val mDate = "${months[mMonth]} $mDay, $mYear"
 
 data class FishpondScreenUiState(
     val fishpondKey: String? = "",
     val fishpondInfo: FishpondInfo? = null,
-    val selectedDate: String? = mDate,
+    val year: Int = DateHelper.mYear,
+    val month: Int = DateHelper.mMonth,
+    val day: Int = DateHelper.mDay,
     val timeList: List<String> = emptyList(),
     val tempValueList: List<Float> = emptyList(),
+    val tempEntryList: List<FloatEntry> = emptyList(),
     val phValueList: List<Float> = emptyList(),
-    val turbValueList: List<Int> = emptyList(),
+    val phEntryList: List<FloatEntry> = emptyList(),
+    val turbidityValueList: List<Int> = emptyList(),
+    val turbidityEntryList: List<FloatEntry> = emptyList(),
     val deviceList: List<DeviceInfo> = emptyList(),
     val deviceKeyList: List<String> = emptyList()
 )

@@ -21,7 +21,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-@RequiresApi(Build.VERSION_CODES.O)
+
 class FishpondListViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(FishpondListUiState())
     val uiState: StateFlow<FishpondListUiState> = _uiState.asStateFlow()

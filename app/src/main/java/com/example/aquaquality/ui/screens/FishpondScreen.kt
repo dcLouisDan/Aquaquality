@@ -1,7 +1,10 @@
 package com.example.aquaquality.ui.screens
 
 import android.app.DatePickerDialog
+import android.graphics.Typeface
+import android.os.Build
 import android.widget.DatePicker
+import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -65,67 +68,54 @@ import com.example.aquaquality.ui.components.ParameterMonitor
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 import com.example.aquaquality.ui.theme.rememberChartStyle
 import com.example.aquaquality.ui.viewmodels.FishpondScreenViewModel
+import com.example.aquaquality.utilities.DateHelper
 import com.patrykandpatrick.vico.compose.axis.horizontal.bottomAxis
 import com.patrykandpatrick.vico.compose.axis.vertical.startAxis
 import com.patrykandpatrick.vico.compose.chart.Chart
 import com.patrykandpatrick.vico.compose.chart.line.lineChart
+import com.patrykandpatrick.vico.compose.component.shapeComponent
+import com.patrykandpatrick.vico.compose.component.textComponent
+import com.patrykandpatrick.vico.compose.dimensions.dimensionsOf
 import com.patrykandpatrick.vico.compose.style.ProvideChartStyle
 import com.patrykandpatrick.vico.core.axis.AxisPosition
 import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
-import com.patrykandpatrick.vico.core.entry.entryModelOf
-import java.util.Calendar
+import com.patrykandpatrick.vico.core.component.shape.Shapes
+import com.patrykandpatrick.vico.core.entry.ChartEntryModelProducer
+import com.patrykandpatrick.vico.core.entry.FloatEntry
 
 
-private val months = listOf(
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December"
-)
+private val months = DateHelper.months
 
+@RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalMaterial3Api
 @Composable
-fun FishpondScreen(fishpondScreenViewModel: FishpondScreenViewModel, uiState: FishpondScreenUiState, modifier: Modifier = Modifier) {
-
+fun FishpondScreen(
+    fishpondScreenViewModel: FishpondScreenViewModel = viewModel(),
+    uiState: FishpondScreenUiState,
+    modifier: Modifier = Modifier
+) {
     val sheetState = rememberModalBottomSheetState()
 //    val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
     val mContext = LocalContext.current
 
-    // Declaring integer values
-    // for year, month and day
-    val mYear: Int
-    val mMonth: Int
-    val mDay: Int
-
-    // Initializing a Calendar
-    val mCalendar = Calendar.getInstance()
-
-    // Fetching current year, month and day
-    mYear = mCalendar.get(Calendar.YEAR)
-    mMonth = mCalendar.get(Calendar.MONTH)
-    mDay = mCalendar.get(Calendar.DAY_OF_MONTH)
-
 
     // Declaring a string value to
     // store date in string format
-    val mDate = remember { mutableStateOf("${months[mMonth]} $mDay, $mYear") }
+    val mDate = remember {
+        mutableStateOf(
+            "${DateHelper.months[uiState.month]} ${uiState.day}, ${uiState.year}"
+        )
+    }
 
     // Declaring DatePickerDialog and setting
     // initial values as current values (present year, month and day)
     val mDatePickerDialog = DatePickerDialog(
         mContext,
-        { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
-            mDate.value = "${months[mMonth]} $mDayOfMonth, $mYear"
-        }, mYear, mMonth, mDay
+        { _: DatePicker, dYear: Int, dMonth: Int, dDayOfMonth: Int ->
+            mDate.value = "${months[dMonth]} $dDayOfMonth, $dYear"
+            fishpondScreenViewModel.setSelectedDate(dYear, dMonth, dDayOfMonth)
+        }, uiState.year, uiState.month, uiState.day
     )
 
 
@@ -150,7 +140,12 @@ fun FishpondScreen(fishpondScreenViewModel: FishpondScreenViewModel, uiState: Fi
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
-                    uiState.fishpondInfo?.name?.let { Text(text = it, style = MaterialTheme.typography.titleLarge) }
+                    uiState.fishpondInfo?.name?.let {
+                        Text(
+                            text = it,
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    }
                     Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
 
                     if (uiState.fishpondInfo?.connectedDeviceId != null) {
@@ -251,7 +246,7 @@ fun FishpondScreen(fishpondScreenViewModel: FishpondScreenViewModel, uiState: Fi
                                 tint = MaterialTheme.colorScheme.outline
                             )
                             Text(
-                                text = mDate.value,
+                                text = mDate.value!!,
                                 color = MaterialTheme.colorScheme.primary,
                                 style = MaterialTheme.typography.titleMedium,
                                 modifier = Modifier.weight(1f),
@@ -265,14 +260,29 @@ fun FishpondScreen(fishpondScreenViewModel: FishpondScreenViewModel, uiState: Fi
                         }
                     }
                     Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
-                    if(uiState.timeList.isNotEmpty()){
-                        DataGraph(chartTitle = R.string.label_wUnit_temperature)
+                    if (uiState.timeList.isNotEmpty()) {
+                        DataGraph(
+                            chartTitle = R.string.label_wUnit_temperature,
+                            timeList = uiState.timeList,
+                            valueList = uiState.tempValueList,
+                            chartEntryModelProducer = fishpondScreenViewModel.tempChartEntryModelProducer
+                        )
                         Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
 
-                        DataGraph(chartTitle = R.string.label_wUnit_pH)
+                        DataGraph(
+                            chartTitle = R.string.label_wUnit_pH,
+                            timeList = uiState.timeList,
+                            valueList = uiState.phValueList,
+                            chartEntryModelProducer = fishpondScreenViewModel.phChartEntryModelProducer
+                        )
                         Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
 
-                        DataGraph(chartTitle = R.string.label_wUnit_turbidity)
+                        DataGraph(
+                            chartTitle = R.string.label_wUnit_turbidity,
+                            timeList = uiState.timeList,
+                            valueList = uiState.turbidityValueList,
+                            chartEntryModelProducer = fishpondScreenViewModel.turbidityChartEntryModelProducer
+                        )
                         Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_large)))
                     } else {
                         Text(
@@ -280,7 +290,9 @@ fun FishpondScreen(fishpondScreenViewModel: FishpondScreenViewModel, uiState: Fi
                             textAlign = TextAlign.Center,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.fillMaxWidth().padding(dimensionResource(id = R.dimen.padding_medium))
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(dimensionResource(id = R.dimen.padding_medium))
                         )
                     }
                 }
@@ -347,63 +359,22 @@ fun IndicatorList(fishpondInfo: FishpondInfo, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun DataGraph(@StringRes chartTitle: Int, modifier: Modifier = Modifier) {
-    val hoursOfTheDay = listOf(
-        "0 AM",
-        "1 AM",
-        "2 AM",
-        "3 AM",
-        "4 AM",
-        "5 AM",
-        "6 AM",
-        "7 AM",
-        "8 AM",
-        "9 AM",
-        "10 AM",
-        "11 AM",
-        "12 NN",
-        "1 PM",
-        "2 PM",
-        "3 PM",
-        "4 PM",
-        "5 PM",
-        "6 PM",
-        "7 PM",
-        "8 PM",
-        "9 PM",
-        "10 PM",
-        "11 PM",
-    )
-    val bottomAxisValueFormatter =
-        AxisValueFormatter<AxisPosition.Horizontal.Bottom> { x, _ -> hoursOfTheDay[x.toInt() % hoursOfTheDay.size] }
+fun DataGraph(
+    @StringRes chartTitle: Int,
+    timeList: List<String>,
+    valueList: List<Number>,
+    modifier: Modifier = Modifier,
+    chartEntryModelProducer: ChartEntryModelProducer,
+) {
+    val entries: List<FloatEntry> = mutableListOf()
 
-    val chartEntryModel = entryModelOf(
-        12,
-        23,
-        23,
-        30,
-        20,
-        22,
-        23,
-        13,
-        15,
-        15,
-        10,
-        3,
-        23,
-        30,
-        20,
-        22,
-        23,
-        23,
-        7,
-        9,
-        11,
-        13,
-        18,
-        30,
-        20,
-    )
+    for ((index, value) in valueList.withIndex()) {
+        val entry = FloatEntry(x = index.toFloat(), y = value.toFloat())
+        entries.plus(entry)
+    }
+
+    val bottomAxisValueFormatter =
+        AxisValueFormatter<AxisPosition.Horizontal.Bottom> { x, _ -> timeList[x.toInt() % timeList.size] }
 
     Column(modifier = modifier) {
         Text(
@@ -419,19 +390,40 @@ fun DataGraph(@StringRes chartTitle: Int, modifier: Modifier = Modifier) {
         ProvideChartStyle(rememberChartStyle(chartColors = listOf(MaterialTheme.colorScheme.primary))) {
             Chart(
                 chart = lineChart(),
-                model = chartEntryModel,
+                chartModelProducer = chartEntryModelProducer,
                 startAxis = startAxis(
+                    title = "Values",
+                    titleComponent = textComponent(
+                        color = MaterialTheme.colorScheme.onTertiary,
+                        background = shapeComponent(Shapes.pillShape, MaterialTheme.colorScheme.tertiary),
+                        padding = axisTitlePadding,
+                        margins = startAxisTitleMargins,
+                        typeface = Typeface.MONOSPACE,
+                    )
                 ),
                 bottomAxis = bottomAxis(
+                    titleComponent = textComponent(
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        background = shapeComponent(Shapes.pillShape, MaterialTheme.colorScheme.primary),
+                        padding = axisTitlePadding,
+                        margins = startAxisTitleMargins,
+                        typeface = Typeface.MONOSPACE,
+                    ),
                     valueFormatter = bottomAxisValueFormatter,
-                    labelRotationDegrees = 90f
+                    labelRotationDegrees = 90f,
+                    title = "Hour of the Day"
                 ),
             )
         }
     }
 }
+private val axisTitleHorizontalPaddingValue = 8.dp
+private val axisTitleVerticalPaddingValue = 2.dp
+private val axisTitlePadding = dimensionsOf(axisTitleHorizontalPaddingValue, axisTitleVerticalPaddingValue)
+private val axisTitleMarginValue = 4.dp
+private val startAxisTitleMargins = dimensionsOf(end = axisTitleMarginValue)
 
-
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun FishpondScreenPreview() {

@@ -54,12 +54,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.aquaquality.R
 import com.example.aquaquality.data.FishpondInfo
 import com.example.aquaquality.data.FishpondListUiState
-import com.example.aquaquality.ui.components.IndicatorStatus
 import com.example.aquaquality.ui.components.ParameterMonitor
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 import com.example.aquaquality.ui.viewmodels.FishpondListViewModel
 import com.example.aquaquality.ui.components.*
 import com.example.aquaquality.ui.viewmodels.FishpondScreenViewModel
+
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -349,6 +349,7 @@ fun FishpondCard(
         }
     }
 }
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview
