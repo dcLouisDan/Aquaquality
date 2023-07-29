@@ -110,3 +110,36 @@ fun DeleteFishpondCardDialog(
         }
     )
 }
+@Composable
+fun DisconnectDeviceDialog(
+    name: String?,
+    onConfirmClick: () -> Unit,
+    onDismissRequest: () -> Unit
+) {
+    val contentColor = MaterialTheme.colorScheme.onError
+    AlertDialog(
+        containerColor = MaterialTheme.colorScheme.error,
+        textContentColor = contentColor,
+        titleContentColor = contentColor,
+        onDismissRequest = onDismissRequest,
+        title = {
+            Text(
+                text = "Disconnect Device",
+                style = MaterialTheme.typography.titleLarge,
+            )
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirmClick) {
+                Text(text = "Confirm", color = contentColor)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismissRequest) {
+                Text(text = "Cancel", color = contentColor)
+            }
+        },
+        text = {
+            Text(text = "Are you sure you want to disconnect from \"$name\"? Real-time monitoring will be unavailable unless a device is connected.")
+        }
+    )
+}

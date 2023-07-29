@@ -8,6 +8,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,11 +18,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Devices
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
@@ -29,8 +35,10 @@ import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.SensorsOff
 import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.material.icons.filled.Water
+import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -49,6 +57,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -61,9 +70,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.aquaquality.R
+import com.example.aquaquality.data.ConnectingStatus
 import com.example.aquaquality.data.FishpondInfo
 import com.example.aquaquality.data.FishpondScreenUiState
-import com.example.aquaquality.ui.components.IndicatorStatus
+import com.example.aquaquality.ui.components.DisconnectDeviceDialog
 import com.example.aquaquality.ui.components.ParameterMonitor
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 import com.example.aquaquality.ui.theme.rememberChartStyle
@@ -82,6 +92,8 @@ import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
 import com.patrykandpatrick.vico.core.component.shape.Shapes
 import com.patrykandpatrick.vico.core.entry.ChartEntryModelProducer
 import com.patrykandpatrick.vico.core.entry.FloatEntry
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 private val months = DateHelper.months
@@ -90,13 +102,14 @@ private val months = DateHelper.months
 @ExperimentalMaterial3Api
 @Composable
 fun FishpondScreen(
+    modifier: Modifier = Modifier,
     fishpondScreenViewModel: FishpondScreenViewModel = viewModel(),
     uiState: FishpondScreenUiState,
-    modifier: Modifier = Modifier
 ) {
     val sheetState = rememberModalBottomSheetState()
 //    val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
+    var showDisconnectDialog by remember { mutableStateOf(false) }
     val mContext = LocalContext.current
 
 
@@ -160,15 +173,14 @@ fun FishpondScreen(
                             mutableStateOf(false)
                         }
 
-                        var isDeviceOnline = false
 
                         val deviceIcon =
-                            if (isDeviceOnline) Icons.Default.Devices else Icons.Default.SensorsOff
+                            if (uiState.deviceInfo.isAvailable!!) Icons.Default.Devices else Icons.Default.SensorsOff
 
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(imageVector = deviceIcon, contentDescription = null)
                             Text(
-                                text = "Device 1",
+                                text = uiState.deviceInfo.name!!,
                                 color = MaterialTheme.colorScheme.primary,
                                 style = MaterialTheme.typography.titleMedium,
                                 modifier = Modifier.weight(1f),
@@ -193,7 +205,9 @@ fun FishpondScreen(
                                     ) {
                                     DropdownMenuItem(
                                         text = { Text(text = "Disconnect") },
-                                        onClick = {}
+                                        onClick = {
+                                            showDisconnectDialog = true
+                                        }
                                     )
                                 }
                             }
@@ -246,7 +260,7 @@ fun FishpondScreen(
                                 tint = MaterialTheme.colorScheme.outline
                             )
                             Text(
-                                text = mDate.value!!,
+                                text = mDate.value,
                                 color = MaterialTheme.colorScheme.primary,
                                 style = MaterialTheme.typography.titleMedium,
                                 modifier = Modifier.weight(1f),
@@ -298,6 +312,18 @@ fun FishpondScreen(
                 }
             }
         }
+//        val context = LocalContext.current
+
+        if (showDisconnectDialog) {
+            DisconnectDeviceDialog(name = uiState.deviceInfo.name, onConfirmClick = {
+                fishpondScreenViewModel.disconnectDeviceFromFishpond(uiState.deviceInfo)
+                showDisconnectDialog = false
+            }, onDismissRequest = { showDisconnectDialog = false })
+        }
+
+
+
+        val coroutineScope = rememberCoroutineScope()
 
         if (showBottomSheet) {
             ModalBottomSheet(
@@ -319,7 +345,66 @@ fun FishpondScreen(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
+                    LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                        items(uiState.deviceList) { device ->
+                            var connectingStatus by remember {
+                                mutableStateOf(ConnectingStatus.AVAILABLE)
+                            }
 
+                            if (device.isAvailable!! && !device.isTaken!!){
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(dimensionResource(id = R.dimen.padding_medium))
+                                        .clickable {
+                                            coroutineScope.launch {
+                                                connectingStatus = ConnectingStatus.LOADING
+                                                delay(1000)
+                                                fishpondScreenViewModel.connectDeviceToFishpond(
+                                                    device
+                                                )
+                                                if (uiState.isConnectionSuccess) {
+                                                    connectingStatus = ConnectingStatus.CONNECTED
+                                                    delay(2000)
+                                                    showBottomSheet = false
+                                                }
+                                            }
+                                        },
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Devices,
+                                        contentDescription = null
+                                    )
+                                    Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
+                                    Text(
+                                        text = device.name!!,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        style = MaterialTheme.typography.titleLarge,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
+                                    when (connectingStatus) {
+                                        ConnectingStatus.AVAILABLE -> Icon(
+                                            imageVector = Icons.Default.Wifi,
+                                            contentDescription = null
+                                        )
+
+                                        ConnectingStatus.LOADING -> CircularProgressIndicator(
+                                            modifier = Modifier.size(
+                                                16.dp
+                                            )
+                                        )
+
+                                        ConnectingStatus.CONNECTED -> Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = null
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -395,7 +480,10 @@ fun DataGraph(
                     title = "Values",
                     titleComponent = textComponent(
                         color = MaterialTheme.colorScheme.onTertiary,
-                        background = shapeComponent(Shapes.pillShape, MaterialTheme.colorScheme.tertiary),
+                        background = shapeComponent(
+                            Shapes.pillShape,
+                            MaterialTheme.colorScheme.tertiary
+                        ),
                         padding = axisTitlePadding,
                         margins = startAxisTitleMargins,
                         typeface = Typeface.MONOSPACE,
@@ -404,7 +492,10 @@ fun DataGraph(
                 bottomAxis = bottomAxis(
                     titleComponent = textComponent(
                         color = MaterialTheme.colorScheme.onPrimary,
-                        background = shapeComponent(Shapes.pillShape, MaterialTheme.colorScheme.primary),
+                        background = shapeComponent(
+                            Shapes.pillShape,
+                            MaterialTheme.colorScheme.primary
+                        ),
                         padding = axisTitlePadding,
                         margins = startAxisTitleMargins,
                         typeface = Typeface.MONOSPACE,
@@ -417,9 +508,11 @@ fun DataGraph(
         }
     }
 }
+
 private val axisTitleHorizontalPaddingValue = 8.dp
 private val axisTitleVerticalPaddingValue = 2.dp
-private val axisTitlePadding = dimensionsOf(axisTitleHorizontalPaddingValue, axisTitleVerticalPaddingValue)
+private val axisTitlePadding =
+    dimensionsOf(axisTitleHorizontalPaddingValue, axisTitleVerticalPaddingValue)
 private val axisTitleMarginValue = 4.dp
 private val startAxisTitleMargins = dimensionsOf(end = axisTitleMarginValue)
 
@@ -431,6 +524,6 @@ fun FishpondScreenPreview() {
         //FishpondScreen ViewModel
         val fishpondScreenViewModel: FishpondScreenViewModel = viewModel()
         val fishpondScreenUiState by fishpondScreenViewModel.uiState.collectAsStateWithLifecycle()
-        FishpondScreen(fishpondScreenViewModel = fishpondScreenViewModel, fishpondScreenUiState)
+        FishpondScreen(fishpondScreenViewModel = fishpondScreenViewModel, uiState = fishpondScreenUiState)
     }
 }

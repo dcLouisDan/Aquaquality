@@ -30,8 +30,6 @@ import com.example.aquaquality.ui.screens.LoadingScreen
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 import com.example.aquaquality.ui.viewmodels.LoginViewModel
 import com.google.android.gms.auth.api.identity.Identity
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -44,8 +42,6 @@ class MainActivity : ComponentActivity() {
     }
 
     private lateinit var connectivityObserver: ConnectivityObserver
-    private lateinit var database: FirebaseDatabase
-    private lateinit var fishpondsRef: DatabaseReference
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {

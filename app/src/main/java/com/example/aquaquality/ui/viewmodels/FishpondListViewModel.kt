@@ -1,9 +1,7 @@
 package com.example.aquaquality.ui.viewmodels
 
-import android.os.Build
+
 import android.util.Log
-import androidx.annotation.RequiresApi
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.aquaquality.data.FishpondInfo
 import com.example.aquaquality.data.FishpondListUiState
@@ -104,7 +102,7 @@ class FishpondListViewModel : ViewModel() {
         }
     }
 
-    fun resetFishpondInfoToModify() {
+    private fun resetFishpondInfoToModify() {
         _uiState.update {
             it.copy(
                 fishpondInfoToModify = null
@@ -132,6 +130,7 @@ class FishpondListViewModel : ViewModel() {
         val dataRef = fishpondsReference.child(fishpondKey)
 
         dataRef.setValue(newInfo)
+        resetFishpondInfoToModify()
     }
 
     fun deleteFishpondInfo(fishpondInfo: FishpondInfo) {
@@ -140,16 +139,23 @@ class FishpondListViewModel : ViewModel() {
         val dataRef = fishpondsReference.child(fishpondKey)
 
         dataRef.removeValue()
+        resetFishpondInfoToModify()
+        disconnectDeviceFromFishpond(fishpondInfo)
+    }
+
+    private fun disconnectDeviceFromFishpond(fishpond: FishpondInfo) {
+        val deviceId = fishpond.connectedDeviceId
+        val fishpondReference = database.getReference("devices").child("$deviceId")
+
+        fishpondReference.child("taken").setValue(false)
     }
 
     fun getFishpondKey(fishpond: FishpondInfo): String {
         val fishpondInfoIndex = uiState.value.fishpondList.indexOf(fishpond)
-        val fishpondKey: String = uiState.value.fishpondKeyList[fishpondInfoIndex]
-
-        return fishpondKey
+        return uiState.value.fishpondKeyList[fishpondInfoIndex]
     }
 
-    fun getSignedInUser(): UserData? = auth.currentUser?.run {
+    private fun getSignedInUser(): UserData? = auth.currentUser?.run {
         UserData(
             userId = uid,
             username = displayName,

@@ -8,6 +8,7 @@ import com.patrykandpatrick.vico.core.entry.FloatEntry
 data class FishpondScreenUiState(
     val fishpondKey: String? = "",
     val fishpondInfo: FishpondInfo? = null,
+    val deviceInfo: DeviceInfo = DeviceInfo(""),
     val year: Int = DateHelper.mYear,
     val month: Int = DateHelper.mMonth,
     val day: Int = DateHelper.mDay,
@@ -19,5 +20,10 @@ data class FishpondScreenUiState(
     val turbidityValueList: List<Int> = emptyList(),
     val turbidityEntryList: List<FloatEntry> = emptyList(),
     val deviceList: List<DeviceInfo> = emptyList(),
-    val deviceKeyList: List<String> = emptyList()
+    val deviceKeyList: List<String> = emptyList(),
+    val isConnectionSuccess: Boolean = false,
+    val isDisconnectionSuccess: Boolean = false,
 )
+enum class ConnectingStatus {
+    AVAILABLE, LOADING, CONNECTED
+}

@@ -4,7 +4,7 @@ import com.example.aquaquality.ui.components.IndicatorStatus
 
 data class FishpondInfo(
     val name: String? = "",
-    val connectedDeviceId: Int? = null,
+    val connectedDeviceId: String? = null,
     val tempValue: Float? = 0.0F,
     val tempStatus: String? = IndicatorStatus.NORMAL.name,
     val phValue: Float? = 0.0F,

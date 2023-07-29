@@ -79,9 +79,6 @@ fun FishpondListScreen(
     var isDeleteDialogVisible by rememberSaveable {
         mutableStateOf(false)
     }
-    var isAddSuccess by rememberSaveable {
-        mutableStateOf(false)
-    }
 
     //FishpondScreen ViewModel
     val fishpondScreenViewModel: FishpondScreenViewModel = viewModel()
@@ -90,8 +87,8 @@ fun FishpondListScreen(
         fishpondListViewModel.resetHomeScreenStates()
     }
 
-    LaunchedEffect(key1 = isAddSuccess) {
-        if (isAddSuccess) {
+    LaunchedEffect(key1 = uiState.isAdditionSuccess) {
+        if (uiState.isAdditionSuccess) {
             Toast.makeText(
                 context,
                 "New Fishpond Added",
@@ -99,6 +96,29 @@ fun FishpondListScreen(
             ).show()
         }
     }
+
+    LaunchedEffect(key1 = fishpondScreenUiState.isConnectionSuccess) {
+        if (fishpondScreenUiState.isConnectionSuccess) {
+            Toast.makeText(
+                context,
+                "Device successfully connected",
+                Toast.LENGTH_LONG
+            ).show()
+            fishpondScreenViewModel.resetConnectionMessages()
+        }
+    }
+
+    LaunchedEffect(key1 = fishpondScreenUiState.isDisconnectionSuccess) {
+        if (fishpondScreenUiState.isDisconnectionSuccess) {
+            Toast.makeText(
+                context,
+                "Device successfully disconnected",
+                Toast.LENGTH_LONG
+            ).show()
+            fishpondScreenViewModel.resetConnectionMessages()
+        }
+    }
+
 
     if (isNewDialogVisible) {
         NewFishpondCardDialog(
@@ -141,7 +161,7 @@ fun FishpondListScreen(
     }
 
     if (!uiState.isShowingHomepage) {
-        FishpondScreen(fishpondScreenViewModel, fishpondScreenUiState)
+        FishpondScreen(fishpondScreenViewModel = fishpondScreenViewModel, uiState =  fishpondScreenUiState)
     } else {
         FishpondCardList(
             isEmpty = uiState.fishpondList.isEmpty(),
@@ -208,7 +228,6 @@ private fun FishpondCardList(
                         modifier = Modifier.padding(
                             dimensionResource(id = R.dimen.padding_small)
                         ),
-                        isConnected = true,
                         onCardClick = onCardClick,
                         onEditClick = { onEditClick(fishpond) },
                         onDeleteClick = { onDeleteClick(fishpond) }
@@ -239,7 +258,6 @@ private fun FishpondCardList(
 fun FishpondCard(
     fishpondInfo: FishpondInfo,
     modifier: Modifier = Modifier,
-    isConnected: Boolean = false,
     onCardClick: (FishpondInfo) -> Unit,
     onEditClick: () -> Unit,
     onDeleteClick: () -> Unit,
