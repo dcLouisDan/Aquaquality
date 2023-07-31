@@ -351,7 +351,7 @@ fun FishpondScreen(
                                 mutableStateOf(ConnectingStatus.AVAILABLE)
                             }
 
-                            if (device.isAvailable!! && !device.isTaken!!){
+                            if (device.isAvailable!! && device.fishpondId == null){
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()

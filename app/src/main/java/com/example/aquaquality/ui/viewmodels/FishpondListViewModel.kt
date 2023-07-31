@@ -147,7 +147,7 @@ class FishpondListViewModel : ViewModel() {
         val deviceId = fishpond.connectedDeviceId
         val fishpondReference = database.getReference("devices").child("$deviceId")
 
-        fishpondReference.child("taken").setValue(false)
+        fishpondReference.child("fishpondId").setValue(null)
     }
 
     fun getFishpondKey(fishpond: FishpondInfo): String {

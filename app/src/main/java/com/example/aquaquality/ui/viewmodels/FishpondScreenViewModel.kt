@@ -101,7 +101,7 @@ class FishpondScreenViewModel : ViewModel() {
                 }
 
                 currentDeviceReference = database.getReference("devices/$deviceId")
-                currentDeviceReference.child("taken").setValue(true)
+                currentDeviceReference.child("fishpondId").setValue(fishpondKey)
             } else {
                 _uiState.update { currentState ->
                     currentState.copy(
@@ -135,7 +135,7 @@ class FishpondScreenViewModel : ViewModel() {
                     )
                 }
                 currentDeviceReference = database.getReference("devices/$deviceId")
-                currentDeviceReference.child("taken").setValue(false)
+                currentDeviceReference.child("fishpondId").setValue(null)
             } else {
                 _uiState.update { currentState ->
                     currentState.copy(
@@ -152,7 +152,7 @@ class FishpondScreenViewModel : ViewModel() {
 //        devicesReference.child("AQ001").setValue(DeviceInfo(
 //            "AQ001",
 //            true,
-//            false,
+//            null,
 //            28f,
 //            7f,
 //            80
@@ -161,7 +161,7 @@ class FishpondScreenViewModel : ViewModel() {
 //            DeviceInfo(
 //                "AQ002",
 //                true,
-//                false,
+//                null,
 //                24f,
 //                7.5f,
 //                45
@@ -170,7 +170,7 @@ class FishpondScreenViewModel : ViewModel() {
 //        devicesReference.child("AQ003").setValue(DeviceInfo(
 //            "AQ003",
 //            false,
-//            false,
+//            null,
 //            32f,
 //            6.6f,
 //            64
