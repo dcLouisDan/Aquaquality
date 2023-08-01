@@ -1,16 +1,17 @@
 package com.example.aquaquality.data
 
 import com.example.aquaquality.ui.components.IndicatorStatus
+import com.google.firebase.database.PropertyName
 
 data class FishpondInfo(
-    val name: String? = "",
-    val connectedDeviceId: String? = null,
-    val tempValue: Float? = 0.0F,
-    val tempStatus: String? = IndicatorStatus.NORMAL.name,
-    val phValue: Float? = 0.0F,
-    val phStatus: String? = IndicatorStatus.NORMAL.name,
-    val turbidityValue: Int? = 0,
-    val turbStatus: String? = IndicatorStatus.NORMAL.name,
+    @PropertyName("name") val name: String? = "",
+    @PropertyName("connectedDeviceId") val connectedDeviceId: String? = null,
+    @PropertyName("tempValue") val tempValue: Float? = 0.0F,
+    @PropertyName("tempStatus") val tempStatus: String? = IndicatorStatus.NORMAL.name,
+    @PropertyName("phValue") val phValue: Float? = 0.0F,
+    @PropertyName("phStatus") val phStatus: String? = IndicatorStatus.NORMAL.name,
+    @PropertyName("turbidityValue") val turbidityValue: Int? = 0,
+    @PropertyName("turbStatus") val turbStatus: String? = IndicatorStatus.NORMAL.name,
     )
 
 data class HistoryLog(

@@ -36,15 +36,19 @@ class FishpondListViewModel : ViewModel() {
 
         fishpondsReference.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                _uiState.value = FishpondListUiState(
-                    fishpondList = emptyList(),
-                    fishpondKeyList = emptyList()
-                )
-                for (info in snapshot.children) {
-                    _uiState.value = FishpondListUiState(
-                        fishpondList = uiState.value.fishpondList.plus(info.getValue<FishpondInfo>()!!),
-                        fishpondKeyList = uiState.value.fishpondKeyList.plus(info.key!!)
+                _uiState.update {
+                    it.copy(
+                        fishpondList = emptyList(),
+                        fishpondKeyList = emptyList()
                     )
+                }
+                for (info in snapshot.children) {
+                    _uiState.update {
+                        it.copy(
+                            fishpondList = uiState.value.fishpondList.plus(info.getValue<FishpondInfo>()!!),
+                            fishpondKeyList = uiState.value.fishpondKeyList.plus(info.key!!)
+                        )
+                    }
                 }
                     Log.i("Firebase", "AVE value: ${uiState.value.fishpondList}")
                     Log.i("Firebase", "Key List: ${uiState.value.fishpondKeyList}")

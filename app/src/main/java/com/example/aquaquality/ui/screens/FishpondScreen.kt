@@ -322,7 +322,6 @@ fun FishpondScreen(
         }
 
 
-
         val coroutineScope = rememberCoroutineScope()
 
         if (showBottomSheet) {
@@ -351,7 +350,7 @@ fun FishpondScreen(
                                 mutableStateOf(ConnectingStatus.AVAILABLE)
                             }
 
-                            if (device.isAvailable!! && device.fishpondId == null){
+                            if (device.isAvailable!! && device.fishpondId == null) {
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -366,9 +365,9 @@ fun FishpondScreen(
                                                 if (uiState.isConnectionSuccess) {
                                                     connectingStatus = ConnectingStatus.CONNECTED
                                                     delay(2000)
-                                                    showBottomSheet = false
                                                 }
                                             }
+                                            showBottomSheet = false
                                         },
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
@@ -524,6 +523,9 @@ fun FishpondScreenPreview() {
         //FishpondScreen ViewModel
         val fishpondScreenViewModel: FishpondScreenViewModel = viewModel()
         val fishpondScreenUiState by fishpondScreenViewModel.uiState.collectAsStateWithLifecycle()
-        FishpondScreen(fishpondScreenViewModel = fishpondScreenViewModel, uiState = fishpondScreenUiState)
+        FishpondScreen(
+            fishpondScreenViewModel = fishpondScreenViewModel,
+            uiState = fishpondScreenUiState
+        )
     }
 }

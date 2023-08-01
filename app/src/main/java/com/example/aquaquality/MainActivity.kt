@@ -1,6 +1,9 @@
 package com.example.aquaquality
 
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
@@ -16,6 +19,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -29,8 +35,12 @@ import com.example.aquaquality.ui.screens.AquaQualityHomeScreen
 import com.example.aquaquality.ui.screens.LoadingScreen
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 import com.example.aquaquality.ui.viewmodels.LoginViewModel
+import com.example.aquaquality.utilities.DatabaseNotificationUtil
 import com.google.android.gms.auth.api.identity.Identity
+import com.google.accompanist.permissions.*
 import kotlinx.coroutines.launch
+import android.Manifest
+
 
 class MainActivity : ComponentActivity() {
 
@@ -42,11 +52,14 @@ class MainActivity : ComponentActivity() {
     }
 
     private lateinit var connectivityObserver: ConnectivityObserver
+    private val dbNotification = DatabaseNotificationUtil()
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         connectivityObserver = NetworkConnectivityObserver(applicationContext)
+        createNotificationChannel()
+        dbNotification.watch(applicationContext)
         setContent {
             AquaqualityTheme {
                 // A surface container using the 'background' color from the theme
@@ -54,11 +67,24 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+//                    var isNotificationPermissionGranted by remember {
+//                        mutableStateOf(false)
+//                    }
+//
+//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+//                    val requestPermissionLauncher =
+//                        registerForActivityResult(
+//                            ActivityResultContracts.RequestMultiplePermissions()
+//                        ) { permissions: Map<String, Boolean> ->
+//                            isNotificationPermissionGranted = permissions[Manifest.permission.POST_NOTIFICATIONS]!!
+//                        }
+//
+//                        requestPermissionLauncher.launch(arrayOf(Manifest.permission.POST_NOTIFICATIONS))
+//                    }
                     val status by connectivityObserver.observe().collectAsState(
                         initial = ConnectivityObserver.Status.Unavailable
                     )
                     val navController = rememberNavController()
-
 
                     NavHost(navController = navController, startDestination = "loading") {
                         composable("loading") {
@@ -184,7 +210,6 @@ class MainActivity : ComponentActivity() {
                                     },
                                     onDismissRequest = { /*TODO*/ })
                             }
-
                             AquaQualityHomeScreen(
                                 userData = googleAuthUiClient.getSignedInUser(),
                                 onLogoutClick = {
@@ -200,11 +225,27 @@ class MainActivity : ComponentActivity() {
                                     }
                                 },
                             )
-
                         }
                     }
                 }
             }
+        }
+    }
+
+    private fun createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = getString(R.string.notif_channel_name)
+            val descriptionText = getString(R.string.notif_channel_desc)
+            val importance = NotificationManager.IMPORTANCE_HIGH
+            val channel = NotificationChannel(name, name, importance).apply {
+                description = descriptionText
+            }
+            // Register the channel with the system
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
         }
     }
 

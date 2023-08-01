@@ -32,6 +32,7 @@ class FishpondScreenViewModel : ViewModel() {
     val uiState: StateFlow<FishpondScreenUiState> = _uiState.asStateFlow()
     private val database = Firebase.database
     private val auth = Firebase.auth
+    private val userId = getSignedInUser()?.userId
 
     private lateinit var devicesReference: DatabaseReference
     private lateinit var currentDeviceReference: DatabaseReference
@@ -47,7 +48,6 @@ class FishpondScreenViewModel : ViewModel() {
     init {
         database.useEmulator("10.0.2.2", 9000)
         val historyLogs = LocalFishpondsDataProvider.historyList
-
         val month = historyLogs[0].month
         val day = historyLogs[0].day
         val year = historyLogs[0].year
@@ -71,8 +71,7 @@ class FishpondScreenViewModel : ViewModel() {
             }
         }
 
-
-
+        updateFishpondInfo()
         setChartValues()
         if (uiState.value.fishpondInfo?.connectedDeviceId == null) {
             getDeviceList()
@@ -86,7 +85,6 @@ class FishpondScreenViewModel : ViewModel() {
     }
 
     fun connectDeviceToFishpond(deviceInfo: DeviceInfo) {
-        val userId = getSignedInUser()?.userId
         val deviceId = getDeviceKey(deviceInfo)
         val fishpondKey = uiState.value.fishpondKey
 
@@ -149,14 +147,16 @@ class FishpondScreenViewModel : ViewModel() {
     private fun getDeviceList() {
         devicesReference = database.getReference("devices")
 
-//        devicesReference.child("AQ001").setValue(DeviceInfo(
-//            "AQ001",
-//            true,
-//            null,
-//            28f,
-//            7f,
-//            80
-//        ))
+//        devicesReference.child("AQ001").setValue(
+//            DeviceInfo(
+//                "AQ001",
+//                true,
+//                null,
+//                28f,
+//                7f,
+//                80
+//            )
+//        )
 //        devicesReference.child("AQ002").setValue(
 //            DeviceInfo(
 //                "AQ002",
@@ -167,14 +167,16 @@ class FishpondScreenViewModel : ViewModel() {
 //                45
 //            )
 //        )
-//        devicesReference.child("AQ003").setValue(DeviceInfo(
-//            "AQ003",
-//            false,
-//            null,
-//            32f,
-//            6.6f,
-//            64
-//        ))
+//        devicesReference.child("AQ003").setValue(
+//            DeviceInfo(
+//                "AQ003",
+//                false,
+//                null,
+//                32f,
+//                6.6f,
+//                64
+//            )
+//        )
 
         devicesReference.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -209,6 +211,30 @@ class FishpondScreenViewModel : ViewModel() {
     private fun getDeviceKey(deviceInfo: DeviceInfo): String {
         val deviceInfoIndex = uiState.value.deviceList.indexOf(deviceInfo)
         return uiState.value.deviceKeyList[deviceInfoIndex]
+    }
+
+    private fun updateFishpondInfo() {
+        val fishpondKey = uiState.value.fishpondKey
+        fishpondReference = database.getReference("$userId/fishponds/$fishpondKey")
+
+        fishpondReference.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (child in snapshot.children) {
+                    _uiState.update {
+                        it.copy(
+                            fishpondInfo = child.getValue<FishpondInfo>()!!
+                        )
+                    }
+                    Log.i("Child", "${child.key}: ${child.value}")
+                }
+
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("Fishpond Info", "Fishpond info retrieval failed")
+            }
+
+        })
     }
 
     private fun setChartValues() {
