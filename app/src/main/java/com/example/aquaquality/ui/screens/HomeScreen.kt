@@ -49,6 +49,7 @@ import com.example.aquaquality.ui.viewmodels.FishpondListViewModel
 fun AquaQualityHomeScreen(
     userData: UserData?,
     onLogoutClick: () -> Unit,
+    exitApp: () -> Unit
 ) {
     val fishpondListViewModel: FishpondListViewModel = viewModel()
     val fishpondListUiState = fishpondListViewModel.uiState.collectAsState().value
@@ -117,7 +118,8 @@ fun AquaQualityHomeScreen(
                 when (targetState) {
                     0 -> FishpondListScreen(
                         fishpondListViewModel = fishpondListViewModel,
-                        uiState = fishpondListUiState
+                        uiState = fishpondListUiState,
+                        exitApp = exitApp
                     )
 
                     1 -> ReferencesScreen()
@@ -212,7 +214,7 @@ private data class NavigationItemContent(
 @Composable
 fun HomePreview() {
     AquaqualityTheme {
-        AquaQualityHomeScreen(userData = UserData("", "", "", null), onLogoutClick = {})
+        AquaQualityHomeScreen(userData = UserData("", "", "", null), onLogoutClick = {}, exitApp = {})
     }
 }
 

@@ -19,9 +19,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -39,7 +36,6 @@ import com.example.aquaquality.utilities.DatabaseNotificationUtil
 import com.google.android.gms.auth.api.identity.Identity
 import com.google.accompanist.permissions.*
 import kotlinx.coroutines.launch
-import android.Manifest
 
 
 class MainActivity : ComponentActivity() {
@@ -224,6 +220,7 @@ class MainActivity : ComponentActivity() {
                                         navController.popBackStack()
                                     }
                                 },
+                                exitApp = { finish() }
                             )
                         }
                     }

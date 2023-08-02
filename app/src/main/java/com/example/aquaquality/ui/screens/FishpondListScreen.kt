@@ -66,7 +66,8 @@ import com.example.aquaquality.ui.viewmodels.FishpondScreenViewModel
 @Composable
 fun FishpondListScreen(
     fishpondListViewModel: FishpondListViewModel = viewModel(),
-    uiState: FishpondListUiState
+    uiState: FishpondListUiState,
+    exitApp: () -> Unit,
 ) {
     val context = LocalContext.current
 
@@ -82,9 +83,15 @@ fun FishpondListScreen(
 
     //FishpondScreen ViewModel
     val fishpondScreenViewModel: FishpondScreenViewModel = viewModel()
+
+
     val fishpondScreenUiState by fishpondScreenViewModel.uiState.collectAsStateWithLifecycle()
-    BackHandler(!uiState.isShowingHomepage) {
+    BackHandler{
+        if (!uiState.isShowingHomepage){
         fishpondListViewModel.resetHomeScreenStates()
+        } else {
+            exitApp()
+        }
     }
 
     LaunchedEffect(key1 = uiState.isAdditionSuccess) {
@@ -379,6 +386,7 @@ fun FishpondsPreview() {
         FishpondListScreen(
             fishpondListViewModel = fishpondListViewModel,
             uiState = fishpondListUiState,
+            exitApp = {}
         )
     }
 }
