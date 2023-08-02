@@ -7,4 +7,6 @@ data class SettingsUiState(
     val maxPh: String = "",
     val minTurb: String = "",
     val maxTurb: String = "",
+    val errorMessage: String? = null,
+    val isSaveSuccess: Boolean = false
 )

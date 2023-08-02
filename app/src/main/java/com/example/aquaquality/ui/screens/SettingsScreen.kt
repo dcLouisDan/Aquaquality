@@ -1,5 +1,6 @@
 package com.example.aquaquality.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,14 +41,38 @@ import com.example.aquaquality.data.SettingsUiState
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 import com.example.aquaquality.ui.viewmodels.SettingsViewModel
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun SettingsScreen(
-    settingsViewModel: SettingsViewModel = viewModel(),
-    onSaveButtonClick: () -> Unit,
     modifier: Modifier = Modifier,
+    settingsViewModel: SettingsViewModel = viewModel(),
 ) {
     val settingsUiState: SettingsUiState by settingsViewModel.uiState.collectAsState()
+    val context = LocalContext.current
+
+    LaunchedEffect(key1 = settingsUiState.isSaveSuccess) {
+        if (settingsUiState.isSaveSuccess) {
+            Toast.makeText(
+                context,
+                "Saved changes.",
+                Toast.LENGTH_LONG
+            ).show()
+            settingsViewModel.resetSaveSuccessState()
+        }
+    }
+
+    LaunchedEffect(key1 = settingsUiState.errorMessage) {
+        if (settingsUiState.errorMessage != null && settingsUiState.errorMessage != "") {
+            Toast.makeText(
+                context,
+                "Invalid input",
+                Toast.LENGTH_LONG
+            ).show()
+            settingsViewModel.resetErrorMessage()
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -75,7 +101,7 @@ fun SettingsScreen(
                 ParameterSettingTextField(
                     value = settingsUiState.minTemp,
                     recommendedValue = stringResource(R.string.value_rec_min_temp),
-                    onValueChange = {settingsViewModel.setMinTempInput(it)},
+                    onValueChange = { settingsViewModel.setMinTempInput(it) },
                     label = stringResource(R.string.label_min_temp)
                 )
                 Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
@@ -97,14 +123,14 @@ fun SettingsScreen(
                 ParameterSettingTextField(
                     value = settingsUiState.minPh,
                     recommendedValue = stringResource(R.string.value_rec_min_ph),
-                    onValueChange = {settingsViewModel.setMinPhInput(it)},
+                    onValueChange = { settingsViewModel.setMinPhInput(it) },
                     label = stringResource(R.string.label_min_ph)
                 )
                 Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
                 ParameterSettingTextField(
                     value = settingsUiState.maxPh,
                     recommendedValue = stringResource(R.string.value_rec_max_ph),
-                    onValueChange = {settingsViewModel.setMaxPhInput(it)},
+                    onValueChange = { settingsViewModel.setMaxPhInput(it) },
                     label = stringResource(R.string.label_max_ph)
                 )
 
@@ -126,7 +152,7 @@ fun SettingsScreen(
                 ParameterSettingTextField(
                     value = settingsUiState.maxTurb,
                     recommendedValue = stringResource(R.string.value_rec_max_turb),
-                    onValueChange = {settingsViewModel.setMaxTurbInput(it)},
+                    onValueChange = { settingsViewModel.setMaxTurbInput(it) },
                     label = stringResource(R.string.label_max_turb)
                 )
 
@@ -134,7 +160,7 @@ fun SettingsScreen(
                 Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_xl)))
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    Button(onClick = onSaveButtonClick) {
+                    Button(onClick = { settingsViewModel.updateSettings() }) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 imageVector = Icons.Default.Save,
@@ -189,8 +215,6 @@ fun ParameterSettingTextField(
 @Composable
 fun SettingsPreview() {
     AquaqualityTheme {
-        SettingsScreen(
-            onSaveButtonClick = {},
-        )
+        SettingsScreen()
     }
 }

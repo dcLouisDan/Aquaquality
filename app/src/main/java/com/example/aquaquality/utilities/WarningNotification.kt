@@ -21,10 +21,12 @@ class WarningNotification(
         val pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
         val builder = NotificationCompat.Builder(context, context.getString(R.string.notif_channel_name))
             .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .addAction(R.drawable.ic_launcher_foreground, "Open Message", pendingIntent)
+            .setContentIntent(pendingIntent)
+//            .addAction(R.drawable.ic_launcher_foreground, "Open Message", pendingIntent)
             .setContentTitle(title)
             .setContentText(body)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setAutoCancel(true)
 
         notificationManager.notify(100, builder.build())
     }

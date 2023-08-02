@@ -30,7 +30,7 @@ import kotlinx.coroutines.launch
 class FishpondScreenViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(FishpondScreenUiState())
     val uiState: StateFlow<FishpondScreenUiState> = _uiState.asStateFlow()
-    private val database = Firebase.database
+    private val database = Firebase.database("https://aquaquality-fe2e7-default-rtdb.asia-southeast1.firebasedatabase.app/")
     private val auth = Firebase.auth
     private val userId = getSignedInUser()?.userId
 
@@ -46,7 +46,6 @@ class FishpondScreenViewModel : ViewModel() {
 
 
     init {
-        database.useEmulator("10.0.2.2", 9000)
         val historyLogs = LocalFishpondsDataProvider.historyList
         val month = historyLogs[0].month
         val day = historyLogs[0].day
@@ -155,26 +154,6 @@ class FishpondScreenViewModel : ViewModel() {
 //                28f,
 //                7f,
 //                80
-//            )
-//        )
-//        devicesReference.child("AQ002").setValue(
-//            DeviceInfo(
-//                "AQ002",
-//                true,
-//                null,
-//                24f,
-//                7.5f,
-//                45
-//            )
-//        )
-//        devicesReference.child("AQ003").setValue(
-//            DeviceInfo(
-//                "AQ003",
-//                false,
-//                null,
-//                32f,
-//                6.6f,
-//                64
 //            )
 //        )
 

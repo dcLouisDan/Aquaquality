@@ -13,12 +13,11 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 
 class DatabaseNotificationUtil {
-    private val database = Firebase.database
+    private val database = Firebase.database("https://aquaquality-fe2e7-default-rtdb.asia-southeast1.firebasedatabase.app/")
     private val auth = Firebase.auth
     private lateinit var fishpondsRef: DatabaseReference
 
     fun watch(context: Context) {
-        database.useEmulator("10.0.2.2", 9000)
         val userId = getSignedInUser()?.userId
         if (userId != null) {
             fishpondsRef = database.getReference("$userId/fishponds")
@@ -31,10 +30,10 @@ class DatabaseNotificationUtil {
 
                 override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
                     val fishpondInfo = snapshot.getValue(FishpondInfo::class.java)
-                    Log.i("Child Change", "Info: ${fishpondInfo}")
+                    Log.i("Child Change", "Info: $fishpondInfo")
 
 
-                    if (fishpondInfo?.tempValue!! < 0) {
+                    if (fishpondInfo?.tempValue!! < 28) {
                         val notif = WarningNotification(
                             context,
                             "Temperature Warning",
@@ -44,7 +43,7 @@ class DatabaseNotificationUtil {
                         notif.show()
                     }
 
-                    if (fishpondInfo.tempValue > 0) {
+                    if (fishpondInfo.tempValue > 32) {
                         val notif = WarningNotification(
                             context,
                             "Temperature Warning",

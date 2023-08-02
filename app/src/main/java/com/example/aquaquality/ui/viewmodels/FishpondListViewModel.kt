@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.aquaquality.data.FishpondInfo
 import com.example.aquaquality.data.FishpondListUiState
+import com.example.aquaquality.data.SettingsInfo
 import com.example.aquaquality.presentation.sign_in.UserData
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
@@ -23,17 +24,19 @@ import kotlinx.coroutines.flow.update
 class FishpondListViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(FishpondListUiState())
     val uiState: StateFlow<FishpondListUiState> = _uiState.asStateFlow()
-    private val database = Firebase.database
+    private val database = Firebase.database("https://aquaquality-fe2e7-default-rtdb.asia-southeast1.firebasedatabase.app/")
+    private val settingsRef: DatabaseReference
     private var fishpondsReference: DatabaseReference
+
 
     private val auth = Firebase.auth
 
 
     init {
-        database.useEmulator("10.0.2.2", 9000)
         val userId = getSignedInUser()?.userId
-        fishpondsReference = database.getReference("$userId/fishponds")
-
+        fishpondsReference= database.getReference("$userId/fishponds")
+        settingsRef = database.getReference("$userId/settings")
+        initializeSettings()
         fishpondsReference.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 _uiState.update {
@@ -60,6 +63,21 @@ class FishpondListViewModel : ViewModel() {
 
         })
 
+    }
+
+    private fun initializeSettings() {
+        settingsRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.value == null){
+                    settingsRef.setValue(SettingsInfo())
+                } else {
+                    Log.e("Settings", "Existing Settings")
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+        })
     }
 
     fun updateDetailsScreenStates(fishpond: FishpondInfo) {

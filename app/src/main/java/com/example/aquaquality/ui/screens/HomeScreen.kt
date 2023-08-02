@@ -1,15 +1,10 @@
-@file:OptIn(
-    ExperimentalAnimationApi::class, ExperimentalAnimationApi::class,
-    ExperimentalAnimationApi::class, ExperimentalAnimationApi::class,
-    ExperimentalAnimationApi::class, ExperimentalAnimationApi::class
-)
+
 
 package com.example.aquaquality.ui.screens
 
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.with
@@ -44,7 +39,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.aquaquality.R
-import com.example.aquaquality.presentation.database.RealtimeDbClient
 import com.example.aquaquality.presentation.sign_in.UserData
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 import com.example.aquaquality.ui.viewmodels.FishpondListViewModel
@@ -127,9 +121,7 @@ fun AquaQualityHomeScreen(
                     )
 
                     1 -> ReferencesScreen()
-                    2 -> SettingsScreen(
-                        onSaveButtonClick = {},
-                    )
+                    2 -> SettingsScreen()
 
                     3 -> AccountScreen(userData = userData, onLogoutClick = onLogoutClick)
                 }
