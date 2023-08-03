@@ -9,6 +9,7 @@ import com.example.aquaquality.MainActivity
 import com.example.aquaquality.R
 
 class WarningNotification(
+    private val id: Int,
     val context: Context,
     private val title: String,
     private val body: String,
@@ -28,6 +29,6 @@ class WarningNotification(
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
 
-        notificationManager.notify(100, builder.build())
+        notificationManager.notify(id, builder.build())
     }
 }

@@ -6,7 +6,9 @@ import androidx.lifecycle.ViewModel
 import com.example.aquaquality.data.FishpondInfo
 import com.example.aquaquality.data.FishpondListUiState
 import com.example.aquaquality.data.SettingsInfo
+import com.example.aquaquality.data.checkParameterStatus
 import com.example.aquaquality.presentation.sign_in.UserData
+import com.example.aquaquality.ui.components.IndicatorStatus
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -24,7 +26,8 @@ import kotlinx.coroutines.flow.update
 class FishpondListViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(FishpondListUiState())
     val uiState: StateFlow<FishpondListUiState> = _uiState.asStateFlow()
-    private val database = Firebase.database("https://aquaquality-fe2e7-default-rtdb.asia-southeast1.firebasedatabase.app/")
+    private val database =
+        Firebase.database("https://aquaquality-fe2e7-default-rtdb.asia-southeast1.firebasedatabase.app/")
     private val settingsRef: DatabaseReference
     private var fishpondsReference: DatabaseReference
 
@@ -34,48 +37,98 @@ class FishpondListViewModel : ViewModel() {
 
     init {
         val userId = getSignedInUser()?.userId
-        fishpondsReference= database.getReference("$userId/fishponds")
+        fishpondsReference = database.getReference("$userId/fishponds")
         settingsRef = database.getReference("$userId/settings")
-        initializeSettings()
-        fishpondsReference.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                _uiState.update {
-                    it.copy(
-                        fishpondList = emptyList(),
-                        fishpondKeyList = emptyList()
-                    )
-                }
-                for (info in snapshot.children) {
+
+        initializeSettings{ settingsInfo ->
+            fishpondsReference.addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
                     _uiState.update {
                         it.copy(
-                            fishpondList = uiState.value.fishpondList.plus(info.getValue<FishpondInfo>()!!),
-                            fishpondKeyList = uiState.value.fishpondKeyList.plus(info.key!!)
+                            fishpondList = emptyList(),
+                            fishpondKeyList = emptyList()
                         )
                     }
-                }
+                    for (info in snapshot.children) {
+                        _uiState.update {
+                            it.copy(
+                                fishpondList = uiState.value.fishpondList.plus(info.getValue<FishpondInfo>()!!),
+                                fishpondKeyList = uiState.value.fishpondKeyList.plus(info.key!!)
+                            )
+                        }
+
+                        var fishpondInfo = uiState.value.fishpondList.last()
+                        val fishpondIndex = uiState.value.fishpondList.lastIndex
+                        val fishpondList = uiState.value.fishpondList.toMutableList()
+                        checkParameterStatus(
+                            settingsInfo = settingsInfo,
+                            fishpondInfo = fishpondInfo,
+                            onLowTemp = {
+                                fishpondInfo =
+                                    fishpondInfo.copy(tempStatus = IndicatorStatus.UNDER_RANGE.name)
+                                fishpondList[fishpondIndex] = fishpondInfo
+                            },
+                            onHighTemp = {
+                                fishpondInfo =
+                                    fishpondInfo.copy(tempStatus = IndicatorStatus.OVER_RANGE.name)
+                                fishpondList[fishpondIndex] = fishpondInfo
+                            },
+                            onLowPh = {
+                                fishpondInfo =
+                                    fishpondInfo.copy(phStatus = IndicatorStatus.UNDER_RANGE.name)
+                                fishpondList[fishpondIndex] = fishpondInfo
+                            },
+                            onHighPh = {
+                                fishpondInfo =
+                                    fishpondInfo.copy(phStatus = IndicatorStatus.OVER_RANGE.name)
+                                fishpondList[fishpondIndex] = fishpondInfo
+                            },
+                            onLowTurb = {
+                                fishpondInfo =
+                                    fishpondInfo.copy(turbStatus = IndicatorStatus.UNDER_RANGE.name)
+                                fishpondList[fishpondIndex] = fishpondInfo
+                            },
+                            onHighTurb = {
+                                fishpondInfo =
+                                    fishpondInfo.copy(turbStatus = IndicatorStatus.OVER_RANGE.name)
+                                fishpondList[fishpondIndex] = fishpondInfo
+                            }
+                        )
+
+                        _uiState.update {
+                            it.copy(
+                                fishpondList = fishpondList
+                            )
+                        }
+                    }
                     Log.i("Firebase", "AVE value: ${uiState.value.fishpondList}")
                     Log.i("Firebase", "Key List: ${uiState.value.fishpondKeyList}")
-            }
+                }
 
-            override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
-            }
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("Firebase", "$error")
+                }
 
-        })
+            })
+        }
 
     }
 
-    private fun initializeSettings() {
+    private fun initializeSettings(callback: (SettingsInfo) -> Unit) {
         settingsRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.value == null){
-                    settingsRef.setValue(SettingsInfo())
+                val settings = if (snapshot.value != null) {
+                    snapshot.getValue<SettingsInfo>()!!
                 } else {
-                    Log.e("Settings", "Existing Settings")
+                    settingsRef.setValue(SettingsInfo())
+                    SettingsInfo()
                 }
+                Log.i("Settings", "Updated Settings: $settings")
+                callback(settings)
             }
+
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
+                Log.e("Settings", "Something went wrong")
             }
         })
     }
