@@ -1,11 +1,28 @@
 package com.example.aquaquality.ui.components
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import com.example.aquaquality.R
+import com.example.aquaquality.data.FishpondInfo
+import com.example.aquaquality.data.SuggestionInfo
+import com.example.aquaquality.data.SuggestionType
+import com.example.aquaquality.ui.theme.AquaqualityTheme
 
 
 @Composable
@@ -110,6 +127,7 @@ fun DeleteFishpondCardDialog(
         }
     )
 }
+
 @Composable
 fun DisconnectDeviceDialog(
     name: String?,
@@ -142,4 +160,106 @@ fun DisconnectDeviceDialog(
             Text(text = "Are you sure you want to disconnect from \"$name\"? Real-time monitoring will be unavailable unless a device is connected.")
         }
     )
+}
+
+val highTempTreatments = listOf(
+    "This is a sentence that narrates a possible treatment solution that the farmer can implement in order to manage the fishpond’s high water temperature.",
+    "This is also a sentence that narrates another possible treatment solution that the farmer can implement in order to manage the fishpond’s high water temperature."
+)
+val highTempConsequences = listOf(
+    "This is a paragraph that narrates a possible consequence that might happen if the water temperature is left unmanaged.",
+    "This is also another paragraph that narrates a possible consequence that might happen if the water temperature is left unmanaged."
+)
+
+val highTempSuggestionInfo = SuggestionInfo(
+    suggestionType = SuggestionType.HIGH,
+    headline = "The water temperature has exceeded the recommended range.",
+    solutionList = highTempTreatments,
+    consequenceList = highTempConsequences
+)
+
+val lowPhSuggestionInfo = SuggestionInfo(
+    suggestionType = SuggestionType.LOW,
+    headline = "The ph level is below the recommended range.",
+    solutionList = highTempTreatments,
+    consequenceList = highTempConsequences
+)
+
+@Composable
+fun ParameterWarningDialog(
+    fishpondInfo: FishpondInfo = FishpondInfo(
+        name = "Fishpond_Name"
+    ),
+    suggestionInfo: SuggestionInfo,
+    onConfirmClick: () -> Unit,
+    onDismissRequest: () -> Unit
+) {
+    val contentColor = when(suggestionInfo.suggestionType) {
+        SuggestionType.LOW -> MaterialTheme.colorScheme.onTertiary
+        SuggestionType.HIGH -> MaterialTheme.colorScheme.onError
+    }
+    val containerColor = when(suggestionInfo.suggestionType) {
+        SuggestionType.LOW -> MaterialTheme.colorScheme.tertiary
+        SuggestionType.HIGH -> MaterialTheme.colorScheme.error
+    }
+    AlertDialog(
+        containerColor = containerColor,
+        textContentColor = contentColor,
+        titleContentColor = contentColor,
+        onDismissRequest = onDismissRequest,
+        title = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(imageVector = Icons.Filled.Error, contentDescription = null)
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
+                Text(
+                    text = "Warning:",
+                    style = MaterialTheme.typography.labelLarge,
+                )
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
+                Text(
+                    text = fishpondInfo.name!!,
+                    style = MaterialTheme.typography.titleLarge,
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onConfirmClick) {
+                Text(text = "View Possible Solutions", color = contentColor)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismissRequest) {
+                Text(text = "Dismiss", color = contentColor)
+            }
+        },
+        text = {
+            Text(text = suggestionInfo.headline, textAlign = TextAlign.Center)
+        }
+    )
+}
+
+
+@Preview
+@Composable
+fun WarningPreview() {
+    AquaqualityTheme {
+        ParameterWarningDialog(
+            suggestionInfo = highTempSuggestionInfo,
+            onConfirmClick = {}) {
+        }
+    }
+}
+
+@Preview
+@Composable
+fun WarningPreview2() {
+    AquaqualityTheme {
+        ParameterWarningDialog(
+            suggestionInfo = lowPhSuggestionInfo,
+            onConfirmClick = {}) {
+        }
+    }
 }
