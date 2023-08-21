@@ -59,7 +59,7 @@ import com.example.aquaquality.ui.theme.AquaqualityTheme
 import com.example.aquaquality.ui.viewmodels.FishpondListViewModel
 import com.example.aquaquality.ui.components.*
 import com.example.aquaquality.ui.viewmodels.FishpondScreenViewModel
-
+import java.time.Instant
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -329,28 +329,29 @@ fun FishpondCard(
                         .fillMaxWidth()
                         .padding(dimensionResource(id = R.dimen.padding_medium))
                 ) {
+                    val isOffline  = fishpondInfo.isOffline!!
                     ParameterMonitor(
                         Icons.Default.Thermostat,
                         R.string.label_temperature,
-                        fishpondInfo.tempValue.toString(),
+                        if (isOffline) "--" else fishpondInfo.tempValue.toString(),
                         parameterValueFormat = R.string.parameter_temperature,
-                        stringIndicatorStatus = fishpondInfo.tempStatus!!
+                        stringIndicatorStatus = if (isOffline) IndicatorStatus.OFFLINE.name else fishpondInfo.tempStatus!!
                     )
                     Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.height_xs)))
                     ParameterMonitor(
                         Icons.Default.Science,
                         R.string.label_pH,
-                        fishpondInfo.phValue.toString(),
+                        if (isOffline) "--" else fishpondInfo.phValue.toString(),
                         parameterValueFormat = R.string.parameter_pH,
-                        stringIndicatorStatus = fishpondInfo.phStatus!!
+                        stringIndicatorStatus = if (isOffline) IndicatorStatus.OFFLINE.name else fishpondInfo.phStatus!!
                     )
                     Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.height_xs)))
                     ParameterMonitor(
                         Icons.Default.Water,
                         R.string.label_turbidity,
-                        fishpondInfo.turbidityValue.toString(),
+                        if (isOffline) "--" else fishpondInfo.turbidityValue.toString(),
                         parameterValueFormat = R.string.parameter_turbidity,
-                        stringIndicatorStatus = fishpondInfo.turbStatus!!
+                        stringIndicatorStatus = if (isOffline) IndicatorStatus.OFFLINE.name else fishpondInfo.turbStatus!!
                     )
                 }
             } else {

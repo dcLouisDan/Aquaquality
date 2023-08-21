@@ -74,6 +74,7 @@ import com.example.aquaquality.data.ConnectingStatus
 import com.example.aquaquality.data.FishpondInfo
 import com.example.aquaquality.data.FishpondScreenUiState
 import com.example.aquaquality.ui.components.DisconnectDeviceDialog
+import com.example.aquaquality.ui.components.IndicatorStatus
 import com.example.aquaquality.ui.components.ParameterMonitor
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 import com.example.aquaquality.ui.theme.rememberChartStyle
@@ -175,7 +176,7 @@ fun FishpondScreen(
 
 
                         val deviceIcon =
-                            if (uiState.deviceInfo.isAvailable!!) Icons.Default.Devices else Icons.Default.SensorsOff
+                            if (!uiState.fishpondInfo.isOffline!!) Icons.Default.Devices else Icons.Default.SensorsOff
 
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(imageVector = deviceIcon, contentDescription = null)
@@ -416,28 +417,29 @@ fun IndicatorList(fishpondInfo: FishpondInfo, modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxWidth()
     ) {
+        val isOffline  = fishpondInfo.isOffline!!
         ParameterMonitor(
             Icons.Default.Thermostat,
             R.string.label_temperature,
-            fishpondInfo.tempValue.toString(),
+            if (isOffline) "--" else fishpondInfo.tempValue.toString(),
             parameterValueFormat = R.string.parameter_temperature,
-            stringIndicatorStatus = fishpondInfo.tempStatus!!
+            stringIndicatorStatus = if (isOffline) IndicatorStatus.OFFLINE.name else fishpondInfo.tempStatus!!
         )
         Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.height_xs)))
         ParameterMonitor(
             Icons.Default.Science,
             R.string.label_pH,
-            fishpondInfo.phValue.toString(),
+            if (isOffline) "--" else fishpondInfo.phValue.toString(),
             parameterValueFormat = R.string.parameter_pH,
-            stringIndicatorStatus = fishpondInfo.phStatus!!
+            stringIndicatorStatus = if (isOffline) IndicatorStatus.OFFLINE.name else fishpondInfo.phStatus!!
         )
         Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.height_xs)))
         ParameterMonitor(
             Icons.Default.Water,
             R.string.label_turbidity,
-            fishpondInfo.turbidityValue.toString(),
+            if (isOffline) "--" else fishpondInfo.turbidityValue.toString(),
             parameterValueFormat = R.string.parameter_turbidity,
-            stringIndicatorStatus = fishpondInfo.turbStatus!!
+            stringIndicatorStatus = if (isOffline) IndicatorStatus.OFFLINE.name else fishpondInfo.turbStatus!!
         )
     }
 }

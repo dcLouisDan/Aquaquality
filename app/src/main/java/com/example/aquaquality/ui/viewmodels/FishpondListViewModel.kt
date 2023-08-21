@@ -3,6 +3,7 @@ package com.example.aquaquality.ui.viewmodels
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.example.aquaquality.data.DeviceInfo
 import com.example.aquaquality.data.FishpondInfo
 import com.example.aquaquality.data.FishpondListUiState
 import com.example.aquaquality.data.SettingsInfo
@@ -28,19 +29,26 @@ class FishpondListViewModel : ViewModel() {
     val uiState: StateFlow<FishpondListUiState> = _uiState.asStateFlow()
     private val database =
         Firebase.database("https://aquaquality-fe2e7-default-rtdb.asia-southeast1.firebasedatabase.app/")
-    private val settingsRef: DatabaseReference
-    private var fishpondsReference: DatabaseReference
+    private lateinit var settingsRef: DatabaseReference
+    private lateinit var fishpondsReference: DatabaseReference
 
 
     private val auth = Firebase.auth
 
 
     init {
+        fetchData()
+    }
+
+    fun refreshData() {
+        fetchData()
+    }
+    private fun fetchData() {
         val userId = getSignedInUser()?.userId
         fishpondsReference = database.getReference("$userId/fishponds")
         settingsRef = database.getReference("$userId/settings")
 
-        initializeSettings{ settingsInfo ->
+        initializeSettings { settingsInfo ->
             fishpondsReference.addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     _uiState.update {
@@ -60,6 +68,7 @@ class FishpondListViewModel : ViewModel() {
                         var fishpondInfo = uiState.value.fishpondList.last()
                         val fishpondIndex = uiState.value.fishpondList.lastIndex
                         val fishpondList = uiState.value.fishpondList.toMutableList()
+
                         checkParameterStatus(
                             settingsInfo = settingsInfo,
                             fishpondInfo = fishpondInfo,
@@ -94,15 +103,44 @@ class FishpondListViewModel : ViewModel() {
                                 fishpondList[fishpondIndex] = fishpondInfo
                             }
                         )
+                        if (fishpondInfo.connectedDeviceId != null) {
+                            database.getReference("devices/${fishpondInfo.connectedDeviceId}")
+                                .get().addOnCompleteListener { task ->
+                                    if (task.isSuccessful) {
+                                        val deviceInfo = task.result.getValue<DeviceInfo>()!!
+                                        val epochSeconds = System.currentTimeMillis() / 1000
+                                        val isOffline = (epochSeconds - deviceInfo.timestamp!!) > 5
+                                        fishpondInfo =
+                                            fishpondInfo.copy(isOffline = isOffline)
+                                        fishpondList[fishpondIndex] = fishpondInfo
+                                        _uiState.update {
+                                            it.copy(
+                                                fishpondList = fishpondList
+                                            )
+                                        }
 
-                        _uiState.update {
-                            it.copy(
-                                fishpondList = fishpondList
-                            )
+                                        Log.i(
+                                            "Firebase",
+                                            "AVE value: ${uiState.value.fishpondList}"
+                                        )
+                                        Log.i(
+                                            "Firebase",
+                                            "Key List: ${uiState.value.fishpondKeyList}"
+                                        )
+                                    }
+                                }
+                        } else {
+                            _uiState.update {
+                                it.copy(
+                                    fishpondList = fishpondList
+                                )
+                            }
+                            Log.i("Firebase", "AVE value: ${uiState.value.fishpondList}")
+                            Log.i("Firebase", "Key List: ${uiState.value.fishpondKeyList}")
                         }
+
                     }
-                    Log.i("Firebase", "AVE value: ${uiState.value.fishpondList}")
-                    Log.i("Firebase", "Key List: ${uiState.value.fishpondKeyList}")
+
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -111,7 +149,6 @@ class FishpondListViewModel : ViewModel() {
 
             })
         }
-
     }
 
     private fun initializeSettings(callback: (SettingsInfo) -> Unit) {

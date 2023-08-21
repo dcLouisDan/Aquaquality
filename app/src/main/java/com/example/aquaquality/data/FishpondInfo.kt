@@ -12,6 +12,7 @@ data class FishpondInfo(
     @PropertyName("phStatus") val phStatus: String? = IndicatorStatus.NORMAL.name,
     @PropertyName("turbidityValue") val turbidityValue: Int? = 0,
     @PropertyName("turbStatus") val turbStatus: String? = IndicatorStatus.NORMAL.name,
+    val isOffline: Boolean? = true
     )
 
 data class HistoryLog(

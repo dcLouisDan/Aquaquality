@@ -98,7 +98,7 @@ class FishpondScreenViewModel : ViewModel() {
                 }
 
                 currentDeviceReference = database.getReference("devices/$deviceId")
-                currentDeviceReference.child("fishpondId").setValue(fishpondKey)
+                currentDeviceReference.child("fishpondId").setValue("$userId/fishponds/$fishpondKey")
             } else {
                 _uiState.update { currentState ->
                     currentState.copy(

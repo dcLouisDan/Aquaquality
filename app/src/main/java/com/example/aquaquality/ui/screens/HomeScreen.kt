@@ -1,5 +1,3 @@
-
-
 package com.example.aquaquality.ui.screens
 
 import android.os.Build
@@ -16,6 +14,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -60,6 +59,7 @@ fun AquaQualityHomeScreen(
             AquaQualityAppBar(
                 canNavigateBack = !fishpondListUiState.isShowingHomepage,
                 navigateUp = { fishpondListViewModel.resetHomeScreenStates() },
+                onRefreshClick = { fishpondListViewModel.refreshData() }
             )
         }
     ) { innerPadding ->
@@ -142,9 +142,9 @@ fun AquaQualityHomeScreen(
 
 @Composable
 fun AquaQualityAppBar(
-//    currentScreen: CupcakeScreen,
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
+    onRefreshClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val appBarColor =
@@ -167,6 +167,11 @@ fun AquaQualityAppBar(
         colors = TopAppBarDefaults.mediumTopAppBarColors(
             containerColor = appBarColor
         ),
+        actions = {
+            IconButton(onClick = onRefreshClick) {
+                Icon(Icons.Default.Refresh, contentDescription = null)
+            }
+        },
         modifier = modifier,
         navigationIcon = {
             if (canNavigateBack) {
@@ -214,7 +219,10 @@ private data class NavigationItemContent(
 @Composable
 fun HomePreview() {
     AquaqualityTheme {
-        AquaQualityHomeScreen(userData = UserData("", "", "", null), onLogoutClick = {}, exitApp = {})
+        AquaQualityHomeScreen(
+            userData = UserData("", "", "", null),
+            onLogoutClick = {},
+            exitApp = {},)
     }
 }
 

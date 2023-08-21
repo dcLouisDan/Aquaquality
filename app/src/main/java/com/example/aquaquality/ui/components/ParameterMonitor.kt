@@ -26,6 +26,7 @@ enum class IndicatorStatus{
     NORMAL,
     OVER_RANGE,
     UNDER_RANGE,
+    OFFLINE
 }
 
 @Composable
@@ -37,8 +38,7 @@ fun ParameterMonitor(
     parameterValueFormat: Int,
     stringIndicatorStatus: String = "NORMAL"
 ) {
-    val indicatorStatus = IndicatorStatus.valueOf(stringIndicatorStatus)
-    val monitorTheme = when (indicatorStatus) {
+    val monitorTheme = when (IndicatorStatus.valueOf(stringIndicatorStatus)) {
         IndicatorStatus.NORMAL -> MonitorTheme(
             backgroundColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary
@@ -50,6 +50,10 @@ fun ParameterMonitor(
         IndicatorStatus.UNDER_RANGE -> MonitorTheme(
             backgroundColor = MaterialTheme.colorScheme.tertiary,
             contentColor = MaterialTheme.colorScheme.onTertiary
+        )
+        IndicatorStatus.OFFLINE -> MonitorTheme(
+            backgroundColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            contentColor = MaterialTheme.colorScheme.surfaceVariant
         )
         else -> MonitorTheme(
             backgroundColor = MaterialTheme.colorScheme.primary,
