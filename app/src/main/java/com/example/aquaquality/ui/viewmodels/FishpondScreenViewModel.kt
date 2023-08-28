@@ -143,7 +143,7 @@ class FishpondScreenViewModel : ViewModel() {
         }
     }
 
-    private fun getDeviceList() {
+    fun getDeviceList() {
         devicesReference = database.getReference("devices")
 
 //        devicesReference.child("AQ001").setValue(
@@ -168,14 +168,26 @@ class FishpondScreenViewModel : ViewModel() {
 
                 if (snapshot.exists()) {
                     for (info in snapshot.children) {
+                        val deviceInfo = info.getValue<DeviceInfo>()!!
+                        val epochSeconds = System.currentTimeMillis() / 1000
+                        val isOffline = (epochSeconds - deviceInfo.timestamp!!) > 5
+
+                        if (isOffline){
+                            devicesReference.child("${deviceInfo.name}").child("available").setValue(false)
+                        } else {
+                            devicesReference.child("${deviceInfo.name}").child("available").setValue(true)
+                        }
+
                         _uiState.update { currentState ->
                             currentState.copy(
                                 deviceList = uiState.value.deviceList.plus(info.getValue<DeviceInfo>()!!),
                                 deviceKeyList = uiState.value.deviceKeyList.plus(info.key.toString())
                             )
                         }
+
                     }
                     Log.i("Device Info", "Device Info: ${uiState.value.deviceList}")
+                    Log.i("Device Key List", "Device Info: ${uiState.value.deviceKeyList }")
                 }
             }
 

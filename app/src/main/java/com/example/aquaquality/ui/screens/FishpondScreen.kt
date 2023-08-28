@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Devices
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.SensorsOff
 import androidx.compose.material.icons.filled.Thermostat
@@ -339,11 +340,17 @@ fun FishpondScreen(
                         .height(700.dp)
                         .padding(dimensionResource(id = R.dimen.padding_medium))
                 ) {
-                    Text(
-                        text = "Connect to a device",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "Connect to a device",
+                            style = MaterialTheme.typography.titleLarge,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.weight(1f)
+                        )
+                        IconButton(onClick = { fishpondScreenViewModel.getDeviceList() }) {
+                            Icon(Icons.Default.Refresh, contentDescription = null)
+                        }
+                    }
                     Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
                     LazyColumn(modifier = Modifier.fillMaxWidth()) {
                         items(uiState.deviceList) { device ->
