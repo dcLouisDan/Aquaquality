@@ -15,39 +15,55 @@ fun checkParameterStatus(
     fishpondInfo: FishpondInfo,
     onLowTemp: (() -> Unit)? = null,
     onHighTemp: (() -> Unit)? = null,
+    onSafeTemp: (() -> Unit)? = null,
     onLowPh: (() -> Unit)? = null,
     onHighPh: (() -> Unit)? = null,
+    onSafePh: (() -> Unit)? = null,
     onLowTurb: (() -> Unit)? = null,
     onHighTurb: (() -> Unit)? = null,
+    onSafeTurb: (() -> Unit)? = null,
 ) {
     if (fishpondInfo.tempValue!! < settingsInfo.minTemp!!) {
         if (onLowTemp != null) {
             onLowTemp()
         }
-    }
-    if (fishpondInfo.tempValue > settingsInfo.maxTemp!!) {
+    } else if (fishpondInfo.tempValue > settingsInfo.maxTemp!!) {
         if (onHighTemp != null) {
             onHighTemp()
         }
+    } else {
+        if (onSafeTemp != null){
+            onSafeTemp()
+        }
     }
+
+
     if (fishpondInfo.phValue!! < settingsInfo.minPh!!){
         if (onLowPh != null) {
             onLowPh()
         }
-    }
-    if (fishpondInfo.phValue > settingsInfo.maxPh!!){
+    } else if (fishpondInfo.phValue > settingsInfo.maxPh!!){
         if (onHighPh != null) {
             onHighPh()
         }
+    } else {
+        if (onSafePh != null){
+            onSafePh()
+        }
     }
+
+
     if (fishpondInfo.turbidityValue!! < settingsInfo.minTurb!!){
         if (onLowTurb != null) {
             onLowTurb()
         }
-    }
-    if (fishpondInfo.turbidityValue > settingsInfo.maxTurb!!){
+    } else if (fishpondInfo.turbidityValue > settingsInfo.maxTurb!!){
         if (onHighTurb != null) {
             onHighTurb()
+        }
+    } else {
+        if (onSafeTurb != null){
+            onSafeTurb()
         }
     }
 }

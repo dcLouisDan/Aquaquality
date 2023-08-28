@@ -55,7 +55,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         connectivityObserver = NetworkConnectivityObserver(applicationContext)
         createNotificationChannel()
-//        dbNotification.watch(applicationContext)
+        dbNotification.watch(applicationContext)
         setContent {
             AquaqualityTheme {
                 // A surface container using the 'background' color from the theme
