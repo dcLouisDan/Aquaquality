@@ -19,7 +19,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.aquaquality.R
-import com.example.aquaquality.data.FishpondInfo
 import com.example.aquaquality.data.SuggestionInfo
 import com.example.aquaquality.data.SuggestionType
 import com.example.aquaquality.ui.theme.AquaqualityTheme
@@ -173,23 +172,20 @@ val highTempConsequences = listOf(
 
 val highTempSuggestionInfo = SuggestionInfo(
     suggestionType = SuggestionType.HIGH,
-    headline = "The water temperature has exceeded the recommended range.",
+    headline = "The water temperature of one of the fishponds has exceeded the recommended range.",
     solutionList = highTempTreatments,
     consequenceList = highTempConsequences
 )
 
 val lowPhSuggestionInfo = SuggestionInfo(
     suggestionType = SuggestionType.LOW,
-    headline = "The ph level is below the recommended range.",
+    headline = "The ph level of one of the fishponds is below the recommended range.",
     solutionList = highTempTreatments,
     consequenceList = highTempConsequences
 )
 
 @Composable
 fun ParameterWarningDialog(
-    fishpondInfo: FishpondInfo = FishpondInfo(
-        name = "Fishpond_Name"
-    ),
     suggestionInfo: SuggestionInfo,
     onConfirmClick: () -> Unit,
     onDismissRequest: () -> Unit
@@ -215,12 +211,7 @@ fun ParameterWarningDialog(
                 Icon(imageVector = Icons.Filled.Error, contentDescription = null)
                 Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
                 Text(
-                    text = "Warning:",
-                    style = MaterialTheme.typography.labelLarge,
-                )
-                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
-                Text(
-                    text = fishpondInfo.name!!,
+                    text = "Warning!",
                     style = MaterialTheme.typography.titleLarge,
                 )
             }

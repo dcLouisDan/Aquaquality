@@ -76,31 +76,138 @@ class FishpondListViewModel : ViewModel() {
                                 fishpondInfo =
                                     fishpondInfo.copy(tempStatus = IndicatorStatus.UNDER_RANGE.name)
                                 fishpondList[fishpondIndex] = fishpondInfo
+
+                                if (!uiState.value.sentAlerts.contains(1)){
+                                    toggleLowTempAlert(true)
+                                    _uiState.update {
+                                        it.copy(
+                                            sentAlerts = uiState.value.sentAlerts.plus(1)
+                                        )
+                                    }
+                                }
                             },
                             onHighTemp = {
                                 fishpondInfo =
                                     fishpondInfo.copy(tempStatus = IndicatorStatus.OVER_RANGE.name)
                                 fishpondList[fishpondIndex] = fishpondInfo
+
+                                if (!uiState.value.sentAlerts.contains(2)){
+                                    toggleHighTempAlert(true)
+                                    _uiState.update {
+                                        it.copy(
+                                            sentAlerts = uiState.value.sentAlerts.plus(2)
+                                        )
+                                    }
+                                }
+                            },
+                            onSafeTemp = {
+                                if (uiState.value.sentAlerts.contains(1)){
+                                    toggleLowTempAlert(false)
+                                    _uiState.update {
+                                        it.copy(
+                                            sentAlerts = uiState.value.sentAlerts.minus(1)
+                                        )
+                                    }
+                                }
+                                if (uiState.value.sentAlerts.contains(2)){
+                                    toggleHighTempAlert(false)
+                                    _uiState.update {
+                                        it.copy(
+                                            sentAlerts = uiState.value.sentAlerts.minus(2)
+                                        )
+                                    }
+                                }
                             },
                             onLowPh = {
                                 fishpondInfo =
                                     fishpondInfo.copy(phStatus = IndicatorStatus.UNDER_RANGE.name)
                                 fishpondList[fishpondIndex] = fishpondInfo
+
+                                if (!uiState.value.sentAlerts.contains(3)){
+                                    toggleLowPhAlert(true)
+                                    _uiState.update {
+                                        it.copy(
+                                            sentAlerts = uiState.value.sentAlerts.minus(3)
+                                        )
+                                    }
+                                }
                             },
                             onHighPh = {
                                 fishpondInfo =
                                     fishpondInfo.copy(phStatus = IndicatorStatus.OVER_RANGE.name)
                                 fishpondList[fishpondIndex] = fishpondInfo
+
+                                if (!uiState.value.sentAlerts.contains(4)){
+                                    toggleHighPhAlert(true)
+                                    _uiState.update {
+                                        it.copy(
+                                            sentAlerts = uiState.value.sentAlerts.minus(4)
+                                        )
+                                    }
+                                }
+                            },
+                            onSafePh = {
+                                if (uiState.value.sentAlerts.contains(3)){
+                                    toggleLowPhAlert(false)
+                                    _uiState.update {
+                                        it.copy(
+                                            sentAlerts = uiState.value.sentAlerts.minus(3)
+                                        )
+                                    }
+                                }
+                                if (uiState.value.sentAlerts.contains(4)){
+                                    toggleHighPhAlert(false)
+                                    _uiState.update {
+                                        it.copy(
+                                            sentAlerts = uiState.value.sentAlerts.minus(4)
+                                        )
+                                    }
+                                }
                             },
                             onLowTurb = {
                                 fishpondInfo =
                                     fishpondInfo.copy(turbStatus = IndicatorStatus.UNDER_RANGE.name)
                                 fishpondList[fishpondIndex] = fishpondInfo
+
+                                if (!uiState.value.sentAlerts.contains(5)){
+                                    toggleLowTurbAlert(true)
+                                    _uiState.update {
+                                        it.copy(
+                                            sentAlerts = uiState.value.sentAlerts.minus(5)
+                                        )
+                                    }
+                                }
                             },
                             onHighTurb = {
                                 fishpondInfo =
                                     fishpondInfo.copy(turbStatus = IndicatorStatus.OVER_RANGE.name)
                                 fishpondList[fishpondIndex] = fishpondInfo
+                                if (!uiState.value.sentAlerts.contains(6)){
+                                    toggleHighTurbAlert(true)
+                                    _uiState.update {
+                                        it.copy(
+                                            sentAlerts = uiState.value.sentAlerts.minus(6)
+                                        )
+                                    }
+                                }
+                            },
+                            onSafeTurb = {
+                                if (uiState.value.sentAlerts.contains(5)){
+                                    toggleLowTurbAlert(false)
+                                    _uiState.update {
+                                        it.copy(
+                                            sentAlerts = uiState.value.sentAlerts.minus(5)
+                                        )
+                                    }
+                                }
+                                if (uiState.value.sentAlerts.contains(6)){
+                                    toggleHighTurbAlert(false)
+                                    _uiState.update {
+                                        it.copy(
+                                            sentAlerts = uiState.value.sentAlerts.minus(6)
+                                        )
+                                    }
+                                }
                             }
                         )
                         if (fishpondInfo.connectedDeviceId != null) {
@@ -148,6 +255,49 @@ class FishpondListViewModel : ViewModel() {
                 }
 
             })
+        }
+    }
+
+    fun toggleLowTempAlert(isVisible: Boolean) {
+        _uiState.update { it ->
+            it.copy(
+                isLowTempAlertVisible = isVisible
+            )
+        }
+    }
+    fun toggleHighTempAlert(isVisible: Boolean) {
+        _uiState.update { it ->
+            it.copy(
+                isHighTempAlertVisible = isVisible
+            )
+        }
+    }
+    fun toggleLowPhAlert(isVisible: Boolean) {
+        _uiState.update { it ->
+            it.copy(
+                isLowPhAlertVisible = isVisible
+            )
+        }
+    }
+    fun toggleHighPhAlert(isVisible: Boolean) {
+        _uiState.update { it ->
+            it.copy(
+                isHighPhAlertVisible = isVisible
+            )
+        }
+    }
+    fun toggleLowTurbAlert(isVisible: Boolean) {
+        _uiState.update { it ->
+            it.copy(
+                isLowTurbAlertVisible = isVisible
+            )
+        }
+    }
+    fun toggleHighTurbAlert(isVisible: Boolean) {
+        _uiState.update { it ->
+            it.copy(
+                isHighTurbAlertVisible = isVisible
+            )
         }
     }
 

@@ -3,8 +3,13 @@ package com.example.aquaquality.ui.screens
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.with
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,7 +43,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.aquaquality.R
+import com.example.aquaquality.data.local.LocalInfoProvider
 import com.example.aquaquality.presentation.sign_in.UserData
+import com.example.aquaquality.ui.components.ParameterWarningDialog
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 import com.example.aquaquality.ui.viewmodels.FishpondListViewModel
 
@@ -53,6 +60,75 @@ fun AquaQualityHomeScreen(
     val fishpondListViewModel: FishpondListViewModel = viewModel()
     val fishpondListUiState = fishpondListViewModel.uiState.collectAsState().value
 
+    var isLowTempSuggestionScreenVisible by rememberSaveable { mutableStateOf(false) }
+    var isHighTempSuggestionScreenVisible by rememberSaveable { mutableStateOf(false) }
+    var isLowPhSuggestionScreenVisible by rememberSaveable { mutableStateOf(false) }
+    var isHighPhSuggestionScreenVisible by rememberSaveable { mutableStateOf(false) }
+    var isLowTurbSuggestionScreenVisible by rememberSaveable { mutableStateOf(false) }
+    var isHighTurbSuggestionScreenVisible by rememberSaveable { mutableStateOf(false) }
+
+    if (fishpondListUiState.isLowTempAlertVisible) {
+        ParameterWarningDialog(suggestionInfo = LocalInfoProvider.lowTempSuggestionInfo,
+            onConfirmClick = {
+                fishpondListViewModel.toggleLowTempAlert(false)
+                isLowTempSuggestionScreenVisible = true
+            },
+            onDismissRequest = {
+                fishpondListViewModel.toggleLowTempAlert(false)
+            })
+    }
+    if (fishpondListUiState.isHighTempAlertVisible) {
+        ParameterWarningDialog(suggestionInfo = LocalInfoProvider.highTempSuggestionInfo,
+            onConfirmClick = {
+                fishpondListViewModel.toggleHighTempAlert(false)
+                isHighTempSuggestionScreenVisible = true
+            },
+            onDismissRequest = {
+                fishpondListViewModel.toggleHighTempAlert(false)
+            })
+    }
+
+    if (fishpondListUiState.isLowPhAlertVisible) {
+        ParameterWarningDialog(suggestionInfo = LocalInfoProvider.lowPhSuggestionInfo,
+            onConfirmClick = {
+                fishpondListViewModel.toggleLowPhAlert(false)
+                isLowPhSuggestionScreenVisible = true
+            },
+            onDismissRequest = {
+                fishpondListViewModel.toggleLowPhAlert(false)
+            })
+    }
+    if (fishpondListUiState.isHighPhAlertVisible) {
+        ParameterWarningDialog(suggestionInfo = LocalInfoProvider.highPhSuggestionInfo,
+            onConfirmClick = {
+                fishpondListViewModel.toggleHighPhAlert(false)
+                isHighPhSuggestionScreenVisible = true
+            },
+            onDismissRequest = {
+                fishpondListViewModel.toggleHighPhAlert(false)
+            })
+    }
+
+    if (fishpondListUiState.isLowTurbAlertVisible) {
+        ParameterWarningDialog(suggestionInfo = LocalInfoProvider.lowTurbSuggestionInfo,
+            onConfirmClick = {
+                fishpondListViewModel.toggleLowTurbAlert(false)
+                isLowTurbSuggestionScreenVisible = true
+            },
+            onDismissRequest = {
+                fishpondListViewModel.toggleLowTurbAlert(false)
+            })
+    }
+    if (fishpondListUiState.isHighTurbAlertVisible) {
+        ParameterWarningDialog(suggestionInfo = LocalInfoProvider.highTurbSuggestionInfo,
+            onConfirmClick = {
+                fishpondListViewModel.toggleHighTurbAlert(false)
+                isHighTurbSuggestionScreenVisible = true
+            },
+            onDismissRequest = {
+                fishpondListViewModel.toggleHighTurbAlert(false)
+            })
+    }
 
     Scaffold(
         topBar = {
@@ -136,6 +212,75 @@ fun AquaQualityHomeScreen(
                     currentScreenIndex = it
                 })
         }
+    }
+
+    AnimatedVisibility(
+        visible = isLowTempSuggestionScreenVisible,
+        enter = slideInVertically() + fadeIn(),
+        exit = slideOutVertically() + fadeOut()
+    ) {
+        SuggestionScreen(
+            suggestionInfo = LocalInfoProvider.lowTempSuggestionInfo,
+            onCloseButtonClick = {
+                isLowTempSuggestionScreenVisible = false
+            })
+    }
+    AnimatedVisibility(
+        visible = isHighTempSuggestionScreenVisible,
+        enter = slideInVertically() + fadeIn(),
+        exit = slideOutVertically() + fadeOut()
+    ) {
+        SuggestionScreen(
+            suggestionInfo = LocalInfoProvider.highTempSuggestionInfo,
+            onCloseButtonClick = {
+                isHighTempSuggestionScreenVisible = false
+            })
+    }
+
+    AnimatedVisibility(
+        visible = isLowPhSuggestionScreenVisible,
+        enter = slideInVertically() + fadeIn(),
+        exit = slideOutVertically() + fadeOut()
+    ) {
+        SuggestionScreen(
+            suggestionInfo = LocalInfoProvider.lowPhSuggestionInfo,
+            onCloseButtonClick = {
+                isLowPhSuggestionScreenVisible = false
+            })
+    }
+    AnimatedVisibility(
+        visible = isHighPhSuggestionScreenVisible,
+        enter = slideInVertically() + fadeIn(),
+        exit = slideOutVertically() + fadeOut()
+    ) {
+        SuggestionScreen(
+            suggestionInfo = LocalInfoProvider.highPhSuggestionInfo,
+            onCloseButtonClick = {
+                isHighPhSuggestionScreenVisible = false
+            })
+    }
+
+    AnimatedVisibility(
+        visible = isLowTurbSuggestionScreenVisible,
+        enter = slideInVertically() + fadeIn(),
+        exit = slideOutVertically() + fadeOut()
+    ) {
+        SuggestionScreen(
+            suggestionInfo = LocalInfoProvider.lowTurbSuggestionInfo,
+            onCloseButtonClick = {
+                isLowTurbSuggestionScreenVisible = false
+            })
+    }
+    AnimatedVisibility(
+        visible = isHighTurbSuggestionScreenVisible,
+        enter = slideInVertically() + fadeIn(),
+        exit = slideOutVertically() + fadeOut()
+    ) {
+        SuggestionScreen(
+            suggestionInfo = LocalInfoProvider.highTurbSuggestionInfo,
+            onCloseButtonClick = {
+                isHighTurbSuggestionScreenVisible = false
+            })
     }
 }
 
@@ -222,7 +367,8 @@ fun HomePreview() {
         AquaQualityHomeScreen(
             userData = UserData("", "", "", null),
             onLogoutClick = {},
-            exitApp = {},)
+            exitApp = {},
+        )
     }
 }
 

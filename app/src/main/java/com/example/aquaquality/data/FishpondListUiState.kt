@@ -9,4 +9,11 @@ data class FishpondListUiState(
     val fishpondInfoToModify: FishpondInfo? = null,
     val newFishpondName: String = "",
     val editFishpondName: String = "",
+    val sentAlerts: Set<Int> = emptySet(),
+    val isLowTempAlertVisible: Boolean = false,
+    val isHighTempAlertVisible: Boolean = false,
+    val isLowPhAlertVisible: Boolean = false,
+    val isHighPhAlertVisible: Boolean = false,
+    val isLowTurbAlertVisible: Boolean = false,
+    val isHighTurbAlertVisible: Boolean = false,
 )
