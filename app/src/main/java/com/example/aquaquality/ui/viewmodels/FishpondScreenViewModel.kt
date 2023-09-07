@@ -8,8 +8,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.aquaquality.data.DeviceInfo
 import com.example.aquaquality.data.FishpondInfo
 import com.example.aquaquality.data.FishpondScreenUiState
+import com.example.aquaquality.data.SettingsInfo
+import com.example.aquaquality.data.checkParameterStatus
 import com.example.aquaquality.data.local.LocalFishpondsDataProvider
 import com.example.aquaquality.presentation.sign_in.UserData
+import com.example.aquaquality.ui.components.IndicatorStatus
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -30,13 +33,15 @@ import kotlinx.coroutines.launch
 class FishpondScreenViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(FishpondScreenUiState())
     val uiState: StateFlow<FishpondScreenUiState> = _uiState.asStateFlow()
-    private val database = Firebase.database("https://aquaquality-fe2e7-default-rtdb.asia-southeast1.firebasedatabase.app/")
+    private val database =
+        Firebase.database("https://aquaquality-fe2e7-default-rtdb.asia-southeast1.firebasedatabase.app/")
     private val auth = Firebase.auth
     private val userId = getSignedInUser()?.userId
 
     private lateinit var devicesReference: DatabaseReference
     private lateinit var currentDeviceReference: DatabaseReference
     private lateinit var fishpondReference: DatabaseReference
+    private var settingsRef: DatabaseReference
 
 
     internal var tempChartEntryModelProducer: ChartEntryModelProducer = ChartEntryModelProducer()
@@ -50,6 +55,8 @@ class FishpondScreenViewModel : ViewModel() {
         val month = historyLogs[0].month
         val day = historyLogs[0].day
         val year = historyLogs[0].year
+        settingsRef = database.getReference("$userId/settings")
+
 
         _uiState.update { currentState ->
             currentState.copy(
@@ -69,8 +76,9 @@ class FishpondScreenViewModel : ViewModel() {
                 )
             }
         }
-
-        updateFishpondInfo()
+        initializeSettings { settingsInfo ->
+            updateFishpondInfo(settingsInfo)
+        }
         setChartValues()
         if (uiState.value.fishpondInfo?.connectedDeviceId == null) {
             getDeviceList()
@@ -98,7 +106,8 @@ class FishpondScreenViewModel : ViewModel() {
                 }
 
                 currentDeviceReference = database.getReference("devices/$deviceId")
-                currentDeviceReference.child("fishpondId").setValue("$userId/fishponds/$fishpondKey")
+                currentDeviceReference.child("fishpondId")
+                    .setValue("$userId/fishponds/$fishpondKey")
             } else {
                 _uiState.update { currentState ->
                     currentState.copy(
@@ -166,16 +175,27 @@ class FishpondScreenViewModel : ViewModel() {
                     )
                 }
 
+
                 if (snapshot.exists()) {
                     for (info in snapshot.children) {
                         val deviceInfo = info.getValue<DeviceInfo>()!!
+                        var connectedFishpondRef: DatabaseReference? = null
+                        if (deviceInfo.fishpondId != null) {
+                            connectedFishpondRef =
+                                database.getReference(deviceInfo.fishpondId)
+                        }
                         val epochSeconds = System.currentTimeMillis() / 1000
                         val isOffline = (epochSeconds - deviceInfo.timestamp!!) > 5
 
-                        if (isOffline){
-                            devicesReference.child("${deviceInfo.name}").child("available").setValue(false)
+                        if (isOffline) {
+                            devicesReference.child("/${deviceInfo.name}").child("available")
+                                .setValue(false)
+                            connectedFishpondRef?.child("offline")?.setValue(true)
                         } else {
-                            devicesReference.child("${deviceInfo.name}").child("available").setValue(true)
+                            devicesReference.child("/${deviceInfo.name}").child("available")
+                                .setValue(true)
+
+                            connectedFishpondRef?.child("offline")?.setValue(false)
                         }
 
                         _uiState.update { currentState ->
@@ -187,7 +207,7 @@ class FishpondScreenViewModel : ViewModel() {
 
                     }
                     Log.i("Device Info", "Device Info: ${uiState.value.deviceList}")
-                    Log.i("Device Key List", "Device Info: ${uiState.value.deviceKeyList }")
+                    Log.i("Device Key List", "Device Info: ${uiState.value.deviceKeyList}")
                 }
             }
 
@@ -200,11 +220,17 @@ class FishpondScreenViewModel : ViewModel() {
     }
 
     private fun getDeviceKey(deviceInfo: DeviceInfo): String {
-        val deviceInfoIndex = uiState.value.deviceList.indexOf(deviceInfo)
+        var deviceInfoIndex = -1
+
+        for ((i, device) in uiState.value.deviceList.withIndex()) {
+            if (device.name.equals(deviceInfo.name)) {
+                deviceInfoIndex = i
+            }
+        }
         return uiState.value.deviceKeyList[deviceInfoIndex]
     }
 
-    private fun updateFishpondInfo() {
+    private fun updateFishpondInfo(settingsInfo: SettingsInfo) {
         val fishpondKey = uiState.value.fishpondKey
         fishpondReference = database.getReference("$userId/fishponds/$fishpondKey")
 
@@ -217,14 +243,72 @@ class FishpondScreenViewModel : ViewModel() {
                         )
                     }
                     Log.i("Child", "${child.key}: ${child.value}")
-                }
 
+
+                    var fishpondInfo = uiState.value.fishpondInfo!!
+                    if (fishpondInfo.connectedDeviceId != null) {
+                        checkParameterStatus(
+                            settingsInfo = settingsInfo,
+                            fishpondInfo = fishpondInfo,
+                            onLowTemp = {
+                                fishpondInfo =
+                                    fishpondInfo.copy(tempStatus = IndicatorStatus.UNDER_RANGE.name)
+                            },
+                            onHighTemp = {
+                                fishpondInfo =
+                                    fishpondInfo.copy(tempStatus = IndicatorStatus.OVER_RANGE.name)
+                            },
+                            onLowPh = {
+                                fishpondInfo =
+                                    fishpondInfo.copy(phStatus = IndicatorStatus.UNDER_RANGE.name)
+                            },
+                            onHighPh = {
+                                fishpondInfo =
+                                    fishpondInfo.copy(phStatus = IndicatorStatus.OVER_RANGE.name)
+
+                            },
+                            onLowTurb = {
+                                fishpondInfo =
+                                    fishpondInfo.copy(turbStatus = IndicatorStatus.UNDER_RANGE.name)
+
+                            },
+                            onHighTurb = {
+                                fishpondInfo =
+                                    fishpondInfo.copy(turbStatus = IndicatorStatus.OVER_RANGE.name)
+                            })
+
+                        _uiState.update {
+                            it.copy(
+                                fishpondInfo = fishpondInfo
+                            )
+                        }
+                    }
+                }
             }
 
             override fun onCancelled(error: DatabaseError) {
                 Log.e("Fishpond Info", "Fishpond info retrieval failed")
             }
 
+        })
+    }
+
+    private fun initializeSettings(callback: (SettingsInfo) -> Unit) {
+        settingsRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val settings = if (snapshot.value != null) {
+                    snapshot.getValue<SettingsInfo>()!!
+                } else {
+                    settingsRef.setValue(SettingsInfo())
+                    SettingsInfo()
+                }
+                Log.i("Settings", "Updated Settings: $settings")
+                callback(settings)
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("Settings", "Something went wrong")
+            }
         })
     }
 

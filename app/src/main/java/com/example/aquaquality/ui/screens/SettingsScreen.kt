@@ -47,6 +47,7 @@ import androidx.compose.ui.platform.LocalContext
 fun SettingsScreen(
     modifier: Modifier = Modifier,
     settingsViewModel: SettingsViewModel = viewModel(),
+    afterSaveAction: (() -> Unit)? = null
 ) {
     val settingsUiState: SettingsUiState by settingsViewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -160,7 +161,12 @@ fun SettingsScreen(
                 Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_xl)))
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    Button(onClick = { settingsViewModel.updateSettings() }) {
+                    Button(onClick = {
+                        settingsViewModel.updateSettings()
+                        if(afterSaveAction != null){
+                            afterSaveAction()
+                        }
+                    }) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 imageVector = Icons.Default.Save,

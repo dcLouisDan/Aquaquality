@@ -55,6 +55,7 @@ import com.example.aquaquality.ui.viewmodels.FishpondListViewModel
 fun AquaQualityHomeScreen(
     userData: UserData?,
     onLogoutClick: () -> Unit,
+    afterSaveAction: (() -> Unit)? = null,
     exitApp: () -> Unit
 ) {
     val fishpondListViewModel: FishpondListViewModel = viewModel()
@@ -199,7 +200,7 @@ fun AquaQualityHomeScreen(
                     )
 
                     1 -> ReferencesScreen()
-                    2 -> SettingsScreen()
+                    2 -> SettingsScreen(afterSaveAction = afterSaveAction)
 
                     3 -> AccountScreen(userData = userData, onLogoutClick = onLogoutClick)
                 }

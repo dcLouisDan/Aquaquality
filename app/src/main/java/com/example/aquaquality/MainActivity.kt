@@ -4,6 +4,7 @@ package com.example.aquaquality
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
@@ -33,8 +34,8 @@ import com.example.aquaquality.ui.screens.LoadingScreen
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 import com.example.aquaquality.ui.viewmodels.LoginViewModel
 import com.example.aquaquality.utilities.DatabaseNotificationUtil
-import com.google.android.gms.auth.api.identity.Identity
 import com.google.accompanist.permissions.*
+import com.google.android.gms.auth.api.identity.Identity
 import kotlinx.coroutines.launch
 
 
@@ -93,12 +94,6 @@ class MainActivity : ComponentActivity() {
                                         navController.navigate("sign_in")
                                     }
                                 }
-                            } else {
-                                ConnectionAlertDialog(
-                                    onConfirmClick = {
-                                        recreate()
-                                    },
-                                    onDismissRequest = { /*TODO*/ })
                             }
                         }
 
@@ -220,6 +215,9 @@ class MainActivity : ComponentActivity() {
                                         navController.popBackStack()
                                     }
                                 },
+                                afterSaveAction = {
+                                    restartApp()
+                                },
                                 exitApp = { finish() },
                             )
                         }
@@ -246,5 +244,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private fun restartApp() {
+        val ctx = applicationContext
+        val pm = ctx.packageManager
+        val intent = pm.getLaunchIntentForPackage(ctx.packageName)
+        val mainIntent = Intent.makeRestartActivityTask(intent!!.component)
+        ctx.startActivity(mainIntent)
+        Runtime.getRuntime().exit(0)
+    }
 }
 
