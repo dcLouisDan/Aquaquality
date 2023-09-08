@@ -43,6 +43,7 @@ class FishpondListViewModel : ViewModel() {
     fun refreshData() {
         fetchData()
     }
+
     private fun fetchData() {
         val userId = getSignedInUser()?.userId
         fishpondsReference = database.getReference("$userId/fishponds")
@@ -372,7 +373,7 @@ class FishpondListViewModel : ViewModel() {
 
     fun addNewFishpond(name: String) {
         val newChildRef = fishpondsReference.push()
-        val fishpondInfo = FishpondInfo(name = name)
+        val fishpondInfo = FishpondInfo(id = newChildRef.key,name = name)
 
         newChildRef.setValue(fishpondInfo).addOnCompleteListener { task ->
             _uiState.update {
@@ -384,16 +385,14 @@ class FishpondListViewModel : ViewModel() {
     }
 
     fun updateFishpondName(name: String, fishpondInfo: FishpondInfo) {
-        val fishpondKey: String = getFishpondKey(fishpondInfo)
-        val dataRef = fishpondsReference.child(fishpondKey)
+        val dataRef = fishpondsReference.child(fishpondInfo.id!!)
 
         dataRef.child("name").setValue(name)
         resetFishpondInfoToModify()
     }
 
     fun deleteFishpondInfo(fishpondInfo: FishpondInfo) {
-        val fishpondKey: String = getFishpondKey(fishpondInfo)
-        val dataRef = fishpondsReference.child(fishpondKey)
+        val dataRef = fishpondsReference.child(fishpondInfo.id!!)
 
         disconnectDeviceFromFishpond(fishpondInfo)
         dataRef.removeValue()
@@ -407,16 +406,6 @@ class FishpondListViewModel : ViewModel() {
         fishpondReference.child("fishpondId").setValue(null)
     }
 
-    fun getFishpondKey(fishpond: FishpondInfo): String {
-        var fishpondInfoIndex = -1
-
-        for ((i, fishpondinfo) in uiState.value.fishpondList.withIndex()) {
-            if (fishpondinfo.name.equals(fishpond.name)) {
-                fishpondInfoIndex = i
-            }
-        }
-        return uiState.value.fishpondKeyList[fishpondInfoIndex]
-    }
 
     private fun getSignedInUser(): UserData? = auth.currentUser?.run {
         UserData(

@@ -54,12 +54,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.aquaquality.R
 import com.example.aquaquality.data.FishpondInfo
 import com.example.aquaquality.data.FishpondListUiState
+import com.example.aquaquality.data.FishpondScreenUiState
 import com.example.aquaquality.ui.components.ParameterMonitor
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 import com.example.aquaquality.ui.viewmodels.FishpondListViewModel
 import com.example.aquaquality.ui.components.*
 import com.example.aquaquality.ui.viewmodels.FishpondScreenViewModel
-import java.time.Instant
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -68,6 +68,8 @@ fun FishpondListScreen(
     fishpondListViewModel: FishpondListViewModel = viewModel(),
     uiState: FishpondListUiState,
     exitApp: () -> Unit,
+    fishpondScreenViewModel: FishpondScreenViewModel,
+    fishpondScreenUiState: FishpondScreenUiState
 ) {
     val context = LocalContext.current
 
@@ -82,13 +84,10 @@ fun FishpondListScreen(
     }
 
     //FishpondScreen ViewModel
-    val fishpondScreenViewModel: FishpondScreenViewModel = viewModel()
 
-
-    val fishpondScreenUiState by fishpondScreenViewModel.uiState.collectAsStateWithLifecycle()
-    BackHandler{
-        if (!uiState.isShowingHomepage){
-        fishpondListViewModel.resetHomeScreenStates()
+    BackHandler {
+        if (!uiState.isShowingHomepage) {
+            fishpondListViewModel.resetHomeScreenStates()
         } else {
             exitApp()
         }
@@ -168,7 +167,10 @@ fun FishpondListScreen(
     }
 
     if (!uiState.isShowingHomepage) {
-        FishpondScreen(fishpondScreenViewModel = fishpondScreenViewModel, uiState =  fishpondScreenUiState)
+        FishpondScreen(
+            fishpondScreenViewModel = fishpondScreenViewModel,
+            uiState = fishpondScreenUiState
+        )
     } else {
         FishpondCardList(
             isEmpty = uiState.fishpondList.isEmpty(),
@@ -176,8 +178,10 @@ fun FishpondListScreen(
             onFabClick = { isNewDialogVisible = true },
             onCardClick = { fishpondInfo: FishpondInfo ->
                 fishpondListViewModel.updateDetailsScreenStates(fishpondInfo)
-                val key = fishpondListViewModel.getFishpondKey(fishpondInfo)
-                fishpondScreenViewModel.setFishpondInfo(key, fishpondInfo)
+                fishpondScreenViewModel.setFishpondInfo(
+                    fishpondInfo = fishpondInfo,
+                    key = fishpondInfo.id!!
+                )
             },
             onDeleteClick = {
                 fishpondListViewModel.setFishpondInfoToModify(it)
@@ -329,7 +333,7 @@ fun FishpondCard(
                         .fillMaxWidth()
                         .padding(dimensionResource(id = R.dimen.padding_medium))
                 ) {
-                    val isOffline  = fishpondInfo.isOffline!!
+                    val isOffline = fishpondInfo.isOffline!!
                     ParameterMonitor(
                         Icons.Default.Thermostat,
                         R.string.label_temperature,
@@ -383,11 +387,15 @@ fun FishpondCard(
 fun FishpondsPreview() {
     val fishpondListViewModel: FishpondListViewModel = viewModel()
     val fishpondListUiState = fishpondListViewModel.uiState.collectAsState().value
+    val fishpondScreenViewModel: FishpondScreenViewModel = viewModel()
+    val fishpondScreenUiState by fishpondScreenViewModel.uiState.collectAsStateWithLifecycle()
     AquaqualityTheme {
         FishpondListScreen(
             fishpondListViewModel = fishpondListViewModel,
             uiState = fishpondListUiState,
-            exitApp = {}
+            exitApp = {},
+            fishpondScreenViewModel = fishpondScreenViewModel,
+            fishpondScreenUiState = fishpondScreenUiState
         )
     }
 }

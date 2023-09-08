@@ -4,6 +4,7 @@ import com.example.aquaquality.ui.components.IndicatorStatus
 import com.google.firebase.database.PropertyName
 
 data class FishpondInfo(
+    @PropertyName("id") val id: String? = "",
     @PropertyName("name") val name: String? = "",
     @PropertyName("connectedDeviceId") val connectedDeviceId: String? = null,
     @PropertyName("tempValue") val tempValue: Float? = 0.0F,

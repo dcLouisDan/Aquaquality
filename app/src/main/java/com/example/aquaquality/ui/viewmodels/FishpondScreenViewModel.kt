@@ -42,6 +42,7 @@ class FishpondScreenViewModel : ViewModel() {
     private lateinit var currentDeviceReference: DatabaseReference
     private lateinit var fishpondReference: DatabaseReference
     private var settingsRef: DatabaseReference
+    private lateinit var fishpondEventListener: ValueEventListener
 
 
     internal var tempChartEntryModelProducer: ChartEntryModelProducer = ChartEntryModelProducer()
@@ -51,6 +52,7 @@ class FishpondScreenViewModel : ViewModel() {
 
 
     init {
+        Log.i("FishpondScreen", "Created")
         val historyLogs = LocalFishpondsDataProvider.historyList
         val month = historyLogs[0].month
         val day = historyLogs[0].day
@@ -75,9 +77,6 @@ class FishpondScreenViewModel : ViewModel() {
                     turbidityValueList = uiState.value.turbidityValueList.plus(log.turbidityValue),
                 )
             }
-        }
-        initializeSettings { settingsInfo ->
-            updateFishpondInfo(settingsInfo)
         }
         setChartValues()
         if (uiState.value.fishpondInfo?.connectedDeviceId == null) {
@@ -230,19 +229,17 @@ class FishpondScreenViewModel : ViewModel() {
         return uiState.value.deviceKeyList[deviceInfoIndex]
     }
 
-    private fun updateFishpondInfo(settingsInfo: SettingsInfo) {
-        val fishpondKey = uiState.value.fishpondKey
+    private fun updateFishpondInfo(settingsInfo: SettingsInfo, fishpondKey: String) {
         fishpondReference = database.getReference("$userId/fishponds/$fishpondKey")
 
-        fishpondReference.addValueEventListener(object : ValueEventListener {
+        fishpondEventListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                for (child in snapshot.children) {
                     _uiState.update {
                         it.copy(
-                            fishpondInfo = child.getValue<FishpondInfo>()!!
+                            fishpondInfo = snapshot.getValue<FishpondInfo>()!!
                         )
                     }
-                    Log.i("Child", "${child.key}: ${child.value}")
+                    Log.i("Child", "${snapshot.key}: ${snapshot.value}")
 
 
                     var fishpondInfo = uiState.value.fishpondInfo!!
@@ -283,14 +280,15 @@ class FishpondScreenViewModel : ViewModel() {
                             )
                         }
                     }
-                }
+
             }
 
             override fun onCancelled(error: DatabaseError) {
                 Log.e("Fishpond Info", "Fishpond info retrieval failed")
             }
-
-        })
+        }
+        fishpondReference.removeEventListener(fishpondEventListener)
+        fishpondReference.addValueEventListener(fishpondEventListener)
     }
 
     private fun initializeSettings(callback: (SettingsInfo) -> Unit) {
@@ -335,12 +333,20 @@ class FishpondScreenViewModel : ViewModel() {
         }
     }
 
-    fun setFishpondInfo(fishpondKey: String, fishpondInfo: FishpondInfo) {
+    fun setFishpondInfo(fishpondInfo: FishpondInfo, key: String) {
+
         _uiState.update { currentState ->
             currentState.copy(
-                fishpondKey = fishpondKey,
-                fishpondInfo = fishpondInfo
+                fishpondInfo = fishpondInfo,
+                fishpondKey = key
             )
+        }
+        Log.i("Fishpond info", "Selected Fishpond: ${uiState.value.fishpondInfo}")
+
+        if (fishpondInfo.id != null){
+            initializeSettings { settingsInfo ->
+                updateFishpondInfo(settingsInfo, fishpondInfo.id)
+            }
         }
         if (fishpondInfo.connectedDeviceId != null) {
             currentDeviceReference =
@@ -423,5 +429,9 @@ class FishpondScreenViewModel : ViewModel() {
             email = email,
             profilePictureUrl = photoUrl.toString()
         )
+    }
+
+    fun resetState(){
+        fishpondReference.removeEventListener(fishpondEventListener)
     }
 }

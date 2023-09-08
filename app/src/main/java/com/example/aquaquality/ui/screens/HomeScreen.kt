@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.aquaquality.R
 import com.example.aquaquality.data.local.LocalInfoProvider
@@ -48,6 +49,7 @@ import com.example.aquaquality.presentation.sign_in.UserData
 import com.example.aquaquality.ui.components.ParameterWarningDialog
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 import com.example.aquaquality.ui.viewmodels.FishpondListViewModel
+import com.example.aquaquality.ui.viewmodels.FishpondScreenViewModel
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -60,6 +62,8 @@ fun AquaQualityHomeScreen(
 ) {
     val fishpondListViewModel: FishpondListViewModel = viewModel()
     val fishpondListUiState = fishpondListViewModel.uiState.collectAsState().value
+    val fishpondScreenViewModel: FishpondScreenViewModel = viewModel()
+    val fishpondScreenUiState by fishpondScreenViewModel.uiState.collectAsStateWithLifecycle()
 
     var isLowTempSuggestionScreenVisible by rememberSaveable { mutableStateOf(false) }
     var isHighTempSuggestionScreenVisible by rememberSaveable { mutableStateOf(false) }
@@ -135,7 +139,10 @@ fun AquaQualityHomeScreen(
         topBar = {
             AquaQualityAppBar(
                 canNavigateBack = !fishpondListUiState.isShowingHomepage,
-                navigateUp = { fishpondListViewModel.resetHomeScreenStates() },
+                navigateUp = {
+                    fishpondListViewModel.resetHomeScreenStates()
+                    fishpondScreenViewModel.resetState()
+                },
                 onRefreshClick = { fishpondListViewModel.refreshData() }
             )
         }
@@ -196,7 +203,9 @@ fun AquaQualityHomeScreen(
                     0 -> FishpondListScreen(
                         fishpondListViewModel = fishpondListViewModel,
                         uiState = fishpondListUiState,
-                        exitApp = exitApp
+                        exitApp = exitApp,
+                        fishpondScreenViewModel = fishpondScreenViewModel,
+                        fishpondScreenUiState = fishpondScreenUiState
                     )
 
                     1 -> ReferencesScreen()
