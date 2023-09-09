@@ -17,4 +17,5 @@ data class FishpondListUiState(
     val isHighPhAlertVisible: Boolean = false,
     val isLowTurbAlertVisible: Boolean = false,
     val isHighTurbAlertVisible: Boolean = false,
+    val notificationTimestamps: Map<Int, Long> = emptyMap()
 )

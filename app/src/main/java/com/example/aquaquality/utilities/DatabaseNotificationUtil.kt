@@ -54,6 +54,43 @@ class DatabaseNotificationUtil {
         if (userId != null) {
             fishpondsRef = database.getReference("$userId/fishponds")
 
+            val notif1 = WarningNotification(
+                1,
+                context,
+                "Temperature Warning",
+                "The temperature is below the recommended threshold."
+            )
+            val notif2 = WarningNotification(
+                2,
+                context,
+                "Temperature Warning",
+                "The temperature exceeded the recommended threshold."
+            )
+            val notif3 = WarningNotification(
+                3,
+                context,
+                "pH Warning",
+                "The ph level is below the recommended threshold."
+            )
+            val notif4 = WarningNotification(
+                4,
+                context,
+                "pH Warning",
+                "The ph level exceeded the recommended threshold."
+            )
+            val notif5 = WarningNotification(
+                5,
+                context,
+                "Turbidity Warning",
+                "The turbidity is below the recommended threshold."
+            )
+            val notif6 = WarningNotification(
+                6,
+                context,
+                "Turbidity Warning",
+                "The turbidity exceeded the recommended threshold."
+            )
+
             initializeSettings { settingsInfo ->
                 fishpondsRef.addChildEventListener(object : ChildEventListener {
                     override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
@@ -68,42 +105,7 @@ class DatabaseNotificationUtil {
                         val fishpondInfo = snapshot.getValue(FishpondInfo::class.java)!!
                         Log.i("Child Change", "Info: $fishpondInfo")
 
-                        val notif1 = WarningNotification(
-                            1,
-                            context,
-                            "Temperature Warning",
-                            "The temperature is below the recommended threshold."
-                        )
-                        val notif2 = WarningNotification(
-                            2,
-                            context,
-                            "Temperature Warning",
-                            "The temperature exceeded the recommended threshold."
-                        )
-                        val notif3 = WarningNotification(
-                            3,
-                            context,
-                            "pH Warning",
-                            "The ph level is below the recommended threshold."
-                        )
-                        val notif4 = WarningNotification(
-                            4,
-                            context,
-                            "pH Warning",
-                            "The ph level exceeded the recommended threshold."
-                        )
-                        val notif5 = WarningNotification(
-                            5,
-                            context,
-                            "Turbidity Warning",
-                            "The turbidity is below the recommended threshold."
-                        )
-                        val notif6 = WarningNotification(
-                            6,
-                            context,
-                            "Turbidity Warning",
-                            "The turbidity exceeded the recommended threshold."
-                        )
+
 
                         if (fishpondInfo.connectedDeviceId != null) {
                             checkParameterStatus(

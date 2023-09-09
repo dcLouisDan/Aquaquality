@@ -47,227 +47,225 @@ class FishpondListViewModel : ViewModel() {
         fetchDataByChild()
     }
 
-    private fun fetchData() {
-        val userId = getSignedInUser()?.userId
-        fishpondsReference = database.getReference("$userId/fishponds")
-        settingsRef = database.getReference("$userId/settings")
-
-        initializeSettings { settingsInfo ->
-            fishpondsReference.addValueEventListener(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    _uiState.update {
-                        it.copy(
-                            fishpondList = emptyList(),
-                            fishpondKeyList = emptyList()
-                        )
-                    }
-                    val fishpondList = mutableListOf<FishpondInfo>()
-                    for (info in snapshot.children) {
-                        var fishpondInfo = info.getValue<FishpondInfo>()!!
-                        fishpondList.add(fishpondInfo)
-                        val fishpondIndex = fishpondList.indexOf(fishpondInfo)
-
-                        if (fishpondInfo.connectedDeviceId != null) {
-                            checkParameterStatus(
-                                settingsInfo = settingsInfo,
-                                fishpondInfo = fishpondInfo,
-                                onLowTemp = {
-                                    fishpondInfo =
-                                        fishpondInfo.copy(tempStatus = IndicatorStatus.UNDER_RANGE.name)
-                                    fishpondList[fishpondIndex] = fishpondInfo
-
-                                    if (!uiState.value.sentAlerts.contains(1)) {
-                                        toggleLowTempAlert(true)
-                                        _uiState.update {
-                                            it.copy(
-                                                sentAlerts = uiState.value.sentAlerts.plus(1)
-                                            )
-                                        }
-                                    }
-                                },
-                                onHighTemp = {
-                                    fishpondInfo =
-                                        fishpondInfo.copy(tempStatus = IndicatorStatus.OVER_RANGE.name)
-                                    fishpondList[fishpondIndex] = fishpondInfo
-
-                                    if (!uiState.value.sentAlerts.contains(2)) {
-                                        toggleHighTempAlert(true)
-                                        _uiState.update {
-                                            it.copy(
-                                                sentAlerts = uiState.value.sentAlerts.plus(2)
-                                            )
-                                        }
-                                    }
-                                },
-                                onSafeTemp = {
-                                    if (uiState.value.sentAlerts.contains(1)) {
-                                        toggleLowTempAlert(false)
-                                        _uiState.update {
-                                            it.copy(
-                                                sentAlerts = uiState.value.sentAlerts.minus(1)
-                                            )
-                                        }
-                                    }
-                                    if (uiState.value.sentAlerts.contains(2)) {
-                                        toggleHighTempAlert(false)
-                                        _uiState.update {
-                                            it.copy(
-                                                sentAlerts = uiState.value.sentAlerts.minus(2)
-                                            )
-                                        }
-                                    }
-                                },
-                                onLowPh = {
-                                    fishpondInfo =
-                                        fishpondInfo.copy(phStatus = IndicatorStatus.UNDER_RANGE.name)
-                                    fishpondList[fishpondIndex] = fishpondInfo
-
-                                    if (!uiState.value.sentAlerts.contains(3)) {
-                                        toggleLowPhAlert(true)
-                                        _uiState.update {
-                                            it.copy(
-                                                sentAlerts = uiState.value.sentAlerts.plus(3)
-                                            )
-                                        }
-                                    }
-                                },
-                                onHighPh = {
-                                    fishpondInfo =
-                                        fishpondInfo.copy(phStatus = IndicatorStatus.OVER_RANGE.name)
-                                    fishpondList[fishpondIndex] = fishpondInfo
-
-                                    if (!uiState.value.sentAlerts.contains(4)) {
-                                        toggleHighPhAlert(true)
-                                        _uiState.update {
-                                            it.copy(
-                                                sentAlerts = uiState.value.sentAlerts.plus(4)
-                                            )
-                                        }
-                                    }
-                                },
-                                onSafePh = {
-                                    if (uiState.value.sentAlerts.contains(3)) {
-                                        toggleLowPhAlert(false)
-                                        _uiState.update {
-                                            it.copy(
-                                                sentAlerts = uiState.value.sentAlerts.minus(3)
-                                            )
-                                        }
-                                    }
-                                    if (uiState.value.sentAlerts.contains(4)) {
-                                        toggleHighPhAlert(false)
-                                        _uiState.update {
-                                            it.copy(
-                                                sentAlerts = uiState.value.sentAlerts.minus(4)
-                                            )
-                                        }
-                                    }
-                                },
-                                onLowTurb = {
-                                    fishpondInfo =
-                                        fishpondInfo.copy(turbStatus = IndicatorStatus.UNDER_RANGE.name)
-                                    fishpondList[fishpondIndex] = fishpondInfo
-
-                                    if (!uiState.value.sentAlerts.contains(5)) {
-                                        toggleLowTurbAlert(true)
-                                        _uiState.update {
-                                            it.copy(
-                                                sentAlerts = uiState.value.sentAlerts.plus(5)
-                                            )
-                                        }
-                                    }
-                                },
-                                onHighTurb = {
-                                    fishpondInfo =
-                                        fishpondInfo.copy(turbStatus = IndicatorStatus.OVER_RANGE.name)
-                                    fishpondList[fishpondIndex] = fishpondInfo
-                                    if (!uiState.value.sentAlerts.contains(6)) {
-                                        toggleHighTurbAlert(true)
-                                        _uiState.update {
-                                            it.copy(
-                                                sentAlerts = uiState.value.sentAlerts.plus(6)
-                                            )
-                                        }
-                                    }
-                                },
-                                onSafeTurb = {
-                                    if (uiState.value.sentAlerts.contains(5)) {
-                                        toggleLowTurbAlert(false)
-                                        _uiState.update {
-                                            it.copy(
-                                                sentAlerts = uiState.value.sentAlerts.minus(5)
-                                            )
-                                        }
-                                    }
-                                    if (uiState.value.sentAlerts.contains(6)) {
-                                        toggleHighTurbAlert(false)
-                                        _uiState.update {
-                                            it.copy(
-                                                sentAlerts = uiState.value.sentAlerts.minus(6)
-                                            )
-                                        }
-                                    }
-                                }
-                            )
-                        }
-                        if (fishpondInfo.connectedDeviceId != null) {
-                            database.getReference("devices/${fishpondInfo.connectedDeviceId}")
-                                .get().addOnCompleteListener { task ->
-                                    if (task.isSuccessful) {
-                                        val deviceInfo = task.result.getValue<DeviceInfo>()!!
-                                        val epochSeconds = System.currentTimeMillis() / 1000
-                                        val isOffline = (epochSeconds - deviceInfo.timestamp!!) > 5
-                                        fishpondInfo =
-                                            fishpondInfo.copy(isOffline = isOffline)
-                                        fishpondList[fishpondIndex] = fishpondInfo
-                                        _uiState.update {
-                                            it.copy(
-                                                fishpondList = fishpondList,
-                                                fishpondKeyList = uiState.value.fishpondKeyList.plus(
-                                                    info.key!!
-                                                )
-                                            )
-                                        }
-
-                                        Log.i(
-                                            "Firebase",
-                                            "AVE value: ${uiState.value.fishpondList}"
-                                        )
-                                        Log.i(
-                                            "Firebase",
-                                            "Key List: ${uiState.value.fishpondKeyList}"
-                                        )
-                                    }
-                                }
-                        } else {
-                            _uiState.update {
-                                it.copy(
-                                    fishpondList = fishpondList,
-                                    fishpondKeyList = uiState.value.fishpondKeyList.plus(info.key!!)
-                                )
-                            }
-                            Log.i("Firebase", "AVE value: ${uiState.value.fishpondList}")
-                            Log.i("Firebase", "Key List: ${uiState.value.fishpondKeyList}")
-                        }
-
-                    }
-
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    Log.e("Firebase", "$error")
-                }
-
-            })
-        }
-    }
+//    private fun fetchData() {
+//        val userId = getSignedInUser()?.userId
+//        fishpondsReference = database.getReference("$userId/fishponds")
+//        settingsRef = database.getReference("$userId/settings")
+//
+//        initializeSettings { settingsInfo ->
+//            fishpondsReference.addValueEventListener(object : ValueEventListener {
+//                override fun onDataChange(snapshot: DataSnapshot) {
+//                    _uiState.update {
+//                        it.copy(
+//                            fishpondList = emptyList(),
+//                            fishpondKeyList = emptyList()
+//                        )
+//                    }
+//                    val fishpondList = mutableListOf<FishpondInfo>()
+//                    for (info in snapshot.children) {
+//                        var fishpondInfo = info.getValue<FishpondInfo>()!!
+//                        fishpondList.add(fishpondInfo)
+//                        val fishpondIndex = fishpondList.indexOf(fishpondInfo)
+//
+//                        if (fishpondInfo.connectedDeviceId != null) {
+//                            checkParameterStatus(
+//                                settingsInfo = settingsInfo,
+//                                fishpondInfo = fishpondInfo,
+//                                onLowTemp = {
+//                                    fishpondInfo =
+//                                        fishpondInfo.copy(tempStatus = IndicatorStatus.UNDER_RANGE.name)
+//                                    fishpondList[fishpondIndex] = fishpondInfo
+//
+//                                    if (!uiState.value.sentAlerts.contains(1)) {
+//                                        toggleLowTempAlert(true)
+//                                        _uiState.update {
+//                                            it.copy(
+//                                                sentAlerts = uiState.value.sentAlerts.plus(1)
+//                                            )
+//                                        }
+//                                    }
+//                                },
+//                                onHighTemp = {
+//                                    fishpondInfo =
+//                                        fishpondInfo.copy(tempStatus = IndicatorStatus.OVER_RANGE.name)
+//                                    fishpondList[fishpondIndex] = fishpondInfo
+//
+//                                    if (!uiState.value.sentAlerts.contains(2)) {
+//                                        toggleHighTempAlert(true)
+//                                        _uiState.update {
+//                                            it.copy(
+//                                                sentAlerts = uiState.value.sentAlerts.plus(2)
+//                                            )
+//                                        }
+//                                    }
+//                                },
+//                                onSafeTemp = {
+//                                    if (uiState.value.sentAlerts.contains(1)) {
+//                                        toggleLowTempAlert(false)
+//                                        _uiState.update {
+//                                            it.copy(
+//                                                sentAlerts = uiState.value.sentAlerts.minus(1)
+//                                            )
+//                                        }
+//                                    }
+//                                    if (uiState.value.sentAlerts.contains(2)) {
+//                                        toggleHighTempAlert(false)
+//                                        _uiState.update {
+//                                            it.copy(
+//                                                sentAlerts = uiState.value.sentAlerts.minus(2)
+//                                            )
+//                                        }
+//                                    }
+//                                },
+//                                onLowPh = {
+//                                    fishpondInfo =
+//                                        fishpondInfo.copy(phStatus = IndicatorStatus.UNDER_RANGE.name)
+//                                    fishpondList[fishpondIndex] = fishpondInfo
+//
+//                                    if (!uiState.value.sentAlerts.contains(3)) {
+//                                        toggleLowPhAlert(true)
+//                                        _uiState.update {
+//                                            it.copy(
+//                                                sentAlerts = uiState.value.sentAlerts.plus(3)
+//                                            )
+//                                        }
+//                                    }
+//                                },
+//                                onHighPh = {
+//                                    fishpondInfo =
+//                                        fishpondInfo.copy(phStatus = IndicatorStatus.OVER_RANGE.name)
+//                                    fishpondList[fishpondIndex] = fishpondInfo
+//
+//                                    if (!uiState.value.sentAlerts.contains(4)) {
+//                                        toggleHighPhAlert(true)
+//                                        _uiState.update {
+//                                            it.copy(
+//                                                sentAlerts = uiState.value.sentAlerts.plus(4)
+//                                            )
+//                                        }
+//                                    }
+//                                },
+//                                onSafePh = {
+//                                    if (uiState.value.sentAlerts.contains(3)) {
+//                                        toggleLowPhAlert(false)
+//                                        _uiState.update {
+//                                            it.copy(
+//                                                sentAlerts = uiState.value.sentAlerts.minus(3)
+//                                            )
+//                                        }
+//                                    }
+//                                    if (uiState.value.sentAlerts.contains(4)) {
+//                                        toggleHighPhAlert(false)
+//                                        _uiState.update {
+//                                            it.copy(
+//                                                sentAlerts = uiState.value.sentAlerts.minus(4)
+//                                            )
+//                                        }
+//                                    }
+//                                },
+//                                onLowTurb = {
+//                                    fishpondInfo =
+//                                        fishpondInfo.copy(turbStatus = IndicatorStatus.UNDER_RANGE.name)
+//                                    fishpondList[fishpondIndex] = fishpondInfo
+//
+//                                    if (!uiState.value.sentAlerts.contains(5)) {
+//                                        toggleLowTurbAlert(true)
+//                                        _uiState.update {
+//                                            it.copy(
+//                                                sentAlerts = uiState.value.sentAlerts.plus(5)
+//                                            )
+//                                        }
+//                                    }
+//                                },
+//                                onHighTurb = {
+//                                    fishpondInfo =
+//                                        fishpondInfo.copy(turbStatus = IndicatorStatus.OVER_RANGE.name)
+//                                    fishpondList[fishpondIndex] = fishpondInfo
+//                                    if (!uiState.value.sentAlerts.contains(6)) {
+//                                        toggleHighTurbAlert(true)
+//                                        _uiState.update {
+//                                            it.copy(
+//                                                sentAlerts = uiState.value.sentAlerts.plus(6)
+//                                            )
+//                                        }
+//                                    }
+//                                },
+//                                onSafeTurb = {
+//                                    if (uiState.value.sentAlerts.contains(5)) {
+//                                        toggleLowTurbAlert(false)
+//                                        _uiState.update {
+//                                            it.copy(
+//                                                sentAlerts = uiState.value.sentAlerts.minus(5)
+//                                            )
+//                                        }
+//                                    }
+//                                    if (uiState.value.sentAlerts.contains(6)) {
+//                                        toggleHighTurbAlert(false)
+//                                        _uiState.update {
+//                                            it.copy(
+//                                                sentAlerts = uiState.value.sentAlerts.minus(6)
+//                                            )
+//                                        }
+//                                    }
+//                                }
+//                            )
+//                        }
+//                        if (fishpondInfo.connectedDeviceId != null) {
+//                            database.getReference("devices/${fishpondInfo.connectedDeviceId}")
+//                                .get().addOnCompleteListener { task ->
+//                                    if (task.isSuccessful) {
+//                                        val deviceInfo = task.result.getValue<DeviceInfo>()!!
+//                                        val epochSeconds = System.currentTimeMillis() / 1000
+//                                        val isOffline = (epochSeconds - deviceInfo.timestamp!!) > 5
+//                                        fishpondInfo =
+//                                            fishpondInfo.copy(isOffline = isOffline)
+//                                        fishpondList[fishpondIndex] = fishpondInfo
+//                                        _uiState.update {
+//                                            it.copy(
+//                                                fishpondList = fishpondList,
+//                                                fishpondKeyList = uiState.value.fishpondKeyList.plus(
+//                                                    info.key!!
+//                                                )
+//                                            )
+//                                        }
+//
+//                                        Log.i(
+//                                            "Firebase",
+//                                            "AVE value: ${uiState.value.fishpondList}"
+//                                        )
+//                                        Log.i(
+//                                            "Firebase",
+//                                            "Key List: ${uiState.value.fishpondKeyList}"
+//                                        )
+//                                    }
+//                                }
+//                        } else {
+//                            _uiState.update {
+//                                it.copy(
+//                                    fishpondList = fishpondList,
+//                                    fishpondKeyList = uiState.value.fishpondKeyList.plus(info.key!!)
+//                                )
+//                            }
+//                            Log.i("Firebase", "AVE value: ${uiState.value.fishpondList}")
+//                            Log.i("Firebase", "Key List: ${uiState.value.fishpondKeyList}")
+//                        }
+//
+//                    }
+//
+//                }
+//
+//                override fun onCancelled(error: DatabaseError) {
+//                    Log.e("Firebase", "$error")
+//                }
+//
+//            })
+//        }
+//    }
 
     private fun fetchDataByChild() {
         val userId = getSignedInUser()?.userId
         fishpondsReference = database.getReference("$userId/fishponds")
         settingsRef = database.getReference("$userId/settings")
-
-//        val fishpondMap: Map<String, FishpondInfo> = emptyMap()
 
         initializeSettings { settingsInfo ->
             fishpondsReference.addChildEventListener(object : ChildEventListener {
@@ -293,8 +291,10 @@ class FishpondListViewModel : ViewModel() {
 
                 override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
                     val fishpondData = snapshot.getValue<FishpondInfo>()!!
-
                     val fishpondInfo = checkFishpondInfo(fishpondData, settingsInfo)
+
+                    checkFishpondInfoForAlerts(fishpondData, settingsInfo)
+
                     _uiState.update {
                         it.copy(
                             fishpondMap = uiState.value.fishpondMap.plus(
@@ -347,28 +347,90 @@ class FishpondListViewModel : ViewModel() {
                 onLowTemp = {
                     fishpondInfo1 =
                         fishpondInfo1.copy(tempStatus = IndicatorStatus.UNDER_RANGE.name)
-
-                    if (!uiState.value.sentAlerts.contains(1)) {
-                        toggleLowTempAlert(true)
-                        _uiState.update {
-                            it.copy(
-                                sentAlerts = uiState.value.sentAlerts.plus(1)
-                            )
-                        }
-                    }
                 },
                 onHighTemp = {
                     fishpondInfo1 =
                         fishpondInfo1.copy(tempStatus = IndicatorStatus.OVER_RANGE.name)
+                },
+                onLowPh = {
+                    fishpondInfo1 =
+                        fishpondInfo1.copy(phStatus = IndicatorStatus.UNDER_RANGE.name)
+                },
+                onHighPh = {
+                    fishpondInfo1 =
+                        fishpondInfo1.copy(phStatus = IndicatorStatus.OVER_RANGE.name)
+                },
+                onLowTurb = {
+                    fishpondInfo1 =
+                        fishpondInfo1.copy(turbStatus = IndicatorStatus.UNDER_RANGE.name)
+                },
+                onHighTurb = {
+                    fishpondInfo1 =
+                        fishpondInfo1.copy(turbStatus = IndicatorStatus.OVER_RANGE.name)
+                },
+            )
+        }
+        if (fishpondInfo.connectedDeviceId != null) {
+            database.getReference("devices/${fishpondInfo1.connectedDeviceId}")
+                .get().addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val deviceInfo = task.result.getValue<DeviceInfo>()!!
+                        val epochSeconds = System.currentTimeMillis() / 1000
+                        val isOffline = (epochSeconds - deviceInfo.timestamp!!) > 5
+                        fishpondInfo1 =
+                            fishpondInfo1.copy(isOffline = isOffline)
+                    }
+                }
+        }
+        return fishpondInfo1
+    }
 
+    private fun checkFishpondInfoForAlerts(
+        fishpondInfo: FishpondInfo,
+        settingsInfo: SettingsInfo
+    ) {
 
-                    if (!uiState.value.sentAlerts.contains(2)) {
+        val currentTime = System.currentTimeMillis()
+        val intervalTime: Long = 60 * 1000
+        if (fishpondInfo.connectedDeviceId != null) {
+            checkParameterStatus(
+                settingsInfo = settingsInfo,
+                fishpondInfo = fishpondInfo,
+                onLowTemp = {
+                    val lastNotificationTime = uiState.value.notificationTimestamps[1] ?: 0
+                    val timeElapsed = currentTime - lastNotificationTime
+
+                    if (!uiState.value.sentAlerts.contains(1) && timeElapsed >= intervalTime) {
+                        Log.i("Notification", "Showing alert: 1")
+                        toggleLowTempAlert(true)
+                        _uiState.update {
+                            it.copy(
+                                sentAlerts = uiState.value.sentAlerts.plus(1),
+                                notificationTimestamps = uiState.value.notificationTimestamps.plus(
+                                    Pair(1, currentTime)
+                                )
+                            )
+                        }
+                    } else {
+                        Log.i("Notification", "Skipping notification: 1. Not enough time elapsed.")
+                    }
+                },
+                onHighTemp = {
+                    val lastNotificationTime = uiState.value.notificationTimestamps[2] ?: 0
+                    val timeElapsed = currentTime - lastNotificationTime
+
+                    if (!uiState.value.sentAlerts.contains(2) && timeElapsed >= intervalTime) {
+                        Log.i("Notification", "Showing alert: 2")
+
                         toggleHighTempAlert(true)
                         _uiState.update {
                             it.copy(
-                                sentAlerts = uiState.value.sentAlerts.plus(2)
+                                sentAlerts = uiState.value.sentAlerts.plus(2),
+                                notificationTimestamps = uiState.value.notificationTimestamps.plus(Pair(2, currentTime))
                             )
                         }
+                    } else {
+                        Log.i("Notification", "Skipping notification: 2. Not enough time elapsed.")
                     }
                 },
                 onSafeTemp = {
@@ -390,31 +452,39 @@ class FishpondListViewModel : ViewModel() {
                     }
                 },
                 onLowPh = {
-                    fishpondInfo1 =
-                        fishpondInfo1.copy(phStatus = IndicatorStatus.UNDER_RANGE.name)
+                    val lastNotificationTime = uiState.value.notificationTimestamps[3] ?: 0
+                    val timeElapsed = currentTime - lastNotificationTime
 
+                    if (!uiState.value.sentAlerts.contains(3) && timeElapsed >= intervalTime) {
+                        Log.i("Notification", "Showing alert: 3")
 
-                    if (!uiState.value.sentAlerts.contains(3)) {
                         toggleLowPhAlert(true)
                         _uiState.update {
                             it.copy(
-                                sentAlerts = uiState.value.sentAlerts.plus(3)
+                                sentAlerts = uiState.value.sentAlerts.plus(3),
+                                notificationTimestamps = uiState.value.notificationTimestamps.plus(Pair(3, currentTime))
                             )
                         }
+                    } else {
+                        Log.i("Notification", "Skipping notification: 3. Not enough time elapsed.")
                     }
                 },
                 onHighPh = {
-                    fishpondInfo1 =
-                        fishpondInfo1.copy(phStatus = IndicatorStatus.OVER_RANGE.name)
+                    val lastNotificationTime = uiState.value.notificationTimestamps[4] ?: 0
+                    val timeElapsed = currentTime - lastNotificationTime
 
+                    if (!uiState.value.sentAlerts.contains(4) && timeElapsed >= intervalTime) {
+                        Log.i("Notification", "Showing alert: 4")
 
-                    if (!uiState.value.sentAlerts.contains(4)) {
                         toggleHighPhAlert(true)
                         _uiState.update {
                             it.copy(
-                                sentAlerts = uiState.value.sentAlerts.plus(4)
+                                sentAlerts = uiState.value.sentAlerts.plus(4),
+                                notificationTimestamps = uiState.value.notificationTimestamps.plus(Pair(4, currentTime))
                             )
                         }
+                    } else {
+                        Log.i("Notification", "Skipping notification: 4. Not enough time elapsed.")
                     }
                 },
                 onSafePh = {
@@ -436,30 +506,37 @@ class FishpondListViewModel : ViewModel() {
                     }
                 },
                 onLowTurb = {
-                    fishpondInfo1 =
-                        fishpondInfo1.copy(turbStatus = IndicatorStatus.UNDER_RANGE.name)
+                    val lastNotificationTime = uiState.value.notificationTimestamps[5] ?: 0
+                    val timeElapsed = currentTime - lastNotificationTime
 
+                    if (!uiState.value.sentAlerts.contains(5) && timeElapsed >= intervalTime) {
+                        Log.i("Notification", "Showing alert: 5")
 
-                    if (!uiState.value.sentAlerts.contains(5)) {
                         toggleLowTurbAlert(true)
                         _uiState.update {
                             it.copy(
-                                sentAlerts = uiState.value.sentAlerts.plus(5)
+                                sentAlerts = uiState.value.sentAlerts.plus(5),
+                                notificationTimestamps = uiState.value.notificationTimestamps.plus(Pair(5, currentTime))
                             )
                         }
+                    } else {
+                        Log.i("Notification", "Skipping notification: 5. Not enough time elapsed.")
                     }
                 },
                 onHighTurb = {
-                    fishpondInfo1 =
-                        fishpondInfo1.copy(turbStatus = IndicatorStatus.OVER_RANGE.name)
+                    val lastNotificationTime = uiState.value.notificationTimestamps[6] ?: 0
+                    val timeElapsed = currentTime - lastNotificationTime
 
-                    if (!uiState.value.sentAlerts.contains(6)) {
+                    if (!uiState.value.sentAlerts.contains(6) && timeElapsed >= intervalTime) {
                         toggleHighTurbAlert(true)
                         _uiState.update {
                             it.copy(
-                                sentAlerts = uiState.value.sentAlerts.plus(6)
+                                sentAlerts = uiState.value.sentAlerts.plus(6),
+                                notificationTimestamps = uiState.value.notificationTimestamps.plus(Pair(6, currentTime))
                             )
                         }
+                    } else {
+                        Log.i("Notification", "Skipping notification: 6. Not enough time elapsed.")
                     }
                 },
                 onSafeTurb = {
@@ -482,19 +559,6 @@ class FishpondListViewModel : ViewModel() {
                 }
             )
         }
-        if (fishpondInfo.connectedDeviceId != null) {
-            database.getReference("devices/${fishpondInfo1.connectedDeviceId}")
-                .get().addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        val deviceInfo = task.result.getValue<DeviceInfo>()!!
-                        val epochSeconds = System.currentTimeMillis() / 1000
-                        val isOffline = (epochSeconds - deviceInfo.timestamp!!) > 5
-                        fishpondInfo1 =
-                            fishpondInfo1.copy(isOffline = isOffline)
-                    }
-                }
-        }
-        return fishpondInfo1
     }
 
     fun toggleLowTempAlert(isVisible: Boolean) {
