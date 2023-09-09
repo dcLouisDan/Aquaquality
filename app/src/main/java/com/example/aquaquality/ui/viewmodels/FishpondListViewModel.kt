@@ -281,7 +281,8 @@ class FishpondListViewModel : ViewModel() {
                                     fishpondInfo.id!!,
                                     fishpondInfo
                                 )
-                            )
+                            ),
+                            sentAlerts = uiState.value.sentAlerts.plus(Pair(fishpondInfo.id, emptySet()))
                         )
                     }
 
@@ -400,53 +401,56 @@ class FishpondListViewModel : ViewModel() {
                     val lastNotificationTime = uiState.value.notificationTimestamps[1] ?: 0
                     val timeElapsed = currentTime - lastNotificationTime
 
-                    if (!uiState.value.sentAlerts.contains(1) && timeElapsed >= intervalTime) {
+                    if (!uiState.value.sentAlerts[fishpondInfo.id]?.contains(1)!! && timeElapsed >= intervalTime) {
                         Log.i("Notification", "Showing alert: 1")
+                        val alertPair = Pair(fishpondInfo.id!!, uiState.value.sentAlerts[fishpondInfo.id]?.plus(1)!!)
                         toggleLowTempAlert(true)
                         _uiState.update {
                             it.copy(
-                                sentAlerts = uiState.value.sentAlerts.plus(1),
+                                sentAlerts = uiState.value.sentAlerts.plus(alertPair),
                                 notificationTimestamps = uiState.value.notificationTimestamps.plus(
                                     Pair(1, currentTime)
                                 )
                             )
                         }
                     } else {
-                        Log.i("Notification", "Skipping notification: 1. Not enough time elapsed.")
+                        Log.i("Notification", "Skipping alert: 1. Not enough time elapsed.")
                     }
                 },
                 onHighTemp = {
                     val lastNotificationTime = uiState.value.notificationTimestamps[2] ?: 0
                     val timeElapsed = currentTime - lastNotificationTime
 
-                    if (!uiState.value.sentAlerts.contains(2) && timeElapsed >= intervalTime) {
+                    if (!uiState.value.sentAlerts[fishpondInfo.id]?.contains(2)!! && timeElapsed >= intervalTime) {
                         Log.i("Notification", "Showing alert: 2")
-
                         toggleHighTempAlert(true)
+                        val alertPair = Pair(fishpondInfo.id!!, uiState.value.sentAlerts[fishpondInfo.id]?.plus(2)!!)
                         _uiState.update {
                             it.copy(
-                                sentAlerts = uiState.value.sentAlerts.plus(2),
+                                sentAlerts = uiState.value.sentAlerts.plus(alertPair),
                                 notificationTimestamps = uiState.value.notificationTimestamps.plus(Pair(2, currentTime))
                             )
                         }
                     } else {
-                        Log.i("Notification", "Skipping notification: 2. Not enough time elapsed.")
+                        Log.i("Notification", "Skipping alert: 2. Not enough time elapsed.")
                     }
                 },
                 onSafeTemp = {
-                    if (uiState.value.sentAlerts.contains(1)) {
-                        toggleLowTempAlert(false)
+                    if (uiState.value.sentAlerts[fishpondInfo.id]?.contains(1)!!) {
+//                        toggleLowTempAlert(false)
+                        val alertPair = Pair(fishpondInfo.id!!, uiState.value.sentAlerts[fishpondInfo.id]?.minus(1)!!)
                         _uiState.update {
                             it.copy(
-                                sentAlerts = uiState.value.sentAlerts.minus(1)
+                                sentAlerts = uiState.value.sentAlerts.plus(alertPair)
                             )
                         }
                     }
-                    if (uiState.value.sentAlerts.contains(2)) {
-                        toggleHighTempAlert(false)
+                    if (uiState.value.sentAlerts[fishpondInfo.id]?.contains(2)!!) {
+//                        toggleHighTempAlert(false)
+                        val alertPair = Pair(fishpondInfo.id!!, uiState.value.sentAlerts[fishpondInfo.id]?.minus(2)!!)
                         _uiState.update {
                             it.copy(
-                                sentAlerts = uiState.value.sentAlerts.minus(2)
+                                sentAlerts = uiState.value.sentAlerts.plus(alertPair)
                             )
                         }
                     }
@@ -455,52 +459,56 @@ class FishpondListViewModel : ViewModel() {
                     val lastNotificationTime = uiState.value.notificationTimestamps[3] ?: 0
                     val timeElapsed = currentTime - lastNotificationTime
 
-                    if (!uiState.value.sentAlerts.contains(3) && timeElapsed >= intervalTime) {
+                    if (!uiState.value.sentAlerts[fishpondInfo.id]?.contains(3)!! && timeElapsed >= intervalTime) {
                         Log.i("Notification", "Showing alert: 3")
 
                         toggleLowPhAlert(true)
+                        val alertPair = Pair(fishpondInfo.id!!, uiState.value.sentAlerts[fishpondInfo.id]?.plus(3)!!)
                         _uiState.update {
                             it.copy(
-                                sentAlerts = uiState.value.sentAlerts.plus(3),
+                                sentAlerts = uiState.value.sentAlerts.plus(alertPair),
                                 notificationTimestamps = uiState.value.notificationTimestamps.plus(Pair(3, currentTime))
                             )
                         }
                     } else {
-                        Log.i("Notification", "Skipping notification: 3. Not enough time elapsed.")
+                        Log.i("Notification", "Skipping alert: 3. Not enough time elapsed.")
                     }
                 },
                 onHighPh = {
                     val lastNotificationTime = uiState.value.notificationTimestamps[4] ?: 0
                     val timeElapsed = currentTime - lastNotificationTime
 
-                    if (!uiState.value.sentAlerts.contains(4) && timeElapsed >= intervalTime) {
+                    if (!uiState.value.sentAlerts[fishpondInfo.id]?.contains(4)!! && timeElapsed >= intervalTime) {
                         Log.i("Notification", "Showing alert: 4")
 
                         toggleHighPhAlert(true)
+                        val alertPair = Pair(fishpondInfo.id!!, uiState.value.sentAlerts[fishpondInfo.id]?.plus(4)!!)
                         _uiState.update {
                             it.copy(
-                                sentAlerts = uiState.value.sentAlerts.plus(4),
+                                sentAlerts = uiState.value.sentAlerts.plus(alertPair),
                                 notificationTimestamps = uiState.value.notificationTimestamps.plus(Pair(4, currentTime))
                             )
                         }
                     } else {
-                        Log.i("Notification", "Skipping notification: 4. Not enough time elapsed.")
+                        Log.i("Notification", "Skipping alert: 4. Not enough time elapsed.")
                     }
                 },
                 onSafePh = {
-                    if (uiState.value.sentAlerts.contains(3)) {
-                        toggleLowPhAlert(false)
+                    if (uiState.value.sentAlerts[fishpondInfo.id]?.contains(3)!!) {
+//                        toggleLowPhAlert(false)
+                        val alertPair = Pair(fishpondInfo.id!!, uiState.value.sentAlerts[fishpondInfo.id]?.minus(3)!!)
                         _uiState.update {
                             it.copy(
-                                sentAlerts = uiState.value.sentAlerts.minus(3)
+                                sentAlerts = uiState.value.sentAlerts.plus(alertPair)
                             )
                         }
                     }
-                    if (uiState.value.sentAlerts.contains(4)) {
-                        toggleHighPhAlert(false)
+                    if (uiState.value.sentAlerts[fishpondInfo.id]?.contains(4)!!) {
+//                        toggleHighPhAlert(false)
+                        val alertPair = Pair(fishpondInfo.id!!, uiState.value.sentAlerts[fishpondInfo.id]?.minus(4)!!)
                         _uiState.update {
                             it.copy(
-                                sentAlerts = uiState.value.sentAlerts.minus(4)
+                                sentAlerts = uiState.value.sentAlerts.plus(alertPair)
                             )
                         }
                     }
@@ -509,50 +517,54 @@ class FishpondListViewModel : ViewModel() {
                     val lastNotificationTime = uiState.value.notificationTimestamps[5] ?: 0
                     val timeElapsed = currentTime - lastNotificationTime
 
-                    if (!uiState.value.sentAlerts.contains(5) && timeElapsed >= intervalTime) {
+                    if (!uiState.value.sentAlerts[fishpondInfo.id]?.contains(5)!! && timeElapsed >= intervalTime) {
                         Log.i("Notification", "Showing alert: 5")
 
                         toggleLowTurbAlert(true)
+                        val alertPair = Pair(fishpondInfo.id!!, uiState.value.sentAlerts[fishpondInfo.id]?.plus(5)!!)
                         _uiState.update {
                             it.copy(
-                                sentAlerts = uiState.value.sentAlerts.plus(5),
+                                sentAlerts = uiState.value.sentAlerts.plus(alertPair),
                                 notificationTimestamps = uiState.value.notificationTimestamps.plus(Pair(5, currentTime))
                             )
                         }
                     } else {
-                        Log.i("Notification", "Skipping notification: 5. Not enough time elapsed.")
+                        Log.i("Notification", "Skipping alert: 5. Not enough time elapsed.")
                     }
                 },
                 onHighTurb = {
                     val lastNotificationTime = uiState.value.notificationTimestamps[6] ?: 0
                     val timeElapsed = currentTime - lastNotificationTime
 
-                    if (!uiState.value.sentAlerts.contains(6) && timeElapsed >= intervalTime) {
+                    if (!uiState.value.sentAlerts[fishpondInfo.id]?.contains(6)!! && timeElapsed >= intervalTime) {
                         toggleHighTurbAlert(true)
+                        val alertPair = Pair(fishpondInfo.id!!, uiState.value.sentAlerts[fishpondInfo.id]?.plus(6)!!)
                         _uiState.update {
                             it.copy(
-                                sentAlerts = uiState.value.sentAlerts.plus(6),
+                                sentAlerts = uiState.value.sentAlerts.plus(alertPair),
                                 notificationTimestamps = uiState.value.notificationTimestamps.plus(Pair(6, currentTime))
                             )
                         }
                     } else {
-                        Log.i("Notification", "Skipping notification: 6. Not enough time elapsed.")
+                        Log.i("Notification", "Skipping alert: 6. Not enough time elapsed.")
                     }
                 },
                 onSafeTurb = {
-                    if (uiState.value.sentAlerts.contains(5)) {
-                        toggleLowTurbAlert(false)
+                    if (uiState.value.sentAlerts[fishpondInfo.id]?.contains(5)!!) {
+//                        toggleLowTurbAlert(false)
+                        val alertPair = Pair(fishpondInfo.id!!, uiState.value.sentAlerts[fishpondInfo.id]?.minus(5)!!)
                         _uiState.update {
                             it.copy(
-                                sentAlerts = uiState.value.sentAlerts.minus(5)
+                                sentAlerts = uiState.value.sentAlerts.plus(alertPair)
                             )
                         }
                     }
-                    if (uiState.value.sentAlerts.contains(6)) {
-                        toggleHighTurbAlert(false)
+                    if (uiState.value.sentAlerts[fishpondInfo.id]?.contains(6)!!) {
+//                        toggleHighTurbAlert(false)
+                        val alertPair = Pair(fishpondInfo.id!!, uiState.value.sentAlerts[fishpondInfo.id]?.minus(6)!!)
                         _uiState.update {
                             it.copy(
-                                sentAlerts = uiState.value.sentAlerts.minus(6)
+                                sentAlerts = uiState.value.sentAlerts.plus(alertPair)
                             )
                         }
                     }

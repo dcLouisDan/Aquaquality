@@ -1,5 +1,7 @@
 package com.example.aquaquality.data
 
+import android.util.Log
+
 
 data class SettingsInfo(
     val minTemp: Float? = 26f,
@@ -26,14 +28,18 @@ fun checkParameterStatus(
     if (fishpondInfo.tempValue!! < settingsInfo.minTemp!!) {
         if (onLowTemp != null) {
             onLowTemp()
+            Log.i("Parameter Status", "Low Temp Achieved")
         }
     } else if (fishpondInfo.tempValue > settingsInfo.maxTemp!!) {
         if (onHighTemp != null) {
             onHighTemp()
+            Log.i("Parameter Status", "High Temp Achieved")
+
         }
     } else {
         if (onSafeTemp != null){
             onSafeTemp()
+            Log.i("Parameter Status", "Safe Temp Achieved")
         }
     }
 

@@ -22,7 +22,7 @@ class DatabaseNotificationUtil {
     private val auth = Firebase.auth
     private lateinit var fishpondsRef: DatabaseReference
     private val settingsRef: DatabaseReference
-    private val sentNotifications: MutableSet<Int> = mutableSetOf()
+    private var sentNotifications: Map<String, MutableSet<Int>> = emptyMap()
 
 
     init {
@@ -95,7 +95,8 @@ class DatabaseNotificationUtil {
                 fishpondsRef.addChildEventListener(object : ChildEventListener {
                     override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                         Log.i("Firebase", "Fishpond Added")
-
+                        sentNotifications = sentNotifications.plus(Pair(snapshot.key!!, mutableSetOf()))
+                        Log.i("Notifications", "Fishpond Added: $sentNotifications")
                     }
 
                     override fun onChildChanged(
@@ -105,104 +106,103 @@ class DatabaseNotificationUtil {
                         val fishpondInfo = snapshot.getValue(FishpondInfo::class.java)!!
                         Log.i("Child Change", "Info: $fishpondInfo")
 
-
-
                         if (fishpondInfo.connectedDeviceId != null) {
                             checkParameterStatus(
                                 settingsInfo = settingsInfo,
                                 fishpondInfo = fishpondInfo,
                                 onLowTemp = {
-                                    if (!sentNotifications.contains(1)) {
+                                    if (!sentNotifications[fishpondInfo.id]?.contains(1)!!) {
                                         Log.i(
                                             "Value Change",
-                                            "Warning!! Temperature value: ${fishpondInfo.tempValue}"
+                                            "Warning!! Temperature value: ${fishpondInfo.tempValue} Min-Temp: ${settingsInfo.minTemp}"
                                         )
                                         notif1.show()
-                                        sentNotifications.add(1)
+                                        sentNotifications[fishpondInfo.id]?.add(1)
                                     }
                                 },
                                 onHighTemp = {
-                                    if (!sentNotifications.contains(2)) {
+                                    if (!sentNotifications[fishpondInfo.id]?.contains(2)!!) {
 
                                         Log.i(
                                             "Value Change",
                                             "Warning!! Temperature value: ${fishpondInfo.tempValue}"
                                         )
                                         notif2.show()
-                                        sentNotifications.add(2)
+                                        sentNotifications[fishpondInfo.id]?.add(2)
                                     }
                                 },
                                 onSafeTemp = {
-                                    if (sentNotifications.contains(1)) {
-                                        sentNotifications.remove(1)
+                                    if (sentNotifications[fishpondInfo.id]?.contains(1)!!) {
+                                        Log.i("Notification Removal", "Removed alert: 1")
+                                        sentNotifications[fishpondInfo.id]?.remove(1)
                                         notif1.clear()
                                     }
-                                    if (sentNotifications.contains(2)) {
-                                        sentNotifications.remove(2)
+                                    if (sentNotifications[fishpondInfo.id]?.contains(2)!!) {
+                                        sentNotifications[fishpondInfo.id]?.remove(2)
                                         notif2.clear()
                                     }
                                 },
                                 onLowPh = {
-                                    if (!sentNotifications.contains(3)) {
+                                    if (!sentNotifications[fishpondInfo.id]?.contains(3)!!) {
 
                                         Log.i(
                                             "Value Change",
                                             "Warning!! pH value: ${fishpondInfo.phValue}"
                                         )
                                         notif3.show()
-                                        sentNotifications.add(3)
+                                        sentNotifications[fishpondInfo.id]?.add(3)
                                     }
                                 },
                                 onHighPh = {
-                                    if (!sentNotifications.contains(4)) {
+                                    if (!sentNotifications[fishpondInfo.id]?.contains(4)!!) {
 
                                         Log.i(
                                             "Value Change",
                                             "Warning!! pH value: ${fishpondInfo.phValue}"
                                         )
                                         notif4.show()
-                                        sentNotifications.add(4)
+                                        sentNotifications[fishpondInfo.id]?.add(4)
                                     }
                                 },
                                 onSafePh = {
-                                    if (sentNotifications.contains(3)) {
-                                        sentNotifications.remove(3)
+                                    if (sentNotifications[fishpondInfo.id]?.contains(3)!!) {
+                                        sentNotifications[fishpondInfo.id]?.remove(3)
                                         notif3.clear()
                                     }
-                                    if (sentNotifications.contains(4)) {
-                                        sentNotifications.remove(4)
+                                    if (sentNotifications[fishpondInfo.id]?.contains(4)!!) {
+                                        sentNotifications[fishpondInfo.id]?.remove(4)
                                         notif4.clear()
                                     }
                                 },
                                 onLowTurb = {
-                                    if (!sentNotifications.contains(5)) {
+                                    if (!sentNotifications[fishpondInfo.id]?.contains(5)!!) {
 
                                         Log.i(
                                             "Value Change",
                                             "Warning!! Turbidity value: ${fishpondInfo.turbidityValue}"
                                         )
                                         notif5.show()
-                                        sentNotifications.add(5)
+                                        sentNotifications[fishpondInfo.id]?.add(5)
                                     }
                                 },
                                 onHighTurb = {
-                                    if (!sentNotifications.contains(6)) {
+                                    if (!sentNotifications[fishpondInfo.id]?.contains(6)!!) {
 
                                         Log.i(
                                             "Value Change",
                                             "Warning!! Turbidity value: ${fishpondInfo.turbidityValue}"
                                         )
                                         notif6.show()
-                                        sentNotifications.add(6)
+                                        sentNotifications[fishpondInfo.id]?.add(6)
                                     }
                                 },
                                 onSafeTurb = {
-                                    if (sentNotifications.contains(5)) {
-                                        sentNotifications.remove(5)
+                                    if (sentNotifications[fishpondInfo.id]?.contains(5)!!) {
+                                        sentNotifications[fishpondInfo.id]?.remove(5)
                                         notif5.clear()
                                     }
-                                    if (sentNotifications.contains(6)) {
-                                        sentNotifications.remove(6)
+                                    if (sentNotifications[fishpondInfo.id]?.contains(6)!!) {
+                                        sentNotifications[fishpondInfo.id]?.remove(6)
                                         notif6.clear()
                                     }
                                 }
