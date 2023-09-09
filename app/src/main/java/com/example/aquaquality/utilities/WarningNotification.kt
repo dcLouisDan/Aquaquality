@@ -15,7 +15,7 @@ class WarningNotification(
     private val body: String,
 ) {
 
-    private val notificationManager = context.applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    val notificationManager = context.applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
     fun show(){
         val intent = Intent(context, MainActivity::class.java)
@@ -30,5 +30,9 @@ class WarningNotification(
             .setAutoCancel(true)
 
         notificationManager.notify(id, builder.build())
+    }
+
+    fun clear() {
+        notificationManager.cancel(id)
     }
 }

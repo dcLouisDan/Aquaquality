@@ -11,6 +11,7 @@ import com.example.aquaquality.data.checkParameterStatus
 import com.example.aquaquality.presentation.sign_in.UserData
 import com.example.aquaquality.ui.components.IndicatorStatus
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -37,11 +38,13 @@ class FishpondListViewModel : ViewModel() {
 
 
     init {
-        fetchData()
+//        fetchData()
+        fetchDataByChild()
     }
 
     fun refreshData() {
-        fetchData()
+//        fetchData()
+        fetchDataByChild()
     }
 
     private fun fetchData() {
@@ -64,7 +67,7 @@ class FishpondListViewModel : ViewModel() {
                         fishpondList.add(fishpondInfo)
                         val fishpondIndex = fishpondList.indexOf(fishpondInfo)
 
-                        if (fishpondInfo.connectedDeviceId != null){
+                        if (fishpondInfo.connectedDeviceId != null) {
                             checkParameterStatus(
                                 settingsInfo = settingsInfo,
                                 fishpondInfo = fishpondInfo,
@@ -220,7 +223,9 @@ class FishpondListViewModel : ViewModel() {
                                         _uiState.update {
                                             it.copy(
                                                 fishpondList = fishpondList,
-                                                fishpondKeyList = uiState.value.fishpondKeyList.plus(info.key!!)
+                                                fishpondKeyList = uiState.value.fishpondKeyList.plus(
+                                                    info.key!!
+                                                )
                                             )
                                         }
 
@@ -257,6 +262,241 @@ class FishpondListViewModel : ViewModel() {
         }
     }
 
+    private fun fetchDataByChild() {
+        val userId = getSignedInUser()?.userId
+        fishpondsReference = database.getReference("$userId/fishponds")
+        settingsRef = database.getReference("$userId/settings")
+
+//        val fishpondMap: Map<String, FishpondInfo> = emptyMap()
+
+        initializeSettings { settingsInfo ->
+            fishpondsReference.addChildEventListener(object : ChildEventListener {
+                override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                    val fishpondData = snapshot.getValue<FishpondInfo>()!!
+
+                    val fishpondInfo = checkFishpondInfo(fishpondData, settingsInfo)
+
+                    _uiState.update {
+                        it.copy(
+                            fishpondMap = uiState.value.fishpondMap.plus(
+                                Pair(
+                                    fishpondInfo.id!!,
+                                    fishpondInfo
+                                )
+                            )
+                        )
+                    }
+
+                    Log.i("Fishpond Map", "child added: ${uiState.value.fishpondMap}")
+
+                }
+
+                override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+                    val fishpondData = snapshot.getValue<FishpondInfo>()!!
+
+                    val fishpondInfo = checkFishpondInfo(fishpondData, settingsInfo)
+                    _uiState.update {
+                        it.copy(
+                            fishpondMap = uiState.value.fishpondMap.plus(
+                                Pair(
+                                    fishpondInfo.id!!,
+                                    fishpondInfo
+                                )
+                            )
+                        )
+                    }
+                    Log.i("Fishpond Map", "child changed: ${uiState.value.fishpondMap}")
+
+                }
+
+                override fun onChildRemoved(snapshot: DataSnapshot) {
+                    val fishpondData = snapshot.getValue<FishpondInfo>()!!
+
+                    val fishpondInfo = checkFishpondInfo(fishpondData, settingsInfo)
+                    _uiState.update {
+                        it.copy(
+                            fishpondMap = uiState.value.fishpondMap.minus(fishpondInfo.id!!)
+                        )
+                    }
+                    Log.i("Fishpond Map", "child changed: ${uiState.value.fishpondMap}")
+
+                }
+
+                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("Fishpond Map", "Something went wrong")
+
+                }
+
+            })
+        }
+    }
+
+    private fun checkFishpondInfo(
+        fishpondInfo: FishpondInfo,
+        settingsInfo: SettingsInfo
+    ): FishpondInfo {
+        var fishpondInfo1 = fishpondInfo
+        if (fishpondInfo1.connectedDeviceId != null) {
+            checkParameterStatus(
+                settingsInfo = settingsInfo,
+                fishpondInfo = fishpondInfo1,
+                onLowTemp = {
+                    fishpondInfo1 =
+                        fishpondInfo1.copy(tempStatus = IndicatorStatus.UNDER_RANGE.name)
+
+                    if (!uiState.value.sentAlerts.contains(1)) {
+                        toggleLowTempAlert(true)
+                        _uiState.update {
+                            it.copy(
+                                sentAlerts = uiState.value.sentAlerts.plus(1)
+                            )
+                        }
+                    }
+                },
+                onHighTemp = {
+                    fishpondInfo1 =
+                        fishpondInfo1.copy(tempStatus = IndicatorStatus.OVER_RANGE.name)
+
+
+                    if (!uiState.value.sentAlerts.contains(2)) {
+                        toggleHighTempAlert(true)
+                        _uiState.update {
+                            it.copy(
+                                sentAlerts = uiState.value.sentAlerts.plus(2)
+                            )
+                        }
+                    }
+                },
+                onSafeTemp = {
+                    if (uiState.value.sentAlerts.contains(1)) {
+                        toggleLowTempAlert(false)
+                        _uiState.update {
+                            it.copy(
+                                sentAlerts = uiState.value.sentAlerts.minus(1)
+                            )
+                        }
+                    }
+                    if (uiState.value.sentAlerts.contains(2)) {
+                        toggleHighTempAlert(false)
+                        _uiState.update {
+                            it.copy(
+                                sentAlerts = uiState.value.sentAlerts.minus(2)
+                            )
+                        }
+                    }
+                },
+                onLowPh = {
+                    fishpondInfo1 =
+                        fishpondInfo1.copy(phStatus = IndicatorStatus.UNDER_RANGE.name)
+
+
+                    if (!uiState.value.sentAlerts.contains(3)) {
+                        toggleLowPhAlert(true)
+                        _uiState.update {
+                            it.copy(
+                                sentAlerts = uiState.value.sentAlerts.plus(3)
+                            )
+                        }
+                    }
+                },
+                onHighPh = {
+                    fishpondInfo1 =
+                        fishpondInfo1.copy(phStatus = IndicatorStatus.OVER_RANGE.name)
+
+
+                    if (!uiState.value.sentAlerts.contains(4)) {
+                        toggleHighPhAlert(true)
+                        _uiState.update {
+                            it.copy(
+                                sentAlerts = uiState.value.sentAlerts.plus(4)
+                            )
+                        }
+                    }
+                },
+                onSafePh = {
+                    if (uiState.value.sentAlerts.contains(3)) {
+                        toggleLowPhAlert(false)
+                        _uiState.update {
+                            it.copy(
+                                sentAlerts = uiState.value.sentAlerts.minus(3)
+                            )
+                        }
+                    }
+                    if (uiState.value.sentAlerts.contains(4)) {
+                        toggleHighPhAlert(false)
+                        _uiState.update {
+                            it.copy(
+                                sentAlerts = uiState.value.sentAlerts.minus(4)
+                            )
+                        }
+                    }
+                },
+                onLowTurb = {
+                    fishpondInfo1 =
+                        fishpondInfo1.copy(turbStatus = IndicatorStatus.UNDER_RANGE.name)
+
+
+                    if (!uiState.value.sentAlerts.contains(5)) {
+                        toggleLowTurbAlert(true)
+                        _uiState.update {
+                            it.copy(
+                                sentAlerts = uiState.value.sentAlerts.plus(5)
+                            )
+                        }
+                    }
+                },
+                onHighTurb = {
+                    fishpondInfo1 =
+                        fishpondInfo1.copy(turbStatus = IndicatorStatus.OVER_RANGE.name)
+
+                    if (!uiState.value.sentAlerts.contains(6)) {
+                        toggleHighTurbAlert(true)
+                        _uiState.update {
+                            it.copy(
+                                sentAlerts = uiState.value.sentAlerts.plus(6)
+                            )
+                        }
+                    }
+                },
+                onSafeTurb = {
+                    if (uiState.value.sentAlerts.contains(5)) {
+                        toggleLowTurbAlert(false)
+                        _uiState.update {
+                            it.copy(
+                                sentAlerts = uiState.value.sentAlerts.minus(5)
+                            )
+                        }
+                    }
+                    if (uiState.value.sentAlerts.contains(6)) {
+                        toggleHighTurbAlert(false)
+                        _uiState.update {
+                            it.copy(
+                                sentAlerts = uiState.value.sentAlerts.minus(6)
+                            )
+                        }
+                    }
+                }
+            )
+        }
+        if (fishpondInfo.connectedDeviceId != null) {
+            database.getReference("devices/${fishpondInfo1.connectedDeviceId}")
+                .get().addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val deviceInfo = task.result.getValue<DeviceInfo>()!!
+                        val epochSeconds = System.currentTimeMillis() / 1000
+                        val isOffline = (epochSeconds - deviceInfo.timestamp!!) > 5
+                        fishpondInfo1 =
+                            fishpondInfo1.copy(isOffline = isOffline)
+                    }
+                }
+        }
+        return fishpondInfo1
+    }
+
     fun toggleLowTempAlert(isVisible: Boolean) {
         _uiState.update {
             it.copy(
@@ -264,6 +504,7 @@ class FishpondListViewModel : ViewModel() {
             )
         }
     }
+
     fun toggleHighTempAlert(isVisible: Boolean) {
         _uiState.update {
             it.copy(
@@ -271,6 +512,7 @@ class FishpondListViewModel : ViewModel() {
             )
         }
     }
+
     fun toggleLowPhAlert(isVisible: Boolean) {
         _uiState.update {
             it.copy(
@@ -278,6 +520,7 @@ class FishpondListViewModel : ViewModel() {
             )
         }
     }
+
     fun toggleHighPhAlert(isVisible: Boolean) {
         _uiState.update {
             it.copy(
@@ -285,6 +528,7 @@ class FishpondListViewModel : ViewModel() {
             )
         }
     }
+
     fun toggleLowTurbAlert(isVisible: Boolean) {
         _uiState.update {
             it.copy(
@@ -292,6 +536,7 @@ class FishpondListViewModel : ViewModel() {
             )
         }
     }
+
     fun toggleHighTurbAlert(isVisible: Boolean) {
         _uiState.update {
             it.copy(
@@ -331,7 +576,7 @@ class FishpondListViewModel : ViewModel() {
     fun resetHomeScreenStates() {
         _uiState.update {
             it.copy(
-                currentSelectedFishpondInfo = it.fishpondList[0],
+                currentSelectedFishpondInfo = null,
                 isShowingHomepage = true
             )
         }
@@ -373,12 +618,13 @@ class FishpondListViewModel : ViewModel() {
 
     fun addNewFishpond(name: String) {
         val newChildRef = fishpondsReference.push()
-        val fishpondInfo = FishpondInfo(id = newChildRef.key,name = name)
+        val fishpondInfo = FishpondInfo(id = newChildRef.key, name = name)
 
         newChildRef.setValue(fishpondInfo).addOnCompleteListener { task ->
             _uiState.update {
                 it.copy(
-                    isAdditionSuccess = task.isSuccessful
+                    isAdditionSuccess = task.isSuccessful,
+                    newFishpondName = ""
                 )
             }
         }
@@ -387,16 +633,24 @@ class FishpondListViewModel : ViewModel() {
     fun updateFishpondName(name: String, fishpondInfo: FishpondInfo) {
         val dataRef = fishpondsReference.child(fishpondInfo.id!!)
 
-        dataRef.child("name").setValue(name)
+        dataRef.child("name").setValue(name).addOnCompleteListener {
+            if (it.isSuccessful) {
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        editFishpondName = ""
+                    )
+                }
+            }
+        }
         resetFishpondInfoToModify()
     }
 
     fun deleteFishpondInfo(fishpondInfo: FishpondInfo) {
         val dataRef = fishpondsReference.child(fishpondInfo.id!!)
 
-        disconnectDeviceFromFishpond(fishpondInfo)
         dataRef.removeValue()
         resetFishpondInfoToModify()
+        disconnectDeviceFromFishpond(fishpondInfo)
     }
 
     private fun disconnectDeviceFromFishpond(fishpond: FishpondInfo) {

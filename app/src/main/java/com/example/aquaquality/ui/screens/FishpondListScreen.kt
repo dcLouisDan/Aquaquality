@@ -173,8 +173,8 @@ fun FishpondListScreen(
         )
     } else {
         FishpondCardList(
-            isEmpty = uiState.fishpondList.isEmpty(),
-            fishpondList = uiState.fishpondList,
+            isEmpty = uiState.fishpondMap.isEmpty(),
+            fishpondList = uiState.fishpondMap.values.toList(),
             onFabClick = { isNewDialogVisible = true },
             onCardClick = { fishpondInfo: FishpondInfo ->
                 fishpondListViewModel.updateDetailsScreenStates(fishpondInfo)
