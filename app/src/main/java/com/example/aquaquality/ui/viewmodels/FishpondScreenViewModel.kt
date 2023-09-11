@@ -8,9 +8,9 @@ import androidx.lifecycle.viewModelScope
 import com.example.aquaquality.data.DeviceInfo
 import com.example.aquaquality.data.FishpondInfo
 import com.example.aquaquality.data.FishpondScreenUiState
+import com.example.aquaquality.data.HistoryLog
 import com.example.aquaquality.data.SettingsInfo
 import com.example.aquaquality.data.checkParameterStatus
-import com.example.aquaquality.data.local.LocalFishpondsDataProvider
 import com.example.aquaquality.presentation.sign_in.UserData
 import com.example.aquaquality.ui.components.IndicatorStatus
 import com.google.firebase.auth.ktx.auth
@@ -28,6 +28,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 @RequiresApi(Build.VERSION_CODES.O)
 class FishpondScreenViewModel : ViewModel() {
@@ -41,6 +43,7 @@ class FishpondScreenViewModel : ViewModel() {
     private lateinit var devicesReference: DatabaseReference
     private lateinit var currentDeviceReference: DatabaseReference
     private lateinit var fishpondReference: DatabaseReference
+    private lateinit var historyReference: DatabaseReference
     private var settingsRef: DatabaseReference
     private lateinit var fishpondEventListener: ValueEventListener
 
@@ -53,36 +56,11 @@ class FishpondScreenViewModel : ViewModel() {
 
     init {
         Log.i("FishpondScreen", "Created")
-        val historyLogs = LocalFishpondsDataProvider.historyList
-        val month = historyLogs[0].month
-        val day = historyLogs[0].day
-        val year = historyLogs[0].year
         settingsRef = database.getReference("$userId/settings")
 
-
-        _uiState.update { currentState ->
-            currentState.copy(
-                year = year,
-                month = month,
-                day = day
-            )
-        }
-
-        for (log in historyLogs) {
-            _uiState.update { currentState ->
-                currentState.copy(
-                    timeList = uiState.value.timeList.plus("${log.hour}:${log.minute}"),
-                    tempValueList = uiState.value.tempValueList.plus(log.tempValue),
-                    phValueList = uiState.value.phValueList.plus(log.phValue),
-                    turbidityValueList = uiState.value.turbidityValueList.plus(log.turbidityValue),
-                )
-            }
-        }
-        setChartValues()
         if (uiState.value.fishpondInfo?.connectedDeviceId == null) {
             getDeviceList()
         }
-
 
         Log.i("ChartValues", "Chart time list: ${uiState.value.timeList}")
         Log.i("ChartValues", "Chart phList: ${uiState.value.phValueList}")
@@ -154,17 +132,6 @@ class FishpondScreenViewModel : ViewModel() {
     fun getDeviceList() {
         devicesReference = database.getReference("devices")
 
-//        devicesReference.child("AQ001").setValue(
-//            DeviceInfo(
-//                "AQ001",
-//                true,
-//                null,
-//                28f,
-//                7f,
-//                80
-//            )
-//        )
-
         devicesReference.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 _uiState.update { currentState ->
@@ -234,52 +201,52 @@ class FishpondScreenViewModel : ViewModel() {
 
         fishpondEventListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
+                _uiState.update {
+                    it.copy(
+                        fishpondInfo = snapshot.getValue<FishpondInfo>()!!
+                    )
+                }
+                Log.i("Child", "${snapshot.key}: ${snapshot.value}")
+
+
+                var fishpondInfo = uiState.value.fishpondInfo!!
+                if (fishpondInfo.connectedDeviceId != null) {
+                    checkParameterStatus(
+                        settingsInfo = settingsInfo,
+                        fishpondInfo = fishpondInfo,
+                        onLowTemp = {
+                            fishpondInfo =
+                                fishpondInfo.copy(tempStatus = IndicatorStatus.UNDER_RANGE.name)
+                        },
+                        onHighTemp = {
+                            fishpondInfo =
+                                fishpondInfo.copy(tempStatus = IndicatorStatus.OVER_RANGE.name)
+                        },
+                        onLowPh = {
+                            fishpondInfo =
+                                fishpondInfo.copy(phStatus = IndicatorStatus.UNDER_RANGE.name)
+                        },
+                        onHighPh = {
+                            fishpondInfo =
+                                fishpondInfo.copy(phStatus = IndicatorStatus.OVER_RANGE.name)
+
+                        },
+                        onLowTurb = {
+                            fishpondInfo =
+                                fishpondInfo.copy(turbStatus = IndicatorStatus.UNDER_RANGE.name)
+
+                        },
+                        onHighTurb = {
+                            fishpondInfo =
+                                fishpondInfo.copy(turbStatus = IndicatorStatus.OVER_RANGE.name)
+                        })
+
                     _uiState.update {
                         it.copy(
-                            fishpondInfo = snapshot.getValue<FishpondInfo>()!!
+                            fishpondInfo = fishpondInfo
                         )
                     }
-                    Log.i("Child", "${snapshot.key}: ${snapshot.value}")
-
-
-                    var fishpondInfo = uiState.value.fishpondInfo!!
-                    if (fishpondInfo.connectedDeviceId != null) {
-                        checkParameterStatus(
-                            settingsInfo = settingsInfo,
-                            fishpondInfo = fishpondInfo,
-                            onLowTemp = {
-                                fishpondInfo =
-                                    fishpondInfo.copy(tempStatus = IndicatorStatus.UNDER_RANGE.name)
-                            },
-                            onHighTemp = {
-                                fishpondInfo =
-                                    fishpondInfo.copy(tempStatus = IndicatorStatus.OVER_RANGE.name)
-                            },
-                            onLowPh = {
-                                fishpondInfo =
-                                    fishpondInfo.copy(phStatus = IndicatorStatus.UNDER_RANGE.name)
-                            },
-                            onHighPh = {
-                                fishpondInfo =
-                                    fishpondInfo.copy(phStatus = IndicatorStatus.OVER_RANGE.name)
-
-                            },
-                            onLowTurb = {
-                                fishpondInfo =
-                                    fishpondInfo.copy(turbStatus = IndicatorStatus.UNDER_RANGE.name)
-
-                            },
-                            onHighTurb = {
-                                fishpondInfo =
-                                    fishpondInfo.copy(turbStatus = IndicatorStatus.OVER_RANGE.name)
-                            })
-
-                        _uiState.update {
-                            it.copy(
-                                fishpondInfo = fishpondInfo
-                            )
-                        }
-                    }
+                }
 
             }
 
@@ -310,12 +277,70 @@ class FishpondScreenViewModel : ViewModel() {
         })
     }
 
-    private fun setChartValues() {
-        createTempFloatEntryList(valueList = uiState.value.tempValueList)
-        createPhFloatEntryList(valueList = uiState.value.phValueList)
-        createTurbFloatEntryList(valueList = uiState.value.turbidityValueList)
+    suspend fun fetchHistoryList(dateKey: String): List<HistoryLog> {
+        val fishpondKey = uiState.value.fishpondKey
+        val historyList: MutableList<HistoryLog> = mutableListOf()
+        historyReference = database.getReference("history/$userId/fishponds/$fishpondKey/$dateKey")
 
+        return suspendCoroutine { continuation ->
+            historyReference.get().addOnSuccessListener {
+                Log.i("History Log Data", "$dateKey: ${it.value}")
+                Log.i(
+                    "History Log Data",
+                    "History Path: history/$userId/fishponds/$fishpondKey/$dateKey"
+                )
+                for (dataLog in it.children) {
+                    val historyLog = dataLog.getValue<HistoryLog>()
+
+                    if (historyLog != null) {
+                        historyList.add(historyLog)
+                    }
+                }
+
+                Log.i("History Log", "$dateKey: $historyList")
+                continuation.resume(historyList)
+            }.addOnFailureListener {
+                Log.e("History Log", "$dateKey: Data retrieval failed")
+                continuation.resume(emptyList())
+            }
+        }
+
+    }
+
+    private fun setChartValues() {
+        _uiState.update { currentState ->
+            currentState.copy(
+                timeList = emptyList(),
+                tempValueList = emptyList(),
+                phValueList = emptyList(),
+                turbidityValueList = emptyList(),
+            )
+        }
         viewModelScope.launch {
+
+            val historyList = fetchHistoryList(uiState.value.dateKey)
+
+            for (log in historyList) {
+                Log.i("History Log List Item", "Item: $log")
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        timeList = uiState.value.timeList.plus("${log.hour}:${log.minute}"),
+                        tempValueList = uiState.value.tempValueList.plus(log.tempValue!!),
+                        phValueList = uiState.value.phValueList.plus(log.phValue!!),
+                        turbidityValueList = uiState.value.turbidityValueList.plus(log.turbidityValue!!),
+                    )
+                }
+            }
+            Log.i(
+                "History Log UI State",
+                "${uiState.value.dateKey}: ${uiState.value.tempValueList}"
+            )
+
+
+            createTempFloatEntryList(valueList = uiState.value.tempValueList)
+            createPhFloatEntryList(valueList = uiState.value.phValueList)
+            createTurbFloatEntryList(valueList = uiState.value.turbidityValueList)
+
             tempChartEntryModelProducer = ChartEntryModelProducer(uiState.value.tempEntryList)
             phChartEntryModelProducer = ChartEntryModelProducer(uiState.value.phEntryList)
             turbidityChartEntryModelProducer =
@@ -326,15 +351,17 @@ class FishpondScreenViewModel : ViewModel() {
     fun setSelectedDate(year: Int, month: Int, day: Int) {
         _uiState.update { currentState ->
             currentState.copy(
+                dateKey = "$year${month + 1}$day",
                 year = year,
                 month = month,
                 day = day
             )
         }
+
+        setChartValues()
     }
 
     fun setFishpondInfo(fishpondInfo: FishpondInfo, key: String) {
-
         _uiState.update { currentState ->
             currentState.copy(
                 fishpondInfo = fishpondInfo,
@@ -342,8 +369,9 @@ class FishpondScreenViewModel : ViewModel() {
             )
         }
         Log.i("Fishpond info", "Selected Fishpond: ${uiState.value.fishpondInfo}")
+        setChartValues()
 
-        if (fishpondInfo.id != null){
+        if (fishpondInfo.id != null) {
             initializeSettings { settingsInfo ->
                 updateFishpondInfo(settingsInfo, fishpondInfo.id)
             }
@@ -431,7 +459,7 @@ class FishpondScreenViewModel : ViewModel() {
         )
     }
 
-    fun resetState(){
+    fun resetState() {
         fishpondReference.removeEventListener(fishpondEventListener)
     }
 }

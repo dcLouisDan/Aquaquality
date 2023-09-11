@@ -77,6 +77,7 @@ import com.example.aquaquality.data.FishpondScreenUiState
 import com.example.aquaquality.ui.components.DisconnectDeviceDialog
 import com.example.aquaquality.ui.components.IndicatorStatus
 import com.example.aquaquality.ui.components.ParameterMonitor
+import com.example.aquaquality.ui.components.rememberMarker
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 import com.example.aquaquality.ui.theme.rememberChartStyle
 import com.example.aquaquality.ui.viewmodels.FishpondScreenViewModel
@@ -478,11 +479,12 @@ fun DataGraph(
                 .fillMaxWidth()
                 .padding(bottom = dimensionResource(id = R.dimen.padding_small))
         )
-
+        val marker = rememberMarker()
 
         ProvideChartStyle(rememberChartStyle(chartColors = listOf(MaterialTheme.colorScheme.primary))) {
             Chart(
                 chart = lineChart(),
+                marker = marker,
                 chartModelProducer = chartEntryModelProducer,
                 startAxis = startAxis(
                     title = "Values",

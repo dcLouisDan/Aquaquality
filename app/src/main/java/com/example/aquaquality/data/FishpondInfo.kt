@@ -17,12 +17,12 @@ data class FishpondInfo(
     )
 
 data class HistoryLog(
-    val year: Int,
-    val month: Int,
-    val day: Int,
-    val hour: Int,
-    val minute: Int,
-    val tempValue: Float = 0.0F,
-    val phValue: Float = 0.0F,
-    val turbidityValue: Int = 0
+    val year: Int? = null,
+    val month: Int? = null,
+    val day: Int? = null,
+    val hour: Int? = null,
+    val minute: Int? = null,
+    val tempValue: Float? = 0.0F,
+    val phValue: Float? = 0.0F,
+    val turbidityValue: Int? = 0
 )

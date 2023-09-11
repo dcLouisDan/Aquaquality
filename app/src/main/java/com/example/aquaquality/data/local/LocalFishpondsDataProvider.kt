@@ -2,9 +2,7 @@ package com.example.aquaquality.data.local
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import com.example.aquaquality.data.FishpondInfo
 import com.example.aquaquality.data.HistoryLog
-import java.time.LocalDate
 import java.time.LocalTime
 import kotlin.random.Random
 

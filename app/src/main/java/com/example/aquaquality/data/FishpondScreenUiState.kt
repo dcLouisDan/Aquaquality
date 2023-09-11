@@ -9,6 +9,7 @@ data class FishpondScreenUiState(
     val fishpondKey: String? = "",
     val fishpondInfo: FishpondInfo? = null,
     val deviceInfo: DeviceInfo = DeviceInfo(""),
+    val dateKey: String = "${DateHelper.mYear}${DateHelper.mMonth+1}${DateHelper.mDay}",
     val year: Int = DateHelper.mYear,
     val month: Int = DateHelper.mMonth,
     val day: Int = DateHelper.mDay,
@@ -27,3 +28,4 @@ data class FishpondScreenUiState(
 enum class ConnectingStatus {
     AVAILABLE, LOADING, CONNECTED
 }
+
