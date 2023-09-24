@@ -6,12 +6,11 @@ import com.example.aquaquality.data.SuggestionType
 object LocalInfoProvider {
     //TEMPERATURE
     val highTempTreatments = listOf(
-        "This is a sentence that narrates a possible treatment solution that the farmer can implement in order to manage the fishpond’s high water temperature.",
-        "This is also a sentence that narrates another possible treatment solution that the farmer can implement in order to manage the fishpond’s high water temperature."
+        "Increase the flow of water by using pumps, aerators, or fountains. This method can also help in lowering the water temperature by blending it with cooler water that comes from deeper layers or other sources.",
     )
     val highTempConsequences = listOf(
-        "This is a paragraph that narrates a possible consequence that might happen if the water temperature is left unmanaged.",
-        "This is also another paragraph that narrates a possible consequence that might happen if the water temperature is left unmanaged."
+        "When the water temperature increases, the fish's metabolism and respiration rate also increase. This means that they need more oxygen to survive.",
+        "Moreover, the amount of oxygen that can dissolve in water decreases as the temperature increases. This can lead to oxygen levels in the water becoming too low for the fish to survive."
     )
 
     val lowTempTreatments = listOf(
@@ -19,8 +18,8 @@ object LocalInfoProvider {
         "This is also a sentence that narrates another possible treatment solution that the farmer can implement in order to manage the fishpond’s low water temperature."
     )
     val lowTempConsequences = listOf(
-        "This is a paragraph that narrates a possible consequence that might happen if the water temperature is left unmanaged.",
-        "This is also another paragraph that narrates a possible consequence that might happen if the water temperature is left unmanaged."
+        "Low temperature can reduce the feed intake and growth rate of catfish. Catfish need a warm water temperature of about 26°C to 32°C to digest their food well and grow fast.",
+        "Low temperature can also change the water quality in the fishponds. Low temperature can reduce the oxygen level and increase the ammonia level in the water. Oxygen is needed by catfish to breathe and by bacteria to break down wastes."
     )
 
     val highTempSuggestionInfo = SuggestionInfo(
@@ -39,21 +38,19 @@ object LocalInfoProvider {
 
     //PH
     val highPhTreatments = listOf(
-        "This is a sentence that narrates a possible treatment solution that the farmer can implement in order to manage the fishpond’s high water pH level.",
-        "This is also a sentence that narrates another possible treatment solution that the farmer can implement in order to manage the fishpond’s high water pH level."
+        "For fishponds, it is recommended to change the water in the pond to normalize its pH level.",
     )
     val highPhConsequences = listOf(
-        "This is a paragraph that narrates a possible consequence that might happen if the water pH level is left unmanaged.",
-        "This is also another paragraph that narrates a possible consequence that might happen if the water pH level is left unmanaged."
+        "When the pH of water is too high, it can make the water less oxygenated, which can suffocate the fish.",
+        "It can also make the water more alkaline, which can damage the fish's skin and eyes."
     )
 
     val lowPhTreatments = listOf(
-        "This is a sentence that narrates a possible treatment solution that the farmer can implement in order to manage the fishpond’s low water pH level.",
-        "This is also a sentence that narrates another possible treatment solution that the farmer can implement in order to manage the fishpond’s low water pH level."
+        "For fishponds, it is recommended to change the water in the pond to normalize its pH level.",
     )
     val lowPhConsequences = listOf(
-        "This is a paragraph that narrates a possible consequence that might happen if the water pH level is left unmanaged.",
-        "This is also another paragraph that narrates a possible consequence that might happen if the water pH level is left unmanaged."
+        "When the pH of water is too low, it can damage the fish's gills and make it difficult for them to breathe.",
+        "It can also make the water more toxic to fish."
     )
 
     val highPhSuggestionInfo = SuggestionInfo(
@@ -72,21 +69,18 @@ object LocalInfoProvider {
 
     //TURBIDITY
     val highTurbTreatments = listOf(
-        "This is a sentence that narrates a possible treatment solution that the farmer can implement in order to manage the fishpond’s high water turbidity.",
-        "This is also a sentence that narrates another possible treatment solution that the farmer can implement in order to manage the fishpond’s high water turbidity."
+        "For fishponds, it is recommended to change the water in the pond to clear the excess suspend solids in the water.",
     )
     val highTurbConsequences = listOf(
-        "This is a paragraph that narrates a possible consequence that might happen if the water turbidity is left unmanaged.",
-        "This is also another paragraph that narrates a possible consequence that might happen if the water turbidity is left unmanaged."
+        "If the turbidity of the water in the pond is too high, it can block the sunlight from reaching the plants and algae in the water. These plants and algae are important for producing oxygen and food for the fish. Without enough sunlight, they cannot grow well and may die. This reduces the oxygen level and the food supply for the fish.",
+        "High water turbidity can also carry harmful substances, such as sediments, chemicals, bacteria, and parasites, that can damage the gills, skin, eyes, and internal organs of the fish. These substances can also reduce the quality of the water and make it more acidic or alkaline. This can stress the fish and make them more vulnerable to diseases and infections."
     )
 
     val lowTurbTreatments = listOf(
-        "This is a sentence that narrates a possible treatment solution that the farmer can implement in order to manage the fishpond’s low water turbidity.",
-        "This is also a sentence that narrates another possible treatment solution that the farmer can implement in order to manage the fishpond’s low water turbidity."
+        "Low water turbidity does not require any treatment."
     )
     val lowTurbConsequences = listOf(
-        "This is a paragraph that narrates a possible consequence that might happen if the water turbidity is left unmanaged.",
-        "This is also another paragraph that narrates a possible consequence that might happen if the water turbidity is left unmanaged."
+        "There are no known negative consequence for low water turbidity."
     )
 
     val highTurbSuggestionInfo = SuggestionInfo(

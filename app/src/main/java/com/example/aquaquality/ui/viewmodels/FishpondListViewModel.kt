@@ -3,6 +3,7 @@ package com.example.aquaquality.ui.viewmodels
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.aquaquality.data.DeviceInfo
 import com.example.aquaquality.data.FishpondInfo
 import com.example.aquaquality.data.FishpondListUiState
@@ -23,6 +24,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 
 class FishpondListViewModel : ViewModel() {
@@ -266,60 +269,68 @@ class FishpondListViewModel : ViewModel() {
         val userId = getSignedInUser()?.userId
         fishpondsReference = database.getReference("$userId/fishponds")
         settingsRef = database.getReference("$userId/settings")
-
         initializeSettings { settingsInfo ->
             fishpondsReference.addChildEventListener(object : ChildEventListener {
                 override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                    val fishpondData = snapshot.getValue<FishpondInfo>()!!
+                    viewModelScope.launch {
+                        val fishpondData = snapshot.getValue<FishpondInfo>()!!
+                        val fishpondInfo = checkFishpondInfo(fishpondData, settingsInfo)
 
-                    val fishpondInfo = checkFishpondInfo(fishpondData, settingsInfo)
-
-                    _uiState.update {
-                        it.copy(
-                            fishpondMap = uiState.value.fishpondMap.plus(
-                                Pair(
-                                    fishpondInfo.id!!,
-                                    fishpondInfo
+                        _uiState.update {
+                            it.copy(
+                                fishpondMap = uiState.value.fishpondMap.plus(
+                                    Pair(
+                                        fishpondInfo.id!!,
+                                        fishpondInfo
+                                    )
+                                ),
+                                sentAlerts = uiState.value.sentAlerts.plus(
+                                    Pair(
+                                        fishpondInfo.id,
+                                        emptySet()
+                                    )
                                 )
-                            ),
-                            sentAlerts = uiState.value.sentAlerts.plus(Pair(fishpondInfo.id, emptySet()))
-                        )
-                    }
+                            )
+                        }
 
-                    Log.i("Fishpond Map", "child added: ${uiState.value.fishpondMap}")
+                        Log.i("Fishpond Map", "child added: ${uiState.value.fishpondMap}")
+                    }
 
                 }
 
                 override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
-                    val fishpondData = snapshot.getValue<FishpondInfo>()!!
-                    val fishpondInfo = checkFishpondInfo(fishpondData, settingsInfo)
+                    viewModelScope.launch {
+                        val fishpondData = snapshot.getValue<FishpondInfo>()!!
+                        val fishpondInfo = checkFishpondInfo(fishpondData, settingsInfo)
 
-                    checkFishpondInfoForAlerts(fishpondData, settingsInfo)
+                        checkFishpondInfoForAlerts(fishpondData, settingsInfo)
 
-                    _uiState.update {
-                        it.copy(
-                            fishpondMap = uiState.value.fishpondMap.plus(
-                                Pair(
-                                    fishpondInfo.id!!,
-                                    fishpondInfo
+                        _uiState.update {
+                            it.copy(
+                                fishpondMap = uiState.value.fishpondMap.plus(
+                                    Pair(
+                                        fishpondInfo.id!!,
+                                        fishpondInfo
+                                    )
                                 )
                             )
-                        )
+                        }
+                        Log.i("Fishpond Map", "child changed: ${uiState.value.fishpondMap}")
                     }
-                    Log.i("Fishpond Map", "child changed: ${uiState.value.fishpondMap}")
-
                 }
 
                 override fun onChildRemoved(snapshot: DataSnapshot) {
-                    val fishpondData = snapshot.getValue<FishpondInfo>()!!
+                    viewModelScope.launch {
+                        val fishpondData = snapshot.getValue<FishpondInfo>()!!
 
-                    val fishpondInfo = checkFishpondInfo(fishpondData, settingsInfo)
-                    _uiState.update {
-                        it.copy(
-                            fishpondMap = uiState.value.fishpondMap.minus(fishpondInfo.id!!)
-                        )
+                        val fishpondInfo = checkFishpondInfo(fishpondData, settingsInfo)
+                        _uiState.update {
+                            it.copy(
+                                fishpondMap = uiState.value.fishpondMap.minus(fishpondInfo.id!!)
+                            )
+                        }
+                        Log.i("Fishpond Map", "child changed: ${uiState.value.fishpondMap}")
                     }
-                    Log.i("Fishpond Map", "child changed: ${uiState.value.fishpondMap}")
 
                 }
 
@@ -336,55 +347,62 @@ class FishpondListViewModel : ViewModel() {
         }
     }
 
-    private fun checkFishpondInfo(
+    private suspend fun checkFishpondInfo(
         fishpondInfo: FishpondInfo,
         settingsInfo: SettingsInfo
     ): FishpondInfo {
         var fishpondInfo1 = fishpondInfo
+
         if (fishpondInfo1.connectedDeviceId != null) {
             checkParameterStatus(
                 settingsInfo = settingsInfo,
                 fishpondInfo = fishpondInfo1,
                 onLowTemp = {
-                    fishpondInfo1 =
-                        fishpondInfo1.copy(tempStatus = IndicatorStatus.UNDER_RANGE.name)
+                    fishpondInfo1 = fishpondInfo1.copy(tempStatus = IndicatorStatus.UNDER_RANGE.name)
                 },
                 onHighTemp = {
-                    fishpondInfo1 =
-                        fishpondInfo1.copy(tempStatus = IndicatorStatus.OVER_RANGE.name)
+                    fishpondInfo1 = fishpondInfo1.copy(tempStatus = IndicatorStatus.OVER_RANGE.name)
                 },
                 onLowPh = {
-                    fishpondInfo1 =
-                        fishpondInfo1.copy(phStatus = IndicatorStatus.UNDER_RANGE.name)
+                    fishpondInfo1 = fishpondInfo1.copy(phStatus = IndicatorStatus.UNDER_RANGE.name)
                 },
                 onHighPh = {
-                    fishpondInfo1 =
-                        fishpondInfo1.copy(phStatus = IndicatorStatus.OVER_RANGE.name)
+                    fishpondInfo1 = fishpondInfo1.copy(phStatus = IndicatorStatus.OVER_RANGE.name)
                 },
                 onLowTurb = {
-                    fishpondInfo1 =
-                        fishpondInfo1.copy(turbStatus = IndicatorStatus.UNDER_RANGE.name)
+                    fishpondInfo1 = fishpondInfo1.copy(turbStatus = IndicatorStatus.UNDER_RANGE.name)
                 },
                 onHighTurb = {
-                    fishpondInfo1 =
-                        fishpondInfo1.copy(turbStatus = IndicatorStatus.OVER_RANGE.name)
+                    fishpondInfo1 = fishpondInfo1.copy(turbStatus = IndicatorStatus.OVER_RANGE.name)
                 },
             )
         }
+
         if (fishpondInfo.connectedDeviceId != null) {
-            database.getReference("devices/${fishpondInfo1.connectedDeviceId}")
-                .get().addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        val deviceInfo = task.result.getValue<DeviceInfo>()!!
-                        val epochSeconds = System.currentTimeMillis() / 1000
-                        val isOffline = (epochSeconds - deviceInfo.timestamp!!) > 5
-                        fishpondInfo1 =
-                            fishpondInfo1.copy(isOffline = isOffline)
-                    }
+            try {
+                val snapshot = database.getReference("devices/${fishpondInfo1.connectedDeviceId}").get().await()
+
+                if (snapshot.exists()) {
+                    val deviceInfo = snapshot.getValue<DeviceInfo>()!!
+                    val epochSeconds = System.currentTimeMillis() / 1000
+                    val isOffline = (epochSeconds - deviceInfo.timestamp!!) > 5
+                    Log.i(
+                        "Device Check",
+                        "Current Time: $epochSeconds, Device Time: ${deviceInfo.timestamp}, isOffline: $isOffline"
+                    )
+                    fishpondInfo1 = fishpondInfo1.copy(isOffline = isOffline)
+                } else {
+                    Log.e("Device Check", "Device info not found")
                 }
+            } catch (e: Exception) {
+                Log.e("Device Check", "Error fetching device info: ${e.message}")
+            }
         }
+
         return fishpondInfo1
     }
+
+
 
     private fun checkFishpondInfoForAlerts(
         fishpondInfo: FishpondInfo,
@@ -403,7 +421,10 @@ class FishpondListViewModel : ViewModel() {
 
                     if (!uiState.value.sentAlerts[fishpondInfo.id]?.contains(1)!! && timeElapsed >= intervalTime) {
                         Log.i("Notification", "Showing alert: 1")
-                        val alertPair = Pair(fishpondInfo.id!!, uiState.value.sentAlerts[fishpondInfo.id]?.plus(1)!!)
+                        val alertPair = Pair(
+                            fishpondInfo.id!!,
+                            uiState.value.sentAlerts[fishpondInfo.id]?.plus(1)!!
+                        )
                         toggleLowTempAlert(true)
                         _uiState.update {
                             it.copy(
@@ -424,11 +445,16 @@ class FishpondListViewModel : ViewModel() {
                     if (!uiState.value.sentAlerts[fishpondInfo.id]?.contains(2)!! && timeElapsed >= intervalTime) {
                         Log.i("Notification", "Showing alert: 2")
                         toggleHighTempAlert(true)
-                        val alertPair = Pair(fishpondInfo.id!!, uiState.value.sentAlerts[fishpondInfo.id]?.plus(2)!!)
+                        val alertPair = Pair(
+                            fishpondInfo.id!!,
+                            uiState.value.sentAlerts[fishpondInfo.id]?.plus(2)!!
+                        )
                         _uiState.update {
                             it.copy(
                                 sentAlerts = uiState.value.sentAlerts.plus(alertPair),
-                                notificationTimestamps = uiState.value.notificationTimestamps.plus(Pair(2, currentTime))
+                                notificationTimestamps = uiState.value.notificationTimestamps.plus(
+                                    Pair(2, currentTime)
+                                )
                             )
                         }
                     } else {
@@ -438,7 +464,10 @@ class FishpondListViewModel : ViewModel() {
                 onSafeTemp = {
                     if (uiState.value.sentAlerts[fishpondInfo.id]?.contains(1)!!) {
 //                        toggleLowTempAlert(false)
-                        val alertPair = Pair(fishpondInfo.id!!, uiState.value.sentAlerts[fishpondInfo.id]?.minus(1)!!)
+                        val alertPair = Pair(
+                            fishpondInfo.id!!,
+                            uiState.value.sentAlerts[fishpondInfo.id]?.minus(1)!!
+                        )
                         _uiState.update {
                             it.copy(
                                 sentAlerts = uiState.value.sentAlerts.plus(alertPair)
@@ -447,7 +476,10 @@ class FishpondListViewModel : ViewModel() {
                     }
                     if (uiState.value.sentAlerts[fishpondInfo.id]?.contains(2)!!) {
 //                        toggleHighTempAlert(false)
-                        val alertPair = Pair(fishpondInfo.id!!, uiState.value.sentAlerts[fishpondInfo.id]?.minus(2)!!)
+                        val alertPair = Pair(
+                            fishpondInfo.id!!,
+                            uiState.value.sentAlerts[fishpondInfo.id]?.minus(2)!!
+                        )
                         _uiState.update {
                             it.copy(
                                 sentAlerts = uiState.value.sentAlerts.plus(alertPair)
@@ -463,11 +495,16 @@ class FishpondListViewModel : ViewModel() {
                         Log.i("Notification", "Showing alert: 3")
 
                         toggleLowPhAlert(true)
-                        val alertPair = Pair(fishpondInfo.id!!, uiState.value.sentAlerts[fishpondInfo.id]?.plus(3)!!)
+                        val alertPair = Pair(
+                            fishpondInfo.id!!,
+                            uiState.value.sentAlerts[fishpondInfo.id]?.plus(3)!!
+                        )
                         _uiState.update {
                             it.copy(
                                 sentAlerts = uiState.value.sentAlerts.plus(alertPair),
-                                notificationTimestamps = uiState.value.notificationTimestamps.plus(Pair(3, currentTime))
+                                notificationTimestamps = uiState.value.notificationTimestamps.plus(
+                                    Pair(3, currentTime)
+                                )
                             )
                         }
                     } else {
@@ -482,11 +519,16 @@ class FishpondListViewModel : ViewModel() {
                         Log.i("Notification", "Showing alert: 4")
 
                         toggleHighPhAlert(true)
-                        val alertPair = Pair(fishpondInfo.id!!, uiState.value.sentAlerts[fishpondInfo.id]?.plus(4)!!)
+                        val alertPair = Pair(
+                            fishpondInfo.id!!,
+                            uiState.value.sentAlerts[fishpondInfo.id]?.plus(4)!!
+                        )
                         _uiState.update {
                             it.copy(
                                 sentAlerts = uiState.value.sentAlerts.plus(alertPair),
-                                notificationTimestamps = uiState.value.notificationTimestamps.plus(Pair(4, currentTime))
+                                notificationTimestamps = uiState.value.notificationTimestamps.plus(
+                                    Pair(4, currentTime)
+                                )
                             )
                         }
                     } else {
@@ -496,7 +538,10 @@ class FishpondListViewModel : ViewModel() {
                 onSafePh = {
                     if (uiState.value.sentAlerts[fishpondInfo.id]?.contains(3)!!) {
 //                        toggleLowPhAlert(false)
-                        val alertPair = Pair(fishpondInfo.id!!, uiState.value.sentAlerts[fishpondInfo.id]?.minus(3)!!)
+                        val alertPair = Pair(
+                            fishpondInfo.id!!,
+                            uiState.value.sentAlerts[fishpondInfo.id]?.minus(3)!!
+                        )
                         _uiState.update {
                             it.copy(
                                 sentAlerts = uiState.value.sentAlerts.plus(alertPair)
@@ -505,7 +550,10 @@ class FishpondListViewModel : ViewModel() {
                     }
                     if (uiState.value.sentAlerts[fishpondInfo.id]?.contains(4)!!) {
 //                        toggleHighPhAlert(false)
-                        val alertPair = Pair(fishpondInfo.id!!, uiState.value.sentAlerts[fishpondInfo.id]?.minus(4)!!)
+                        val alertPair = Pair(
+                            fishpondInfo.id!!,
+                            uiState.value.sentAlerts[fishpondInfo.id]?.minus(4)!!
+                        )
                         _uiState.update {
                             it.copy(
                                 sentAlerts = uiState.value.sentAlerts.plus(alertPair)
@@ -521,11 +569,16 @@ class FishpondListViewModel : ViewModel() {
                         Log.i("Notification", "Showing alert: 5")
 
                         toggleLowTurbAlert(true)
-                        val alertPair = Pair(fishpondInfo.id!!, uiState.value.sentAlerts[fishpondInfo.id]?.plus(5)!!)
+                        val alertPair = Pair(
+                            fishpondInfo.id!!,
+                            uiState.value.sentAlerts[fishpondInfo.id]?.plus(5)!!
+                        )
                         _uiState.update {
                             it.copy(
                                 sentAlerts = uiState.value.sentAlerts.plus(alertPair),
-                                notificationTimestamps = uiState.value.notificationTimestamps.plus(Pair(5, currentTime))
+                                notificationTimestamps = uiState.value.notificationTimestamps.plus(
+                                    Pair(5, currentTime)
+                                )
                             )
                         }
                     } else {
@@ -538,11 +591,16 @@ class FishpondListViewModel : ViewModel() {
 
                     if (!uiState.value.sentAlerts[fishpondInfo.id]?.contains(6)!! && timeElapsed >= intervalTime) {
                         toggleHighTurbAlert(true)
-                        val alertPair = Pair(fishpondInfo.id!!, uiState.value.sentAlerts[fishpondInfo.id]?.plus(6)!!)
+                        val alertPair = Pair(
+                            fishpondInfo.id!!,
+                            uiState.value.sentAlerts[fishpondInfo.id]?.plus(6)!!
+                        )
                         _uiState.update {
                             it.copy(
                                 sentAlerts = uiState.value.sentAlerts.plus(alertPair),
-                                notificationTimestamps = uiState.value.notificationTimestamps.plus(Pair(6, currentTime))
+                                notificationTimestamps = uiState.value.notificationTimestamps.plus(
+                                    Pair(6, currentTime)
+                                )
                             )
                         }
                     } else {
@@ -552,7 +610,10 @@ class FishpondListViewModel : ViewModel() {
                 onSafeTurb = {
                     if (uiState.value.sentAlerts[fishpondInfo.id]?.contains(5)!!) {
 //                        toggleLowTurbAlert(false)
-                        val alertPair = Pair(fishpondInfo.id!!, uiState.value.sentAlerts[fishpondInfo.id]?.minus(5)!!)
+                        val alertPair = Pair(
+                            fishpondInfo.id!!,
+                            uiState.value.sentAlerts[fishpondInfo.id]?.minus(5)!!
+                        )
                         _uiState.update {
                             it.copy(
                                 sentAlerts = uiState.value.sentAlerts.plus(alertPair)
@@ -561,7 +622,10 @@ class FishpondListViewModel : ViewModel() {
                     }
                     if (uiState.value.sentAlerts[fishpondInfo.id]?.contains(6)!!) {
 //                        toggleHighTurbAlert(false)
-                        val alertPair = Pair(fishpondInfo.id!!, uiState.value.sentAlerts[fishpondInfo.id]?.minus(6)!!)
+                        val alertPair = Pair(
+                            fishpondInfo.id!!,
+                            uiState.value.sentAlerts[fishpondInfo.id]?.minus(6)!!
+                        )
                         _uiState.update {
                             it.copy(
                                 sentAlerts = uiState.value.sentAlerts.plus(alertPair)
