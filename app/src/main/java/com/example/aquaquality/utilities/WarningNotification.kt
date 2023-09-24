@@ -24,8 +24,9 @@ class WarningNotification(
         val currentTime = System.currentTimeMillis()
         val lastNotificationTime = notificationTimestamps[id] ?: 0
         val timeElapsed = currentTime - lastNotificationTime
+        val intervalTime: Long = 15 * 60 * 1000 // 15 minutes in milliseconds
 
-        if (timeElapsed >= 60 * 1000) { // 5 minutes in milliseconds
+        if (timeElapsed >= intervalTime) {
             Log.i("Notification", "Showing notification: $id")
             val intent = Intent(context, MainActivity::class.java)
             val pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)

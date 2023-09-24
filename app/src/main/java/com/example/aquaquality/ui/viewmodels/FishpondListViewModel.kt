@@ -410,7 +410,7 @@ class FishpondListViewModel : ViewModel() {
     ) {
 
         val currentTime = System.currentTimeMillis()
-        val intervalTime: Long = 60 * 1000
+        val intervalTime: Long = 15 * 60 * 1000
         if (fishpondInfo.connectedDeviceId != null) {
             checkParameterStatus(
                 settingsInfo = settingsInfo,
