@@ -308,15 +308,16 @@ class FishpondScreenViewModel : ViewModel() {
     }
 
     private fun setChartValues() {
-        _uiState.update { currentState ->
-            currentState.copy(
-                timeList = emptyList(),
-                tempValueList = emptyList(),
-                phValueList = emptyList(),
-                turbidityValueList = emptyList(),
-            )
-        }
         viewModelScope.launch {
+
+            _uiState.update { currentState ->
+                currentState.copy(
+                    timeList = emptyList(),
+                    tempValueList = emptyList(),
+                    phValueList = emptyList(),
+                    turbidityValueList = emptyList(),
+                )
+            }
 
             val historyList = fetchHistoryList(uiState.value.dateKey)
 
@@ -403,6 +404,11 @@ class FishpondScreenViewModel : ViewModel() {
     }
 
     private fun createTempFloatEntryList(valueList: List<Number>) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                tempEntryList = emptyList()
+            )
+        }
         for ((index, value) in valueList.withIndex()) {
             _uiState.update { currentState ->
                 currentState.copy(
@@ -419,6 +425,11 @@ class FishpondScreenViewModel : ViewModel() {
     }
 
     private fun createPhFloatEntryList(valueList: List<Number>) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                phEntryList = emptyList()
+            )
+        }
         for ((index, value) in valueList.withIndex()) {
             _uiState.update { currentState ->
                 currentState.copy(
@@ -435,6 +446,11 @@ class FishpondScreenViewModel : ViewModel() {
     }
 
     private fun createTurbFloatEntryList(valueList: List<Number>) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                turbidityEntryList = emptyList()
+            )
+        }
         for ((index, value) in valueList.withIndex()) {
             _uiState.update { currentState ->
                 currentState.copy(

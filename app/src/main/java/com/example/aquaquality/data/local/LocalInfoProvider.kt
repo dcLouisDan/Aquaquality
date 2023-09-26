@@ -14,8 +14,8 @@ object LocalInfoProvider {
     )
 
     val lowTempTreatments = listOf(
-        "This is a sentence that narrates a possible treatment solution that the farmer can implement in order to manage the fishpond’s low water temperature.",
-        "This is also a sentence that narrates another possible treatment solution that the farmer can implement in order to manage the fishpond’s low water temperature."
+        "Try to reduce the water exchange or circulation the water in the pond. This can help retain the heat in the water and prevent it from being mixed with colder water from outside sources",
+        "Increase the feeding rate or use high-protein feeds. Feeding can increase the metabolic rate and heat production of the fish, as well as their immunity and growth. However, feeding should be done carefully and according to the appetite of the fish, as overfeeding can cause water quality problems."
     )
     val lowTempConsequences = listOf(
         "Low temperature can reduce the feed intake and growth rate of catfish. Catfish need a warm water temperature of about 26°C to 32°C to digest their food well and grow fast.",
