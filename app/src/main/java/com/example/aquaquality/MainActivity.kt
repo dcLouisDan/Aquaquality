@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
@@ -21,9 +22,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -41,6 +46,11 @@ import com.example.aquaquality.utilities.DatabaseNotificationUtil
 import com.google.accompanist.permissions.*
 import com.google.android.gms.auth.api.identity.Identity
 import kotlinx.coroutines.launch
+import android.Manifest.permission.POST_NOTIFICATIONS
+import android.net.Uri
+import android.provider.Settings
+import android.util.Log
+import com.example.aquaquality.ui.components.PermissionAlertDialog
 
 
 class MainActivity : ComponentActivity() {
@@ -54,13 +64,22 @@ class MainActivity : ComponentActivity() {
     private lateinit var connectivityObserver: ConnectivityObserver
     private val dbNotification = DatabaseNotificationUtil()
 
+    private val requestPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                Log.i("Permission Request", "Granted")
+            } else {
+                // The user denied the permission.
+                Log.i("Permission Request", "Denied")
+            }
+        }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         connectivityObserver = NetworkConnectivityObserver(applicationContext)
-        createNotificationChannel()
-        dbNotification.watch(applicationContext)
 
         setContent {
             AquaqualityTheme {
@@ -69,20 +88,31 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-//                    var isNotificationPermissionGranted by remember {
-//                        mutableStateOf(false)
-//                    }
-//
-//                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-//                    val requestPermissionLauncher =
-//                        registerForActivityResult(
-//                            ActivityResultContracts.RequestMultiplePermissions()
-//                        ) { permissions: Map<String, Boolean> ->
-//                            isNotificationPermissionGranted = permissions[Manifest.permission.POST_NOTIFICATIONS]!!
-//                        }
-//
-//                        requestPermissionLauncher.launch(arrayOf(Manifest.permission.POST_NOTIFICATIONS))
-//                    }
+                    var permissionGranted by rememberSaveable {
+                        mutableStateOf(false)
+                    }
+                    var showPermissionDialog by rememberSaveable {
+                        mutableStateOf(false)
+                    }
+                    when {
+                        ContextCompat.checkSelfPermission(
+                            applicationContext,
+                            POST_NOTIFICATIONS
+                        ) == PackageManager.PERMISSION_GRANTED -> {
+                            permissionGranted = true
+                            createNotificationChannel()
+                            dbNotification.watch(applicationContext)
+                        }
+
+                        shouldShowRequestPermissionRationale(POST_NOTIFICATIONS)
+                        -> {
+                            showPermissionDialog = true
+                        }
+
+                        else -> {
+                            requestPermissionLauncher.launch(POST_NOTIFICATIONS)
+                        }
+                    }
                     val status by connectivityObserver.observe().collectAsState(
                         initial = ConnectivityObserver.Status.Unavailable
                     )
@@ -204,7 +234,18 @@ class MainActivity : ComponentActivity() {
                             val context = LocalContext.current
                             val scope = rememberCoroutineScope()
                             val dataStore = DataStoreManager(context)
-                            val darkThemeState = dataStore.getTheme().collectAsState(initial = isSystemInDarkTheme())
+                            val darkThemeState =
+                                dataStore.getTheme().collectAsState(initial = isSystemInDarkTheme())
+
+                            if (showPermissionDialog) {
+                                PermissionAlertDialog(
+                                    onConfirmClick = {
+                                        requestPermissionLauncher.launch(POST_NOTIFICATIONS)
+                                        showPermissionDialog = false
+                                    },
+                                    onDismissRequest = { showPermissionDialog = false })
+                            }
+
 
                             AquaqualityTheme(darkTheme = darkThemeState.value) {
                                 if (status != ConnectivityObserver.Status.Available) {
@@ -237,7 +278,13 @@ class MainActivity : ComponentActivity() {
                                         scope.launch {
                                             dataStore.setTheme(it)
                                         }
-                                    }
+                                    },
+                                    isPermissionGranted = permissionGranted,
+                                     onPermissionTurnOn = {
+                                         val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                                         intent.data = Uri.fromParts("package", packageName, null)
+                                         startActivity(intent)
+                                     }
                                 )
                             }
                         }

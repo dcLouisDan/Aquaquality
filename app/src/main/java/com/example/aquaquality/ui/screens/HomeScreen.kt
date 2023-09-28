@@ -4,7 +4,6 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -12,7 +11,10 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.with
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -29,6 +31,7 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -37,8 +40,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -53,16 +58,17 @@ import com.example.aquaquality.ui.viewmodels.FishpondListViewModel
 import com.example.aquaquality.ui.viewmodels.FishpondScreenViewModel
 
 
-@OptIn(ExperimentalAnimationApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AquaQualityHomeScreen(
     userData: UserData?,
     onLogoutClick: () -> Unit,
+    isPermissionGranted: Boolean = true,
     afterSaveAction: (() -> Unit)? = null,
     exitApp: () -> Unit,
     darkThemeToggleAction: ((Boolean) -> Unit)? = null,
     darkThemeState: Boolean = false,
+    onPermissionTurnOn: () -> Unit
 ) {
     val fishpondListViewModel: FishpondListViewModel = viewModel()
     val fishpondListUiState = fishpondListViewModel.uiState.collectAsState().value
@@ -75,6 +81,11 @@ fun AquaQualityHomeScreen(
     var isHighPhSuggestionScreenVisible by rememberSaveable { mutableStateOf(false) }
     var isLowTurbSuggestionScreenVisible by rememberSaveable { mutableStateOf(false) }
     var isHighTurbSuggestionScreenVisible by rememberSaveable { mutableStateOf(false) }
+
+
+
+
+
 
     if (fishpondListUiState.isLowTempAlertVisible) {
         ParameterWarningDialog(suggestionInfo = LocalInfoProvider.lowTempSuggestionInfo,
@@ -176,8 +187,10 @@ fun AquaQualityHomeScreen(
                 text = "Account"
             ),
         )
-
         Column(modifier = Modifier.padding(innerPadding)) {
+            var showNotificationReminder by rememberSaveable {
+                mutableStateOf(!isPermissionGranted)
+            }
 
             val transitionToRight =
                 slideInHorizontally(initialOffsetX = { fullWidth -> fullWidth }) with slideOutHorizontally(
@@ -189,6 +202,18 @@ fun AquaQualityHomeScreen(
             val swipeableModifier =
                 Modifier
                     .weight(1f)
+
+            AnimatedVisibility(
+                visible = showNotificationReminder, enter = slideInVertically() + fadeIn(),
+                exit = slideOutVertically() + fadeOut()
+            ) {
+                PermissionReminder(
+                    onConfirmClick = {
+                        onPermissionTurnOn()
+                        showNotificationReminder = false
+                    },
+                    onDismissClick = { showNotificationReminder = false })
+            }
 
             AnimatedContent(
                 targetState = currentScreenIndex,
@@ -372,6 +397,32 @@ private fun AquaQualityBottomNavigationBar(
     }
 }
 
+@Composable
+fun PermissionReminder(
+    onConfirmClick: () -> Unit,
+    onDismissClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.inversePrimary)
+            .padding(dimensionResource(id = R.dimen.padding_xs)),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(text = "Notifications are turned off.", color = MaterialTheme.colorScheme.onSurface)
+        Row {
+            TextButton(onClick = onConfirmClick) {
+                Text(text = "Turn on")
+            }
+            TextButton(onClick = onDismissClick) {
+                Text(text = "Dismiss")
+            }
+        }
+    }
+}
+
 private data class NavigationItemContent(
     val index: Int,
     val icon: ImageVector,
@@ -382,12 +433,13 @@ private data class NavigationItemContent(
 @Preview
 @Composable
 fun HomePreview() {
-    AquaqualityTheme {
-        AquaQualityHomeScreen(
-            userData = UserData("", "", "", null),
-            onLogoutClick = {},
-            exitApp = {},
-        )
+    AquaqualityTheme(darkTheme = false) {
+//        AquaQualityHomeScreen(
+//            userData = UserData("", "", "", null),
+//            onLogoutClick = {},
+//            exitApp = {},
+//        )
+        PermissionReminder({}, {})
     }
 }
 
