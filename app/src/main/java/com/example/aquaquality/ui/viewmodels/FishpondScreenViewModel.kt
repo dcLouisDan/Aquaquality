@@ -325,7 +325,7 @@ class FishpondScreenViewModel : ViewModel() {
                 Log.i("History Log List Item", "Item: $log")
                 _uiState.update { currentState ->
                     currentState.copy(
-                        timeList = uiState.value.timeList.plus("${log.hour}:${log.minute}"),
+                        timeList = uiState.value.timeList.plus("${log.hour}:00"),
                         tempValueList = uiState.value.tempValueList.plus(log.tempValue!!),
                         phValueList = uiState.value.phValueList.plus(log.phValue!!),
                         turbidityValueList = uiState.value.turbidityValueList.plus(log.turbidityValue!!),

@@ -93,6 +93,7 @@ import com.patrykandpatrick.vico.compose.style.ProvideChartStyle
 import com.patrykandpatrick.vico.core.axis.AxisPosition
 import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
 import com.patrykandpatrick.vico.core.component.shape.Shapes
+import com.patrykandpatrick.vico.core.dimensions.MutableDimensions
 import com.patrykandpatrick.vico.core.entry.ChartEntryModelProducer
 import com.patrykandpatrick.vico.core.entry.FloatEntry
 import kotlinx.coroutines.delay
@@ -497,7 +498,10 @@ fun DataGraph(
                         padding = axisTitlePadding,
                         margins = startAxisTitleMargins,
                         typeface = Typeface.MONOSPACE,
-                    )
+                    ),
+                    label = textComponent(
+                        color = MaterialTheme.colorScheme.onSurface
+                    ),
                 ),
                 bottomAxis = bottomAxis(
                     titleComponent = textComponent(
@@ -512,18 +516,23 @@ fun DataGraph(
                     ),
                     valueFormatter = bottomAxisValueFormatter,
                     labelRotationDegrees = 90f,
-                    title = "Hour of the Day"
+                    title = "Hour of the Day",
+                    label = textComponent(
+                        color = MaterialTheme.colorScheme.onSurface,
+                        margins = MutableDimensions(16f, 8f),
+                    ),
                 ),
+
             )
         }
     }
 }
 
-private val axisTitleHorizontalPaddingValue = 8.dp
+private val axisTitleHorizontalPaddingValue = 16.dp
 private val axisTitleVerticalPaddingValue = 2.dp
 private val axisTitlePadding =
     dimensionsOf(axisTitleHorizontalPaddingValue, axisTitleVerticalPaddingValue)
-private val axisTitleMarginValue = 4.dp
+private val axisTitleMarginValue = 16.dp
 private val startAxisTitleMargins = dimensionsOf(end = axisTitleMarginValue)
 
 @RequiresApi(Build.VERSION_CODES.O)
