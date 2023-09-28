@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.material.icons.filled.Water
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
@@ -36,7 +37,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -49,7 +49,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.aquaquality.R
 import com.example.aquaquality.data.FishpondInfo
@@ -165,7 +164,6 @@ fun FishpondListScreen(
             onDismissRequest = { isDeleteDialogVisible = false }
         )
     }
-
     if (!uiState.isShowingHomepage) {
         FishpondScreen(
             fishpondScreenViewModel = fishpondScreenViewModel,
@@ -175,6 +173,7 @@ fun FishpondListScreen(
         FishpondCardList(
             isEmpty = uiState.fishpondMap.isEmpty(),
             fishpondList = uiState.fishpondMap.values.toList(),
+            isLoading = uiState.isLoading,
             onFabClick = { isNewDialogVisible = true },
             onCardClick = { fishpondInfo: FishpondInfo ->
                 fishpondListViewModel.updateDetailsScreenStates(fishpondInfo)
@@ -194,8 +193,6 @@ fun FishpondListScreen(
             }
         )
     }
-
-
 }
 
 
@@ -208,9 +205,12 @@ private fun FishpondCardList(
     modifier: Modifier = Modifier,
     onEditClick: (FishpondInfo) -> Unit,
     onDeleteClick: (FishpondInfo) -> Unit,
+    isLoading: Boolean
 ) {
     Box(modifier = modifier) {
-        if (isEmpty) {
+        if (isLoading) {
+            FishpondLoadingScreen(modifier.background(MaterialTheme.colorScheme.surfaceVariant))
+        } else if (isEmpty) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -380,22 +380,19 @@ fun FishpondCard(
     }
 }
 
+@Composable
+fun FishpondLoadingScreen(modifier: Modifier = Modifier) {
+    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+    }
+}
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun FishpondsPreview() {
-    val fishpondListViewModel: FishpondListViewModel = viewModel()
-    val fishpondListUiState = fishpondListViewModel.uiState.collectAsState().value
-    val fishpondScreenViewModel: FishpondScreenViewModel = viewModel()
-    val fishpondScreenUiState by fishpondScreenViewModel.uiState.collectAsStateWithLifecycle()
     AquaqualityTheme {
-        FishpondListScreen(
-            fishpondListViewModel = fishpondListViewModel,
-            uiState = fishpondListUiState,
-            exitApp = {},
-            fishpondScreenViewModel = fishpondScreenViewModel,
-            fishpondScreenUiState = fishpondScreenUiState
-        )
+        FishpondLoadingScreen()
     }
 }

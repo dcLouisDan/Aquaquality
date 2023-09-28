@@ -14,13 +14,16 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -33,6 +36,7 @@ import com.example.aquaquality.ui.screens.AquaQualityHomeScreen
 import com.example.aquaquality.ui.screens.LoadingScreen
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 import com.example.aquaquality.ui.viewmodels.LoginViewModel
+import com.example.aquaquality.utilities.DataStoreManager
 import com.example.aquaquality.utilities.DatabaseNotificationUtil
 import com.google.accompanist.permissions.*
 import com.google.android.gms.auth.api.identity.Identity
@@ -40,7 +44,6 @@ import kotlinx.coroutines.launch
 
 
 class MainActivity : ComponentActivity() {
-
     private val googleAuthUiClient by lazy {
         GoogleAuthUiClient(
             context = applicationContext,
@@ -51,12 +54,14 @@ class MainActivity : ComponentActivity() {
     private lateinit var connectivityObserver: ConnectivityObserver
     private val dbNotification = DatabaseNotificationUtil()
 
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         connectivityObserver = NetworkConnectivityObserver(applicationContext)
         createNotificationChannel()
         dbNotification.watch(applicationContext)
+
         setContent {
             AquaqualityTheme {
                 // A surface container using the 'background' color from the theme
@@ -193,33 +198,48 @@ class MainActivity : ComponentActivity() {
                             )
                         }
 
-                        composable("home") {
-                            if (status != ConnectivityObserver.Status.Available) {
-                                ConnectionAlertDialog(
-                                    onConfirmClick = {
-                                        recreate()
-                                    },
-                                    onDismissRequest = { /*TODO*/ })
-                            }
-                            AquaQualityHomeScreen(
-                                userData = googleAuthUiClient.getSignedInUser(),
-                                onLogoutClick = {
-                                    lifecycleScope.launch {
-                                        googleAuthUiClient.signOut()
-                                        Toast.makeText(
-                                            applicationContext,
-                                            "Signed out",
-                                            Toast.LENGTH_LONG
-                                        ).show()
 
-                                        navController.popBackStack()
+
+                        composable("home") {
+                            val context = LocalContext.current
+                            val scope = rememberCoroutineScope()
+                            val dataStore = DataStoreManager(context)
+                            val darkThemeState = dataStore.getTheme().collectAsState(initial = isSystemInDarkTheme())
+
+                            AquaqualityTheme(darkTheme = darkThemeState.value) {
+                                if (status != ConnectivityObserver.Status.Available) {
+                                    ConnectionAlertDialog(
+                                        onConfirmClick = {
+                                            recreate()
+                                        },
+                                        onDismissRequest = { /*TODO*/ })
+                                }
+                                AquaQualityHomeScreen(
+                                    userData = googleAuthUiClient.getSignedInUser(),
+                                    onLogoutClick = {
+                                        lifecycleScope.launch {
+                                            googleAuthUiClient.signOut()
+                                            Toast.makeText(
+                                                applicationContext,
+                                                "Signed out",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+
+                                            navController.popBackStack()
+                                        }
+                                    },
+                                    afterSaveAction = {
+                                        restartApp()
+                                    },
+                                    exitApp = { finish() },
+                                    darkThemeState = darkThemeState.value,
+                                    darkThemeToggleAction = {
+                                        scope.launch {
+                                            dataStore.setTheme(it)
+                                        }
                                     }
-                                },
-                                afterSaveAction = {
-                                    restartApp()
-                                },
-                                exitApp = { finish() },
-                            )
+                                )
+                            }
                         }
                     }
                 }

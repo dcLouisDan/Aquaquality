@@ -4,6 +4,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -52,13 +53,16 @@ import com.example.aquaquality.ui.viewmodels.FishpondListViewModel
 import com.example.aquaquality.ui.viewmodels.FishpondScreenViewModel
 
 
+@OptIn(ExperimentalAnimationApi::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AquaQualityHomeScreen(
     userData: UserData?,
     onLogoutClick: () -> Unit,
     afterSaveAction: (() -> Unit)? = null,
-    exitApp: () -> Unit
+    exitApp: () -> Unit,
+    darkThemeToggleAction: ((Boolean) -> Unit)? = null,
+    darkThemeState: Boolean = false,
 ) {
     val fishpondListViewModel: FishpondListViewModel = viewModel()
     val fishpondListUiState = fishpondListViewModel.uiState.collectAsState().value
@@ -134,16 +138,18 @@ fun AquaQualityHomeScreen(
                 fishpondListViewModel.toggleHighTurbAlert(false)
             })
     }
-
+    var currentScreenIndex by rememberSaveable { mutableStateOf(0) }
+    var previousScreenIndex by rememberSaveable { mutableStateOf(0) }
     Scaffold(
         topBar = {
             AquaQualityAppBar(
-                canNavigateBack = !fishpondListUiState.isShowingHomepage,
+                canNavigateBack = !fishpondListUiState.isShowingHomepage && currentScreenIndex == 0,
                 navigateUp = {
                     fishpondListViewModel.resetHomeScreenStates()
                     fishpondScreenViewModel.resetState()
                 },
-                onRefreshClick = { fishpondListViewModel.refreshData() }
+                onRefreshClick = { fishpondListViewModel.refreshData() },
+                currentScreenIndex = currentScreenIndex
             )
         }
     ) { innerPadding ->
@@ -170,10 +176,6 @@ fun AquaQualityHomeScreen(
                 text = "Account"
             ),
         )
-
-
-        var currentScreenIndex by rememberSaveable { mutableStateOf(0) }
-        var previousScreenIndex by rememberSaveable { mutableStateOf(0) }
 
         Column(modifier = Modifier.padding(innerPadding)) {
 
@@ -209,7 +211,11 @@ fun AquaQualityHomeScreen(
                     )
 
                     1 -> ReferencesScreen()
-                    2 -> SettingsScreen(afterSaveAction = afterSaveAction)
+                    2 -> SettingsScreen(
+                        afterSaveAction = afterSaveAction,
+                        darkThemeState = darkThemeState,
+                        darkThemeToggleAction = darkThemeToggleAction
+                    )
 
                     3 -> AccountScreen(userData = userData, onLogoutClick = onLogoutClick)
                 }
@@ -300,6 +306,7 @@ fun AquaQualityAppBar(
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
     onRefreshClick: () -> Unit,
+    currentScreenIndex: Int,
     modifier: Modifier = Modifier
 ) {
     val appBarColor =
@@ -323,8 +330,10 @@ fun AquaQualityAppBar(
             containerColor = appBarColor
         ),
         actions = {
-            IconButton(onClick = onRefreshClick) {
-                Icon(Icons.Default.Refresh, contentDescription = null)
+            if (currentScreenIndex == 0) {
+                IconButton(onClick = onRefreshClick) {
+                    Icon(Icons.Default.Refresh, contentDescription = null)
+                }
             }
         },
         modifier = modifier,

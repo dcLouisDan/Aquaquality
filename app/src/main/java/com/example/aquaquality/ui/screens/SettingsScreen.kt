@@ -21,6 +21,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -47,7 +48,9 @@ import androidx.compose.ui.platform.LocalContext
 fun SettingsScreen(
     modifier: Modifier = Modifier,
     settingsViewModel: SettingsViewModel = viewModel(),
-    afterSaveAction: (() -> Unit)? = null
+    afterSaveAction: (() -> Unit)? = null,
+    darkThemeToggleAction: ((Boolean) -> Unit)? = null,
+    darkThemeState: Boolean = false,
 ) {
     val settingsUiState: SettingsUiState by settingsViewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -91,6 +94,11 @@ fun SettingsScreen(
                     style = MaterialTheme.typography.titleLarge
                 )
 
+                Divider(Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_large)))
+                DarkThemeToggle(
+                    darkThemeState = darkThemeState,
+                    onCheckChange = darkThemeToggleAction
+                )
                 Divider(Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_large)))
 
                 //Temperature
@@ -216,11 +224,18 @@ fun ParameterSettingTextField(
     )
 }
 
+@Composable
+fun DarkThemeToggle(modifier: Modifier = Modifier,darkThemeState: Boolean = false, onCheckChange: ((Boolean) -> Unit)? = null){
+    Row(modifier = modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(text = stringResource(R.string.label_dark_theme))
+        Switch(checked = darkThemeState, onCheckedChange = onCheckChange)
+    }
+}
 
 @Preview
 @Composable
 fun SettingsPreview() {
     AquaqualityTheme {
-        SettingsScreen()
+        DarkThemeToggle()
     }
 }

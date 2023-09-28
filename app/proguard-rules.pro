@@ -31,3 +31,4 @@
 }
 
 -keep class com.google.firebase.database.** { *; }
+

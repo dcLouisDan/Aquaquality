@@ -53,7 +53,8 @@ fun AccountScreen(userData: UserData?, onLogoutClick: () -> Unit, modifier: Modi
                         model = userData.profilePictureUrl,
                         contentDescription = "Profile picture",
                         modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.Crop,
+                        error = painterResource(id = R.drawable.user_placeholder),
                     )
                 } else {
                     Image(
@@ -77,18 +78,20 @@ fun AccountScreen(userData: UserData?, onLogoutClick: () -> Unit, modifier: Modi
             }
 
             userData?.username?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodyLarge,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            dimensionResource(id = R.dimen.padding_medium)
-                        ),
-                )
+                if (it != "") {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodyLarge,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                dimensionResource(id = R.dimen.padding_medium)
+                            ),
+                    )
+                    Divider()
+                }
             }
-            Divider()
             userData?.email?.let {
                 Text(
                     text = it,
