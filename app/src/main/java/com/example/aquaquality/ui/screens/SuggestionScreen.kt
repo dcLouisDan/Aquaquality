@@ -95,7 +95,8 @@ fun SuggestionScreen(
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = "Close",
-                    modifier = Modifier.size(35.dp)
+                    modifier = Modifier.size(35.dp),
+                    tint = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -120,9 +121,9 @@ fun SuggestionScreen(
 
         for ((index, solution) in suggestionInfo.solutionList.withIndex()) {
             Row(modifier = Modifier.fillMaxWidth()) {
-                Text(text = "${index + 1}.")
+                Text(text = "${index + 1}.", color = MaterialTheme.colorScheme.onSurface)
                 Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_small)))
-                Text(text = solution)
+                Text(text = solution, color = MaterialTheme.colorScheme.onSurface)
             }
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
         }
@@ -139,9 +140,9 @@ fun SuggestionScreen(
 
         for ((index, consequence) in suggestionInfo.consequenceList.withIndex()) {
             Row(modifier = Modifier.fillMaxWidth()) {
-                Text(text = "${index + 1}.")
+                Text(text = "${index + 1}.", color = MaterialTheme.colorScheme.onSurface)
                 Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_small)))
-                Text(text = consequence)
+                Text(text = consequence, color = MaterialTheme.colorScheme.onSurface)
             }
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
         }

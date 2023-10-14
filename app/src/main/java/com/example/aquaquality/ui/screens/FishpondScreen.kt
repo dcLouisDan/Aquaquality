@@ -6,6 +6,10 @@ import android.os.Build
 import android.widget.DatePicker
 import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.with
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -59,6 +63,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -68,15 +73,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.aquaquality.R
 import com.example.aquaquality.data.ConnectingStatus
 import com.example.aquaquality.data.FishpondInfo
 import com.example.aquaquality.data.FishpondScreenUiState
+import com.example.aquaquality.ui.components.DataTable
 import com.example.aquaquality.ui.components.DisconnectDeviceDialog
 import com.example.aquaquality.ui.components.IndicatorStatus
 import com.example.aquaquality.ui.components.ParameterMonitor
+import com.example.aquaquality.ui.components.SegmentedControl
 import com.example.aquaquality.ui.components.rememberMarker
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 import com.example.aquaquality.ui.theme.rememberChartStyle
@@ -278,29 +284,47 @@ fun FishpondScreen(
                         }
                     }
                     Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
+                    var dataRepresentationIndex by rememberSaveable {
+                        mutableStateOf(0)
+                    }
+                    var previousDataRepresentationIndex by rememberSaveable {
+                        mutableStateOf(0)
+                    }
+                    SegmentedControl(
+                        items = listOf("Tables", "Charts"),
+                        modifier = Modifier.fillMaxWidth(),
+                        useFixedWidth = true,
+                        onItemSelection = { index ->
+                            previousDataRepresentationIndex = dataRepresentationIndex
+                            dataRepresentationIndex = index
+                        })
+                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
                     if (uiState.timeList.isNotEmpty()) {
-                        DataGraph(
-                            chartTitle = R.string.label_wUnit_temperature,
-                            timeList = uiState.timeList,
-                            valueList = uiState.tempValueList,
-                            chartEntryModelProducer = fishpondScreenViewModel.tempChartEntryModelProducer
-                        )
-                        Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
 
-                        DataGraph(
-                            chartTitle = R.string.label_wUnit_pH,
-                            timeList = uiState.timeList,
-                            valueList = uiState.phValueList,
-                            chartEntryModelProducer = fishpondScreenViewModel.phChartEntryModelProducer
-                        )
-                        Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
+                        val transitionToRight =
+                            slideInHorizontally(initialOffsetX = { fullWidth -> fullWidth }) with slideOutHorizontally(
+                                targetOffsetX = { fullWidth -> -fullWidth })
+                        val transitionToLeft =
+                            slideInHorizontally(initialOffsetX = { fullWidth -> -fullWidth }) with slideOutHorizontally(
+                                targetOffsetX = { fullWidth -> fullWidth })
 
-                        DataGraph(
-                            chartTitle = R.string.label_wUnit_turbidity,
-                            timeList = uiState.timeList,
-                            valueList = uiState.turbidityValueList,
-                            chartEntryModelProducer = fishpondScreenViewModel.turbidityChartEntryModelProducer
-                        )
+                        AnimatedContent(
+                            targetState = dataRepresentationIndex,
+                            transitionSpec = {
+                                if (previousDataRepresentationIndex < dataRepresentationIndex) {
+                                    transitionToRight
+                                } else {
+                                    transitionToLeft
+                                }
+                            }
+                        ) { targetState ->
+                            Column {
+                                when (targetState) {
+                                    0 -> DataTableList(uiState)
+                                    1 -> DataGraphList(uiState, fishpondScreenViewModel)
+                                }
+                            }
+                        }
                         Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_large)))
                     } else {
                         Text(
@@ -420,13 +444,63 @@ fun FishpondScreen(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+private fun DataGraphList(
+    uiState: FishpondScreenUiState,
+    fishpondScreenViewModel: FishpondScreenViewModel
+) {
+    DataGraph(
+        chartTitle = R.string.label_wUnit_temperature,
+        timeList = uiState.timeList,
+        valueList = uiState.tempValueList,
+        chartEntryModelProducer = fishpondScreenViewModel.tempChartEntryModelProducer
+    )
+    Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
+
+    DataGraph(
+        chartTitle = R.string.label_wUnit_pH,
+        timeList = uiState.timeList,
+        valueList = uiState.phValueList,
+        chartEntryModelProducer = fishpondScreenViewModel.phChartEntryModelProducer
+    )
+    Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
+
+    DataGraph(
+        chartTitle = R.string.label_wUnit_turbidity,
+        timeList = uiState.timeList,
+        valueList = uiState.turbidityValueList,
+        chartEntryModelProducer = fishpondScreenViewModel.turbidityChartEntryModelProducer
+    )
+}
+
+@Composable
+private fun DataTableList(
+    uiState: FishpondScreenUiState
+) {
+    DataTable(
+        columnItems = listOf("Time", stringResource(id = R.string.label_wUnit_temperature)),
+        rowItems = listOf(uiState.timeList, uiState.tempValueList)
+    )
+    Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
+    DataTable(
+        columnItems = listOf("Time", stringResource(id = R.string.label_wUnit_pH)),
+        rowItems = listOf(uiState.timeList, uiState.phValueList)
+    )
+    Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
+    DataTable(
+        columnItems = listOf("Time", stringResource(id = R.string.label_wUnit_pH)),
+        rowItems = listOf(uiState.timeList, uiState.turbidityValueList)
+    )
+}
+
 @Composable
 fun IndicatorList(fishpondInfo: FishpondInfo, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxWidth()
     ) {
-        val isOffline  = fishpondInfo.isOffline!!
+        val isOffline = fishpondInfo.isOffline!!
         ParameterMonitor(
             Icons.Default.Thermostat,
             R.string.label_temperature,
@@ -523,7 +597,7 @@ fun DataGraph(
                     ),
                 ),
 
-            )
+                )
         }
     }
 }
@@ -535,17 +609,26 @@ private val axisTitlePadding =
 private val axisTitleMarginValue = 16.dp
 private val startAxisTitleMargins = dimensionsOf(end = axisTitleMarginValue)
 
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun FishpondScreenPreview() {
     AquaqualityTheme {
         //FishpondScreen ViewModel
-        val fishpondScreenViewModel: FishpondScreenViewModel = viewModel()
-        val fishpondScreenUiState by fishpondScreenViewModel.uiState.collectAsStateWithLifecycle()
-        FishpondScreen(
-            fishpondScreenViewModel = fishpondScreenViewModel,
-            uiState = fishpondScreenUiState
-        )
+        Column(
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.surface)
+                .fillMaxSize()
+                .padding(dimensionResource(id = R.dimen.padding_large))
+        ) {
+            SegmentedControl(
+                items = listOf("Data Tables", "Data Charts"),
+                onItemSelection = {},
+                cornerRadius = 50,
+                modifier = Modifier.fillMaxWidth(),
+                useFixedWidth = true
+            )
+        }
     }
 }

@@ -7,7 +7,7 @@ import com.patrykandpatrick.vico.core.entry.FloatEntry
 
 data class FishpondScreenUiState(
     val fishpondKey: String? = "",
-    val fishpondInfo: FishpondInfo? = null,
+    val fishpondInfo: FishpondInfo? = FishpondInfo(),
     val deviceInfo: DeviceInfo = DeviceInfo(""),
     val dateKey: String = "${DateHelper.mYear}${DateHelper.mMonth+1}${DateHelper.mDay}",
     val year: Int = DateHelper.mYear,

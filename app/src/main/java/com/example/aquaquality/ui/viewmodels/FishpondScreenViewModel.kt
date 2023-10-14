@@ -323,9 +323,16 @@ class FishpondScreenViewModel : ViewModel() {
 
             for (log in historyList) {
                 Log.i("History Log List Item", "Item: $log")
+                val timeString: String = if(log.hour == 0){
+                    "12 am"
+                } else if(log.hour!! > 0 && log.hour <= 12) {
+                    "${log.hour} am"
+                } else {
+                    "${log.hour - 12} pm"
+                }
                 _uiState.update { currentState ->
                     currentState.copy(
-                        timeList = uiState.value.timeList.plus("${log.hour}:00"),
+                        timeList = uiState.value.timeList.plus(timeString),
                         tempValueList = uiState.value.tempValueList.plus(log.tempValue!!),
                         phValueList = uiState.value.phValueList.plus(log.phValue!!),
                         turbidityValueList = uiState.value.turbidityValueList.plus(log.turbidityValue!!),
