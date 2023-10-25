@@ -10,7 +10,7 @@
     <string name="credits">© 2023 IT-39 DHVSU</string>
     <string name="back_button">Back Button</string>
     <string name="get_started">Get Started</string>
-    <string name="home_press_plus_message">To get started press the plus( + ) button on the lower right side of the screen.</string>
+    <string name="home_press_plus_message">To get started, press the plus( + ) button on the lower right side of the screen.</string>
     <string name="parameter_temperature">%s℃</string>
     <string name="parameter_pH">%s</string>
     <string name="parameter_turbidity">%s NTU</string>
