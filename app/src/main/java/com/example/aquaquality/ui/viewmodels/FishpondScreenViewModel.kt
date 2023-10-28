@@ -11,6 +11,7 @@ import com.example.aquaquality.data.FishpondScreenUiState
 import com.example.aquaquality.data.HistoryLog
 import com.example.aquaquality.data.SettingsInfo
 import com.example.aquaquality.data.checkParameterStatus
+import com.example.aquaquality.data.checkSingleParameter
 import com.example.aquaquality.presentation.sign_in.UserData
 import com.example.aquaquality.ui.components.IndicatorStatus
 import com.google.firebase.auth.ktx.auth
@@ -277,6 +278,134 @@ class FishpondScreenViewModel : ViewModel() {
         })
     }
 
+    private fun generateDayTempAnomalyTimeReport() {
+        _uiState.update { currentState ->
+            currentState.copy(
+                dayTempMaxAnomalyTimeList = emptyList()
+            )
+        }
+        initializeSettings { settingsInfo ->
+            val timeList = uiState.value.timeList
+            val tempValueList = uiState.value.tempValueList
+
+            tempValueList.forEach { value ->
+                checkSingleParameter(
+                    value = value,
+                    max = settingsInfo.maxTemp!!,
+                    min = settingsInfo.minTemp!!,
+                    onMax = {
+                        val index = tempValueList.indexOf(value)
+                        if (index != -1){
+                            val time = timeList[index]
+                            _uiState.update { currentState ->
+                                currentState.copy(
+                                    dayTempMaxAnomalyTimeList = uiState.value.dayTempMaxAnomalyTimeList.plus(time)
+                                )
+                            }
+                        }
+                    },
+                    onMin = {
+                        val index = tempValueList.indexOf(value)
+                        if (index != -1){
+                            val time = timeList[index]
+                            _uiState.update { currentState ->
+                                currentState.copy(
+                                    dayTempMinAnomalyTimeList = uiState.value.dayTempMinAnomalyTimeList.plus(time)
+                                )
+                            }
+                        }
+                    }
+                )
+            }
+        }
+    }
+
+    private fun generateDayPhAnomalyTimeReport() {
+        _uiState.update { currentState ->
+            currentState.copy(
+                dayPhMaxAnomalyTimeList = emptyList()
+            )
+        }
+        initializeSettings { settingsInfo ->
+            val timeList = uiState.value.timeList
+            val phValueList = uiState.value.phValueList
+
+            phValueList.forEach { value ->
+                checkSingleParameter(
+                    value = value,
+                    max = settingsInfo.maxPh!!,
+                    min = settingsInfo.minPh!!,
+                    onMax = {
+                        val index = phValueList.indexOf(value)
+                        if (index != -1){
+                            val time = timeList[index]
+                            _uiState.update { currentState ->
+                                currentState.copy(
+                                    dayPhMaxAnomalyTimeList = uiState.value.dayPhMaxAnomalyTimeList.plus(time)
+                                )
+                            }
+                        }
+                    },
+                    onMin = {
+                        val index = phValueList.indexOf(value)
+                        if (index != -1){
+                            val time = timeList[index]
+                            _uiState.update { currentState ->
+                                currentState.copy(
+                                    dayPhMinAnomalyTimeList = uiState.value.dayPhMinAnomalyTimeList.plus(time)
+                                )
+                            }
+                        }
+                    }
+                )
+            }
+        }
+    }
+
+    private fun generateDayTurbAnomalyTimeReport() {
+        _uiState.update { currentState ->
+            currentState.copy(
+                dayTurbMaxAnomalyTimeList = emptyList()
+            )
+        }
+        initializeSettings { settingsInfo ->
+            val timeList = uiState.value.timeList
+            val turbValueList = uiState.value.turbidityValueList
+
+            turbValueList.forEach { value ->
+                checkSingleParameter(
+                    value = value,
+                    max = settingsInfo.maxTurb!!,
+                    min = settingsInfo.minTurb!!,
+                    onMax = {
+                        val index = turbValueList.indexOf(value)
+                        if (index != -1){
+                            val time = timeList[index]
+                            _uiState.update { currentState ->
+                                currentState.copy(
+                                    dayTurbMaxAnomalyTimeList = uiState.value.dayTurbMaxAnomalyTimeList.plus(time)
+                                )
+                            }
+                        }
+                    },
+                    onMin = {
+                        val index = turbValueList.indexOf(value)
+                        if (index != -1){
+                            val time = timeList[index]
+                            _uiState.update { currentState ->
+                                currentState.copy(
+                                    dayTurbMinAnomalyTimeList = uiState.value.dayTurbMinAnomalyTimeList.plus(time)
+                                )
+                            }
+                        }
+                    }
+                )
+            }
+        }
+    }
+
+
+
     suspend fun fetchHistoryList(dateKey: String): List<HistoryLog> {
         val fishpondKey = uiState.value.fishpondKey
         val historyList: MutableList<HistoryLog> = mutableListOf()
@@ -323,9 +452,9 @@ class FishpondScreenViewModel : ViewModel() {
 
             for (log in historyList) {
                 Log.i("History Log List Item", "Item: $log")
-                val timeString: String = if(log.hour == 0){
+                val timeString: String = if (log.hour == 0) {
                     "12 am"
-                } else if(log.hour!! > 0 && log.hour <= 12) {
+                } else if (log.hour!! > 0 && log.hour <= 12) {
                     "${log.hour} am"
                 } else {
                     "${log.hour - 12} pm"

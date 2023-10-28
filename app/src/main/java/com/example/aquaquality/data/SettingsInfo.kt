@@ -73,3 +73,26 @@ fun checkParameterStatus(
         }
     }
 }
+
+fun checkSingleParameter(
+    value: Number,
+    max : Number,
+    min : Number,
+    onMax: (() -> Unit)? = null,
+    onMin: (() -> Unit)? = null,
+    onSafe: (() -> Unit)? = null,
+) {
+    if (value.toFloat() < min.toFloat()){
+        if (onMin != null) {
+            onMin()
+        }
+    } else if (value.toFloat() > max.toFloat()){
+        if (onMax != null) {
+            onMax()
+        }
+    } else {
+        if (onSafe != null){
+            onSafe()
+        }
+    }
+}

@@ -25,36 +25,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.aquaquality.R
 import com.example.aquaquality.data.SuggestionInfo
 import com.example.aquaquality.data.SuggestionType
+import com.example.aquaquality.data.local.LocalInfoProvider
 import com.example.aquaquality.ui.theme.AquaqualityTheme
-
-
-val highTempTreatments = listOf(
-    "This is a sentence that narrates a possible treatment solution that the farmer can implement in order to manage the fishpond’s high water temperature.",
-    "This is also a sentence that narrates another possible treatment solution that the farmer can implement in order to manage the fishpond’s high water temperature."
-)
-val highTempConsequences = listOf(
-    "This is a paragraph that narrates a possible consequence that might happen if the water temperature is left unmanaged.",
-    "This is also another paragraph that narrates a possible consequence that might happen if the water temperature is left unmanaged."
-)
-
-val highTempSuggestionInfo = SuggestionInfo(
-    suggestionType = SuggestionType.HIGH,
-    headline = "The water temperature has exceeded the recommended range.",
-    solutionList = highTempTreatments,
-    consequenceList = highTempConsequences
-)
-
-val lowPhSuggestionInfo = SuggestionInfo(
-    suggestionType = SuggestionType.LOW,
-    headline = "The ph level is below the recommended range.",
-    solutionList = highTempTreatments,
-    consequenceList = highTempConsequences
-)
 
 
 @Composable
@@ -104,7 +82,7 @@ fun SuggestionScreen(
         Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
 
         Text(
-            text = suggestionInfo.headline,
+            text = stringResource(suggestionInfo.headline),
             style = MaterialTheme.typography.headlineSmall,
             color = colorScheme.iconAndHeadlineColor
         )
@@ -123,7 +101,7 @@ fun SuggestionScreen(
             Row(modifier = Modifier.fillMaxWidth()) {
                 Text(text = "${index + 1}.", color = MaterialTheme.colorScheme.onSurface)
                 Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_small)))
-                Text(text = solution, color = MaterialTheme.colorScheme.onSurface)
+                Text(text = stringResource(solution), color = MaterialTheme.colorScheme.onSurface)
             }
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
         }
@@ -142,7 +120,7 @@ fun SuggestionScreen(
             Row(modifier = Modifier.fillMaxWidth()) {
                 Text(text = "${index + 1}.", color = MaterialTheme.colorScheme.onSurface)
                 Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_small)))
-                Text(text = consequence, color = MaterialTheme.colorScheme.onSurface)
+                Text(text = stringResource(consequence), color = MaterialTheme.colorScheme.onSurface)
             }
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
         }
@@ -154,7 +132,7 @@ fun SuggestionScreen(
 fun SuggestionScreenPreview() {
     AquaqualityTheme {
         SuggestionScreen(
-            suggestionInfo = highTempSuggestionInfo,
+            suggestionInfo = LocalInfoProvider.highTempSuggestionInfo,
             onCloseButtonClick = {},
         )
     }
@@ -164,7 +142,7 @@ fun SuggestionScreenPreview() {
 fun SuggestionScreenPreview2() {
     AquaqualityTheme {
         SuggestionScreen(
-            suggestionInfo = lowPhSuggestionInfo,
+            suggestionInfo = LocalInfoProvider.lowPhSuggestionInfo,
             onCloseButtonClick = {},
         )
     }
