@@ -16,11 +16,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.aquaquality.R
 import com.example.aquaquality.data.SuggestionInfo
 import com.example.aquaquality.data.SuggestionType
+import com.example.aquaquality.data.local.LocalInfoProvider
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 
 
@@ -161,27 +163,20 @@ fun DisconnectDeviceDialog(
     )
 }
 
-val highTempTreatments = listOf(
-    "This is a sentence that narrates a possible treatment solution that the farmer can implement in order to manage the fishpond’s high water temperature.",
-    "This is also a sentence that narrates another possible treatment solution that the farmer can implement in order to manage the fishpond’s high water temperature."
-)
-val highTempConsequences = listOf(
-    "This is a paragraph that narrates a possible consequence that might happen if the water temperature is left unmanaged.",
-    "This is also another paragraph that narrates a possible consequence that might happen if the water temperature is left unmanaged."
-)
+
 
 val highTempSuggestionInfo = SuggestionInfo(
     suggestionType = SuggestionType.HIGH,
-    headline = "The water temperature of one of the fishponds has exceeded the recommended range.",
-    solutionList = highTempTreatments,
-    consequenceList = highTempConsequences
+    headline = R.string.high_temp_headline,
+    solutionList = LocalInfoProvider.highTempTreatments,
+    consequenceList = LocalInfoProvider.highTempConsequences
 )
 
 val lowPhSuggestionInfo = SuggestionInfo(
     suggestionType = SuggestionType.LOW,
-    headline = "The ph level of one of the fishponds is below the recommended range.",
-    solutionList = highTempTreatments,
-    consequenceList = highTempConsequences
+    headline = R.string.low_ph_headline,
+    solutionList = LocalInfoProvider.highTempTreatments,
+    consequenceList = LocalInfoProvider.highTempConsequences
 )
 
 @Composable
@@ -227,7 +222,7 @@ fun ParameterWarningDialog(
             }
         },
         text = {
-            Text(text = suggestionInfo.headline, textAlign = TextAlign.Center)
+            Text(text = stringResource(suggestionInfo.headline), textAlign = TextAlign.Center)
         }
     )
 }

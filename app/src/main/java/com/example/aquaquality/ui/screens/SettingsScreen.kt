@@ -19,10 +19,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
@@ -42,6 +45,9 @@ import com.example.aquaquality.data.SettingsUiState
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 import com.example.aquaquality.ui.viewmodels.SettingsViewModel
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 
 @Composable
@@ -51,6 +57,8 @@ fun SettingsScreen(
     afterSaveAction: (() -> Unit)? = null,
     darkThemeToggleAction: ((Boolean) -> Unit)? = null,
     darkThemeState: Boolean = false,
+    onLanguageChange: ((String) -> Unit)? = null,
+    currentLanguageCode: String = "en",
 ) {
     val settingsUiState: SettingsUiState by settingsViewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -99,6 +107,8 @@ fun SettingsScreen(
                     darkThemeState = darkThemeState,
                     onCheckChange = darkThemeToggleAction
                 )
+                Divider(Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_large)))
+                LanguageToggle(supportedLanguageList = supportedLanguages, onLanguageChange = onLanguageChange, currentLanguageCode = currentLanguageCode)
                 Divider(Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_large)))
 
                 //Temperature
@@ -209,7 +219,7 @@ fun ParameterSettingTextField(
             Text(text = "")
         },
         supportingText = {
-            Text(text = "Recommended value: $recommendedValue")
+            Text(text = stringResource(R.string.label_recommended_value, recommendedValue))
         },
         onValueChange = onValueChange,
         modifier = modifier.fillMaxWidth(),
@@ -232,10 +242,45 @@ fun DarkThemeToggle(modifier: Modifier = Modifier,darkThemeState: Boolean = fals
     }
 }
 
+@Composable
+fun LanguageToggle(modifier: Modifier = Modifier, currentLanguageCode: String = "en", supportedLanguageList: List<Pair<String, String>>, onLanguageChange: ((String) -> Unit)? = null){
+    var isMenuVisible by rememberSaveable {
+        mutableStateOf(false)
+    }
+    Row(modifier = modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(text = stringResource(R.string.label_language))
+        TextButton(onClick = { isMenuVisible = true }) {
+            val currentLanguage = supportedLanguageList.find { it.second == currentLanguageCode }?.first
+            Text(text = currentLanguage!!)
+            DropdownMenu(
+                expanded = isMenuVisible,
+                onDismissRequest = { isMenuVisible = false },
+                ) {
+                supportedLanguageList.forEach{ language ->
+                    val (name, code) = language
+                    DropdownMenuItem(
+                        text = { Text(text = name) },
+                        onClick = {
+                            if (onLanguageChange != null) {
+                                onLanguageChange(code)
+                            }
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
 @Preview
 @Composable
 fun SettingsPreview() {
     AquaqualityTheme {
-        DarkThemeToggle()
+        LanguageToggle(supportedLanguageList = supportedLanguages)
     }
 }
+
+val supportedLanguages = listOf(
+    Pair("English", "en"),
+    Pair("Filipino", "fil")
+)

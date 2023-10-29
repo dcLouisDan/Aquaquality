@@ -68,7 +68,9 @@ fun AquaQualityHomeScreen(
     exitApp: () -> Unit,
     darkThemeToggleAction: ((Boolean) -> Unit)? = null,
     darkThemeState: Boolean = false,
-    onPermissionTurnOn: () -> Unit
+    onPermissionTurnOn: () -> Unit,
+    onLanguageChange: ((String) -> Unit)? = null,
+    currentLanguageCode: String = "en",
 ) {
     val fishpondListViewModel: FishpondListViewModel = viewModel()
     val fishpondListUiState = fishpondListViewModel.uiState.collectAsState().value
@@ -239,7 +241,9 @@ fun AquaQualityHomeScreen(
                     2 -> SettingsScreen(
                         afterSaveAction = afterSaveAction,
                         darkThemeState = darkThemeState,
-                        darkThemeToggleAction = darkThemeToggleAction
+                        darkThemeToggleAction = darkThemeToggleAction,
+                        onLanguageChange = onLanguageChange,
+                        currentLanguageCode = currentLanguageCode
                     )
 
                     3 -> AccountScreen(userData = userData, onLogoutClick = onLogoutClick)

@@ -96,6 +96,7 @@ import com.patrykandpatrick.vico.compose.component.shapeComponent
 import com.patrykandpatrick.vico.compose.component.textComponent
 import com.patrykandpatrick.vico.compose.dimensions.dimensionsOf
 import com.patrykandpatrick.vico.compose.style.ProvideChartStyle
+import com.patrykandpatrick.vico.core.axis.Axis
 import com.patrykandpatrick.vico.core.axis.AxisPosition
 import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
 import com.patrykandpatrick.vico.core.component.shape.Shapes
@@ -318,7 +319,7 @@ fun FishpondScreen(
                                 }
                             }
                         ) { targetState ->
-                            Column {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 when (targetState) {
                                     0 -> DataTableList(uiState)
                                     1 -> DataGraphList(uiState, fishpondScreenViewModel)
@@ -479,17 +480,17 @@ private fun DataTableList(
     uiState: FishpondScreenUiState
 ) {
     DataTable(
-        columnItems = listOf("Time", stringResource(id = R.string.label_wUnit_temperature)),
+        columnItems = listOf(stringResource(R.string.label_time), stringResource(id = R.string.label_wUnit_temperature)),
         rowItems = listOf(uiState.timeList, uiState.tempValueList)
     )
     Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
     DataTable(
-        columnItems = listOf("Time", stringResource(id = R.string.label_wUnit_pH)),
+        columnItems = listOf(stringResource(R.string.label_time), stringResource(id = R.string.label_wUnit_pH)),
         rowItems = listOf(uiState.timeList, uiState.phValueList)
     )
     Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
     DataTable(
-        columnItems = listOf("Time", stringResource(id = R.string.label_wUnit_pH)),
+        columnItems = listOf(stringResource(R.string.label_time), stringResource(id = R.string.label_wUnit_pH)),
         rowItems = listOf(uiState.timeList, uiState.turbidityValueList)
     )
 }
@@ -590,11 +591,11 @@ fun DataGraph(
                     ),
                     valueFormatter = bottomAxisValueFormatter,
                     labelRotationDegrees = 90f,
-                    title = "Hour of the Day",
                     label = textComponent(
                         color = MaterialTheme.colorScheme.onSurface,
                         margins = MutableDimensions(16f, 8f),
                     ),
+
                 ),
 
                 )
@@ -602,11 +603,11 @@ fun DataGraph(
     }
 }
 
-private val axisTitleHorizontalPaddingValue = 16.dp
-private val axisTitleVerticalPaddingValue = 2.dp
+private val axisTitleHorizontalPaddingValue = 8.dp
+private val axisTitleVerticalPaddingValue = 8.dp
 private val axisTitlePadding =
     dimensionsOf(axisTitleHorizontalPaddingValue, axisTitleVerticalPaddingValue)
-private val axisTitleMarginValue = 16.dp
+private val axisTitleMarginValue = 8.dp
 private val startAxisTitleMargins = dimensionsOf(end = axisTitleMarginValue)
 
 

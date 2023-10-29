@@ -17,8 +17,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.sp
 import com.example.aquaquality.R
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 
@@ -27,14 +29,16 @@ fun ReferencesScreen(modifier: Modifier = Modifier) {
     Column(modifier = modifier
         .fillMaxSize()
         .verticalScroll(rememberScrollState())) {
+        Divider()
         Text(
             text = stringResource(R.string.label_water_quality_guide),
             textAlign = TextAlign.Right,
             modifier = Modifier
                 .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.primary)
                 .padding(dimensionResource(id = R.dimen.padding_medium)),
             style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.onPrimary
         )
         Divider()
         Column(modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large))) {
@@ -49,11 +53,12 @@ fun ReferencesScreen(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
             Text(
                 text = stringResource(R.string.statement_optimal_temp),
-                textAlign = TextAlign.Left,
+                textAlign = TextAlign.Justify,
                 modifier = Modifier
                     .fillMaxWidth(),
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                lineHeight = 25.sp
             )
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
             Text(
@@ -62,7 +67,8 @@ fun ReferencesScreen(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .fillMaxWidth(),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                lineHeight = 25.sp
             )
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
             Text(
@@ -71,7 +77,8 @@ fun ReferencesScreen(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .fillMaxWidth(),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                lineHeight = 25.sp
             )
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
             Text(
@@ -80,7 +87,8 @@ fun ReferencesScreen(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .fillMaxWidth(),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                lineHeight = 25.sp
             )
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_xl)))
             Text(
@@ -94,11 +102,12 @@ fun ReferencesScreen(modifier: Modifier = Modifier) {
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
             Text(
                 text = stringResource(R.string.statement_optimal_ph),
-                textAlign = TextAlign.Left,
+                textAlign = TextAlign.Justify,
                 modifier = Modifier
                     .fillMaxWidth(),
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                lineHeight = 25.sp
             )
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
             Text(
@@ -107,7 +116,8 @@ fun ReferencesScreen(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .fillMaxWidth(),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                lineHeight = 25.sp
             )
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
             Text(
@@ -116,7 +126,8 @@ fun ReferencesScreen(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .fillMaxWidth(),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                lineHeight = 25.sp
             )
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_xl)))
             Text(
@@ -125,16 +136,17 @@ fun ReferencesScreen(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .fillMaxWidth(),
                 style = MaterialTheme.typography.displaySmall,
-                color = MaterialTheme.colorScheme.tertiary
+                color = MaterialTheme.colorScheme.tertiary,
             )
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
             Text(
                 text = stringResource(R.string.statement_optimal_turb),
-                textAlign = TextAlign.Left,
+                textAlign = TextAlign.Justify,
                 modifier = Modifier
                     .fillMaxWidth(),
                 style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                lineHeight = 25.sp
             )
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
             Text(
@@ -143,7 +155,8 @@ fun ReferencesScreen(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .fillMaxWidth(),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                lineHeight = 25.sp
             )
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
             Text(
@@ -152,7 +165,8 @@ fun ReferencesScreen(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .fillMaxWidth(),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = MaterialTheme.colorScheme.onSurface,
+                lineHeight = 25.sp
             )
             Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_xl)))
         }

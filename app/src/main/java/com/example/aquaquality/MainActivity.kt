@@ -9,7 +9,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.IntentSenderRequest
@@ -50,10 +49,13 @@ import android.Manifest.permission.POST_NOTIFICATIONS
 import android.net.Uri
 import android.provider.Settings
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import com.example.aquaquality.ui.components.PermissionAlertDialog
 
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     private val googleAuthUiClient by lazy {
         GoogleAuthUiClient(
             context = applicationContext,
@@ -236,6 +238,9 @@ class MainActivity : ComponentActivity() {
                             val dataStore = DataStoreManager(context)
                             val darkThemeState =
                                 dataStore.getTheme().collectAsState(initial = isSystemInDarkTheme())
+                            val languageCode =
+                                dataStore.getLanguage().collectAsState(initial = "en")
+                            Log.i("Language Locale", "${AppCompatDelegate.getApplicationLocales()}")
 
                             if (showPermissionDialog) {
                                 PermissionAlertDialog(
@@ -284,7 +289,15 @@ class MainActivity : ComponentActivity() {
                                          val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                                          intent.data = Uri.fromParts("package", packageName, null)
                                          startActivity(intent)
-                                     }
+                                     },
+                                    onLanguageChange = { code ->
+                                        scope.launch {
+                                            dataStore.setLanguage(code)
+                                            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(code))
+                                            restartApp()
+                                        }
+                                    },
+                                    currentLanguageCode = languageCode.value
                                 )
                             }
                         }

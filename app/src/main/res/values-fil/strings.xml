@@ -15,21 +15,21 @@
     <string name="parameter_temperature">%s℃</string>
     <string name="parameter_pH">%s</string>
     <string name="parameter_turbidity">%s NTU</string>
-    <string name="label_temperature">Temperature</string>
+    <string name="label_temperature">Temperatura</string>
     <string name="label_pH">pH</string>
     <string name="label_turbidity">Turbidity</string>
-    <string name="label_wUnit_temperature">Temperature (℃)</string>
+    <string name="label_wUnit_temperature">Temperatura (℃)</string>
     <string name="label_wUnit_pH">pH</string>
     <string name="label_wUnit_turbidity">Turbidity (NTU)</string>
     <string name="label_save_changes">Save Changes</string>
     <string name="title_app_settings">App Settings</string>
     <string name="label_min_temp">Minimum (℃)</string>
     <string name="label_max_temp">Maximum (℃)</string>
-    <string name="title_temperature_threshold">Temperature Threshold</string>
-    <string name="title_ph_level_threshold">pH Level Threshold</string>
+    <string name="title_temperature_threshold">Threshold ng Temperatura</string>
+    <string name="title_ph_level_threshold">Threshold ng pH Level</string>
     <string name="label_min_ph">Minimum (pH)</string>
     <string name="label_max_ph">Maximum (pH)</string>
-    <string name="title_turbidity_threshold">Turbidity Threshold</string>
+    <string name="title_turbidity_threshold">Threshold ng Turbidity</string>
     <string name="label_min_turb">Minimum (NTU)</string>
     <string name="label_max_turb">Maximum (NTU)</string>
     <string name="value_rec_min_temp">28</string>
@@ -55,15 +55,15 @@
     <string name="notif_channel_desc">AquaQuality warning notifications</string>
     <string name="label_water_quality_guide">Water Quality Guide</string>
     <string name="statement_optimal_temp">Ang pinakamainam na sukat ng temperatura ng tubig para sa aquaculture ay mula 28 ℃ hangang 32 ℃.</string>
-    <string name="temp_paragraph_1">\tAng mga isda ay mga hayop na may malamig na dugo, ngunit nagbabago ang temperatura ng kanilang katawan depende sa temperatura ng tubig sa kanilang paligid. Naaapektuhan nito ang kanilang metabolismo at pisyolohiya, na maaaring makaapekto sa kanilang kalusugan at pagiging produktibo.</string>
-    <string name="temp_paragraph_2">\tKapag tumaas ang temperatura ng tubig, tumataas din ang metabolismo at bilis ng paghinga ng isda. Nangangahulugan ito na kailangan nila ng mas maraming oxygen upang mabuhay. Bukod dito, ang dami ng oxygen na maaaring matunaw sa tubig ay bumababa habang tumataas ang temperatura. Ito ay maaaring humantong sa mga antas ng oxygen sa tubig na nagiging masyadong mababa para sa isda upang mabuhay.</string>
-    <string name="temp_paragraph_3">\tMaaaring mapababa ng mababang temperatura ang pagkain ng feeds at bilis ng paglaki ng hito. Ang hito ay nangangailangan ng mainit na temperatura ng tubig na humigit-kumulang 26°C hanggang 32°C upang matunaw nang mabuti ang kanilang pagkain at mabilis na lumaki. Ang mababang temperatura ay maaari ring magbago ng kalidad ng tubig sa mga palaisdaan. Kung masyadong mababa ang temperatura ng tubig, maaaring mabawasan ang antas ng oxygen at mapataas ang antas ng ammonia sa tubig. Kailangan ng mga hito ang oxygen para makahinga at kailangin din ito ng bacteria upang masira nila ang mga dumi.</string>
+    <string name="temp_paragraph_1">\t\tAng mga isda ay mga hayop na may malamig na dugo, ngunit nagbabago ang temperatura ng kanilang katawan depende sa temperatura ng tubig sa kanilang paligid. Naaapektuhan nito ang kanilang metabolismo at pisyolohiya, na maaaring makaapekto sa kanilang kalusugan at pagiging produktibo.</string>
+    <string name="temp_paragraph_2">\t\tKapag tumaas ang temperatura ng tubig, tumataas din ang metabolismo at bilis ng paghinga ng isda. Nangangahulugan ito na kailangan nila ng mas maraming oxygen upang mabuhay. Bukod dito, ang dami ng oxygen na maaaring matunaw sa tubig ay bumababa habang tumataas ang temperatura. Ito ay maaaring humantong sa mga antas ng oxygen sa tubig na nagiging masyadong mababa para sa isda upang mabuhay.</string>
+    <string name="temp_paragraph_3">\t\tMaaaring mapababa ng mababang temperatura ang pagkain ng feeds at bilis ng paglaki ng hito. Ang hito ay nangangailangan ng mainit na temperatura ng tubig na humigit-kumulang 26°C hanggang 32°C upang matunaw nang mabuti ang kanilang pagkain at mabilis na lumaki. Ang mababang temperatura ay maaari ring magbago ng kalidad ng tubig sa mga palaisdaan. Kung masyadong mababa ang temperatura ng tubig, maaaring mabawasan ang antas ng oxygen at mapataas ang antas ng ammonia sa tubig. Kailangan ng mga hito ang oxygen para makahinga at kailangin din ito ng bacteria upang masira nila ang mga dumi.</string>
     <string name="statement_optimal_ph">Ang recommended na antas ng pH para sa mga isda sa tubig-tabang sa Pilipinas ay 6.5 – 8.5.</string>
-    <string name="ph_paragraph_1">\tAng pH ng tubig ay isang sukatan kung gaano kataas ang acid o alkalina. Karamihan sa mga isda ay mas gusto ang tubig na may pH sa pagitan ng 6.5 at 9.0. Ang tubig na may pH na masyadong mababa o masyadong mataas ay maaaring makapinsala sa mga isda. Kapag ang pH ng tubig ay masyadong mababa, maaari itong makapinsala sa hasang ng isda at maging mahirap para sa kanila na huminga. Maaari rin nitong gawing mas nakakalason ang tubig sa isda. Kapag ang pH ng tubig ay masyadong mataas, maaari nitong gawing hindi gaanong oxygenated ang tubig, na maaaring maka-suffocate sa isda. Maaari din nitong gawing mas alkaline ang tubig, na maaaring makapinsala sa balat at mata ng isda.</string>
-    <string name="ph_paragraph_2">\tAng pH ng tubig ay maaaring maapektuhan ng ilang salik, kabilang ang uri ng mga bato at lupa sa tubig, ang dami ng sikat ng araw na natatanggap ng tubig, at ang uri ng mga halaman at hayop na nabubuhay sa tubig.</string>
+    <string name="ph_paragraph_1">\t\tAng pH ng tubig ay isang sukatan kung gaano kataas ang acid o alkalina. Karamihan sa mga isda ay mas gusto ang tubig na may pH sa pagitan ng 6.5 at 9.0. Ang tubig na may pH na masyadong mababa o masyadong mataas ay maaaring makapinsala sa mga isda. Kapag ang pH ng tubig ay masyadong mababa, maaari itong makapinsala sa hasang ng isda at maging mahirap para sa kanila na huminga. Maaari rin nitong gawing mas nakakalason ang tubig sa isda. Kapag ang pH ng tubig ay masyadong mataas, maaari nitong gawing hindi gaanong oxygenated ang tubig, na maaaring maka-suffocate sa isda. Maaari din nitong gawing mas alkaline ang tubig, na maaaring makapinsala sa balat at mata ng isda.</string>
+    <string name="ph_paragraph_2">\t\tAng pH ng tubig ay maaaring maapektuhan ng ilang salik, kabilang ang uri ng mga bato at lupa sa tubig, ang dami ng sikat ng araw na natatanggap ng tubig, at ang uri ng mga halaman at hayop na nabubuhay sa tubig.</string>
     <string name="statement_optimal_turb">Ang recommended na antas ng turbidity, o linaw ng tubig, para sa mga palaisdaan ay 0 – 180.</string>
-    <string name="turb_paragraph_1">\tKung ang labo ng tubig sa pond ay masyadong mataas, maaari itong hadlangan ang sikat ng araw sa pag-abot sa mga halaman at algae sa tubig. Ang mga halaman at algae na ito ay mahalaga para sa paggawa ng oxygen at pagkain para sa isda. Kung walang sapat na sikat ng araw, hindi sila maaaring lumaki nang maayos at maaaring mamatay. Binabawasan nito ang antas ng oxygen at ang supply ng pagkain para sa isda.</string>
-    <string name="turb_paragraph_2">\tAng mataas na labo ng tubig ay maaari ding magdala ng mga nakakapinsalang sangkap, tulad ng mga sediment, kemikal, bakterya, at mga parasito, na maaaring makapinsala sa hasang, balat, mata, at panloob na organo ng isda. Ang mga sangkap na ito ay maaari ring bawasan ang kalidad ng tubig at gawin itong mas acidic o alkalina. Maaari nitong ma-stress ang isda at mas madaling maapektuhan ng mga sakit at impeksyon.</string>
+    <string name="turb_paragraph_1">\t\tKung ang labo ng tubig sa pond ay masyadong mataas, maaari itong hadlangan ang sikat ng araw sa pag-abot sa mga halaman at algae sa tubig. Ang mga halaman at algae na ito ay mahalaga para sa paggawa ng oxygen at pagkain para sa isda. Kung walang sapat na sikat ng araw, hindi sila maaaring lumaki nang maayos at maaaring mamatay. Binabawasan nito ang antas ng oxygen at ang supply ng pagkain para sa isda.</string>
+    <string name="turb_paragraph_2">\t\tAng mataas na labo ng tubig ay maaari ding magdala ng mga nakakapinsalang sangkap, tulad ng mga sediment, kemikal, bakterya, at mga parasito, na maaaring makapinsala sa hasang, balat, mata, at panloob na organo ng isda. Ang mga sangkap na ito ay maaari ring bawasan ang kalidad ng tubig at gawin itong mas acidic o alkalina. Maaari nitong ma-stress ang isda at mas madaling maapektuhan ng mga sakit at impeksyon.</string>
     <string name="label_dark_theme">Dark Theme</string>
 
 
@@ -91,4 +91,8 @@
     <string name="lowTurbConsequences1">Walang kilalang negatibong epekto para sa mababang labo ng tubig.</string>
     <string name="high_turb_headline">Ang labo ng tubig ng isa sa mga palaisdaan ay lumampas sa inirerekomendang hanay.</string>
     <string name="low_turb_headline">Ang labo ng isa sa mga palaisdaan ay mas mababa sa inirerekomendang hanay.</string>
+    <string name="label_language">Wika</string>
+    <string name="message_connect_to_view">Mag-connect ng isang AquaQuality Monitoring Device upang makita ang kasalukuyang lagay ng tubig sa iyong palaisdaan.</string>
+    <string name="label_time">Oras</string>
+    <string name="label_recommended_value">Inirerekomendang sukat: %s</string>
 </resources>

@@ -368,7 +368,7 @@ fun FishpondCard(
                         )
                 ) {
                     Text(
-                        text = "Connect a AquaQuality Monitoring Device to see water quality parameter measurements",
+                        text = stringResource(R.string.message_connect_to_view),
                         textAlign = TextAlign.Center,
                         modifier = Modifier.align(Alignment.Center),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
