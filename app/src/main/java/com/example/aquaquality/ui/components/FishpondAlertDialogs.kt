@@ -22,7 +22,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.example.aquaquality.R
 import com.example.aquaquality.data.SuggestionInfo
 import com.example.aquaquality.data.SuggestionType
-import com.example.aquaquality.data.local.LocalInfoProvider
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 
 
@@ -30,6 +29,8 @@ import com.example.aquaquality.ui.theme.AquaqualityTheme
 fun NewFishpondCardDialog(
     value: String,
     onValueChange: (String) -> Unit,
+    valueDesc: String,
+    onValueDescChange: (String) -> Unit,
     onConfirmClick: () -> Unit,
     onDismissRequest: () -> Unit
 ) {
@@ -52,10 +53,21 @@ fun NewFishpondCardDialog(
             }
         },
         text = {
-            TextField(
-                value = value,
-                onValueChange = onValueChange,
-                placeholder = { Text(text = "Enter fishpond name") })
+            Column {
+                TextField(
+                    value = value,
+                    onValueChange = onValueChange,
+                    placeholder = { Text(text = stringResource(R.string.message_enter_fishpond_name)) },
+                    singleLine = true
+                )
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
+                TextField(
+                    value = valueDesc,
+                    onValueChange = onValueDescChange,
+                    placeholder = { Text(text = stringResource(R.string.message_description_optional)) },
+                    minLines = 7,
+                )
+            }
         }
     )
 }
@@ -64,6 +76,8 @@ fun NewFishpondCardDialog(
 fun EditFishpondCardDialog(
     value: String,
     onValueChange: (String) -> Unit,
+    valueDesc: String,
+    onValueDescChange: (String) -> Unit,
     onConfirmClick: () -> Unit,
     onDismissRequest: () -> Unit
 ) {
@@ -86,10 +100,21 @@ fun EditFishpondCardDialog(
             }
         },
         text = {
-            TextField(
-                value = value,
-                onValueChange = onValueChange,
-                placeholder = { Text(text = "Enter fishpond name") })
+            Column {
+                TextField(
+                    value = value,
+                    onValueChange = onValueChange,
+                    placeholder = { Text(text = stringResource(id = R.string.message_enter_fishpond_name)) },
+                    singleLine = true
+                )
+                Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
+                TextField(
+                    value = valueDesc,
+                    onValueChange = onValueDescChange,
+                    placeholder = { Text(text = stringResource(id = R.string.message_description_optional)) },
+                    minLines = 7
+                )
+            }
         }
     )
 }
@@ -124,7 +149,7 @@ fun DeleteFishpondCardDialog(
             }
         },
         text = {
-            Text(text = "Are you sure you want to delete \"$name\" and all its related information? This action cannot be undone.")
+            Text(text = stringResource(R.string.message_delete_confirrm, name!!))
         }
     )
 }
@@ -158,26 +183,10 @@ fun DisconnectDeviceDialog(
             }
         },
         text = {
-            Text(text = "Are you sure you want to disconnect from \"$name\"? Real-time monitoring will be unavailable unless a device is connected.")
+            Text(text = stringResource(R.string.message_disconnect, name!!), textAlign = TextAlign.Justify)
         }
     )
 }
-
-
-
-val highTempSuggestionInfo = SuggestionInfo(
-    suggestionType = SuggestionType.HIGH,
-    headline = R.string.high_temp_headline,
-    solutionList = LocalInfoProvider.highTempTreatments,
-    consequenceList = LocalInfoProvider.highTempConsequences
-)
-
-val lowPhSuggestionInfo = SuggestionInfo(
-    suggestionType = SuggestionType.LOW,
-    headline = R.string.low_ph_headline,
-    solutionList = LocalInfoProvider.highTempTreatments,
-    consequenceList = LocalInfoProvider.highTempConsequences
-)
 
 @Composable
 fun ParameterWarningDialog(
@@ -185,11 +194,11 @@ fun ParameterWarningDialog(
     onConfirmClick: () -> Unit,
     onDismissRequest: () -> Unit
 ) {
-    val contentColor = when(suggestionInfo.suggestionType) {
+    val contentColor = when (suggestionInfo.suggestionType) {
         SuggestionType.LOW -> MaterialTheme.colorScheme.onTertiary
         SuggestionType.HIGH -> MaterialTheme.colorScheme.onError
     }
-    val containerColor = when(suggestionInfo.suggestionType) {
+    val containerColor = when (suggestionInfo.suggestionType) {
         SuggestionType.LOW -> MaterialTheme.colorScheme.tertiary
         SuggestionType.HIGH -> MaterialTheme.colorScheme.error
     }
@@ -230,22 +239,18 @@ fun ParameterWarningDialog(
 
 @Preview
 @Composable
-fun WarningPreview() {
+fun NewPreview() {
     AquaqualityTheme {
-        ParameterWarningDialog(
-            suggestionInfo = highTempSuggestionInfo,
-            onConfirmClick = {}) {
+        DisconnectDeviceDialog(name = "AQ003", onConfirmClick = {}) {
         }
     }
 }
-
 @Preview
 @Composable
-fun WarningPreview2() {
+fun EditPreview() {
     AquaqualityTheme {
-        ParameterWarningDialog(
-            suggestionInfo = lowPhSuggestionInfo,
-            onConfirmClick = {}) {
+        DeleteFishpondCardDialog(name = "Fishpond1", onConfirmClick = {}) {
+
         }
     }
 }

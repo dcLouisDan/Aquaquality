@@ -6,6 +6,7 @@ import com.google.firebase.database.PropertyName
 data class FishpondInfo(
     @PropertyName("id") val id: String? = "",
     @PropertyName("name") val name: String? = "",
+    @PropertyName("desc") val desc: String? = "",
     @PropertyName("connectedDeviceId") val connectedDeviceId: String? = null,
     @PropertyName("tempValue") val tempValue: Float? = 0.0F,
     @PropertyName("tempStatus") val tempStatus: String? = IndicatorStatus.NORMAL.name,

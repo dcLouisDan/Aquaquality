@@ -95,4 +95,9 @@
     <string name="message_connect_to_view">Mag-connect ng isang AquaQuality Monitoring Device upang makita ang kasalukuyang lagay ng tubig sa iyong palaisdaan.</string>
     <string name="label_time">Oras</string>
     <string name="label_recommended_value">Inirerekomendang sukat: %s</string>
+    <string name="message_enter_fishpond_name">Pangalan ng iyong fishpond</string>
+    <string name="message_description_optional">Description(optional)</string>
+    <string name="message_delete_confirrm">Sigurado ka bang gusto mong tanggalin ang %s at lahat ng nauugnay na impormasyon nito? Ang gawaing ito ay hindi pwedeng baguhin.</string>
+    <string name="message_disconnect">Sigurado ka bang gusto mong idiskonekta mula sa %s? Hindi magagamit ang real-time na pagsubaybay maliban kung nakakonekta ang isang device.</string>
+    <string name="label_description">Description</string>
 </resources>

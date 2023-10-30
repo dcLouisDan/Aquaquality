@@ -541,6 +541,24 @@ class FishpondListViewModel : ViewModel() {
         }
     }
 
+    fun setNewFishpondDescInput(name: String) {
+        _uiState.update {
+            it.copy(
+                newFishpondDesc = name
+            )
+        }
+    }
+
+    fun setEditFishpondDescInput(name: String?) {
+        _uiState.update {
+            name?.let { it1 ->
+                it.copy(
+                    editFishpondDesc = it1
+                )
+            }!!
+        }
+    }
+
     fun setFishpondInfoToModify(fishpond: FishpondInfo) {
         _uiState.update {
             it.copy(
@@ -557,9 +575,9 @@ class FishpondListViewModel : ViewModel() {
         }
     }
 
-    fun addNewFishpond(name: String) {
+    fun addNewFishpond(name: String, desc: String) {
         val newChildRef = fishpondsReference.push()
-        val fishpondInfo = FishpondInfo(id = newChildRef.key, name = name)
+        val fishpondInfo = FishpondInfo(id = newChildRef.key, name = name, desc = desc)
 
         newChildRef.setValue(fishpondInfo).addOnCompleteListener { task ->
             _uiState.update {
@@ -571,7 +589,7 @@ class FishpondListViewModel : ViewModel() {
         }
     }
 
-    fun updateFishpondName(name: String, fishpondInfo: FishpondInfo) {
+    fun updateFishpondName(name: String, fishpondInfo: FishpondInfo, desc: String) {
         val dataRef = fishpondsReference.child(fishpondInfo.id!!)
 
         dataRef.child("name").setValue(name).addOnCompleteListener {
@@ -579,6 +597,15 @@ class FishpondListViewModel : ViewModel() {
                 _uiState.update { currentState ->
                     currentState.copy(
                         editFishpondName = ""
+                    )
+                }
+            }
+        }
+        dataRef.child("desc").setValue(desc).addOnCompleteListener {
+            if (it.isSuccessful) {
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        editFishpondDesc = ""
                     )
                 }
             }

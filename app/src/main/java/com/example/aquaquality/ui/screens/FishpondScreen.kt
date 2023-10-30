@@ -96,7 +96,6 @@ import com.patrykandpatrick.vico.compose.component.shapeComponent
 import com.patrykandpatrick.vico.compose.component.textComponent
 import com.patrykandpatrick.vico.compose.dimensions.dimensionsOf
 import com.patrykandpatrick.vico.compose.style.ProvideChartStyle
-import com.patrykandpatrick.vico.core.axis.Axis
 import com.patrykandpatrick.vico.core.axis.AxisPosition
 import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
 import com.patrykandpatrick.vico.core.component.shape.Shapes
@@ -169,6 +168,20 @@ fun FishpondScreen(
                             text = it,
                             style = MaterialTheme.typography.titleLarge
                         )
+                    }
+                    uiState.fishpondInfo?.desc?.let {
+                        if (uiState.fishpondInfo.desc.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
+                            Text(
+                                text = stringResource(R.string.label_description),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = it,
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                        }
                     }
                     Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
 
@@ -480,17 +493,26 @@ private fun DataTableList(
     uiState: FishpondScreenUiState
 ) {
     DataTable(
-        columnItems = listOf(stringResource(R.string.label_time), stringResource(id = R.string.label_wUnit_temperature)),
+        columnItems = listOf(
+            stringResource(R.string.label_time),
+            stringResource(id = R.string.label_wUnit_temperature)
+        ),
         rowItems = listOf(uiState.timeList, uiState.tempValueList)
     )
     Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
     DataTable(
-        columnItems = listOf(stringResource(R.string.label_time), stringResource(id = R.string.label_wUnit_pH)),
+        columnItems = listOf(
+            stringResource(R.string.label_time),
+            stringResource(id = R.string.label_wUnit_pH)
+        ),
         rowItems = listOf(uiState.timeList, uiState.phValueList)
     )
     Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
     DataTable(
-        columnItems = listOf(stringResource(R.string.label_time), stringResource(id = R.string.label_wUnit_pH)),
+        columnItems = listOf(
+            stringResource(R.string.label_time),
+            stringResource(id = R.string.label_wUnit_pH)
+        ),
         rowItems = listOf(uiState.timeList, uiState.turbidityValueList)
     )
 }
@@ -596,7 +618,7 @@ fun DataGraph(
                         margins = MutableDimensions(16f, 8f),
                     ),
 
-                ),
+                    ),
 
                 )
         }

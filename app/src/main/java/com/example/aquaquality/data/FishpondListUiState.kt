@@ -11,6 +11,8 @@ data class FishpondListUiState(
     val fishpondInfoToModify: FishpondInfo? = null,
     val newFishpondName: String = "",
     val editFishpondName: String = "",
+    val newFishpondDesc: String = "",
+    val editFishpondDesc: String = "",
     val sentAlerts: Map<String, Set<Int>> = emptyMap(),
     val isLowTempAlertVisible: Boolean = false,
     val isHighTempAlertVisible: Boolean = false,

@@ -94,4 +94,9 @@
     <string name="message_connect_to_view">Connect a AquaQuality Monitoring Device to see water quality parameter measurements</string>
     <string name="label_time">Time</string>
     <string name="label_recommended_value">Recommended value: %s</string>
+    <string name="message_enter_fishpond_name">Enter fishpond name</string>
+    <string name="message_description_optional">Description(optional)</string>
+    <string name="message_delete_confirrm">Are you sure you want to delete %s and all its related information? This action cannot be undone.</string>
+    <string name="message_disconnect">Are you sure you want to disconnect from %s? Real-time monitoring will be unavailable unless a device is connected.</string>
+    <string name="label_description">Description</string>
 </resources>

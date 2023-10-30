@@ -130,8 +130,12 @@ fun FishpondListScreen(
             value = uiState.newFishpondName,
             onValueChange = { fishpondListViewModel.setNewFishpondNameInput(it) },
             onConfirmClick = {
-                fishpondListViewModel.addNewFishpond(uiState.newFishpondName)
+                fishpondListViewModel.addNewFishpond(uiState.newFishpondName, uiState.newFishpondDesc)
                 isNewDialogVisible = false
+            },
+            valueDesc = uiState.newFishpondDesc,
+            onValueDescChange = {
+                fishpondListViewModel.setNewFishpondDescInput(it)
             },
             onDismissRequest = { isNewDialogVisible = false }
         )
@@ -144,13 +148,16 @@ fun FishpondListScreen(
             onConfirmClick = {
                 fishpondListViewModel.updateFishpondName(
                     uiState.editFishpondName,
-                    uiState.fishpondInfoToModify!!
+                    uiState.fishpondInfoToModify!!,
+                    uiState.editFishpondDesc
                 )
                 isEditDialogVisible = false
             },
             onDismissRequest = {
                 isEditDialogVisible = false
-            }
+            },
+            valueDesc = uiState.editFishpondDesc,
+            onValueDescChange = { fishpondListViewModel.setEditFishpondDescInput(it)}
         )
     }
 
