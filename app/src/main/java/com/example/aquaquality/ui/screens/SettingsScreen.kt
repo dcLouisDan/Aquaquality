@@ -97,12 +97,6 @@ fun SettingsScreen(
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
             Column(modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_medium))) {
-                Text(
-                    text = stringResource(R.string.title_app_settings),
-                    style = MaterialTheme.typography.titleLarge
-                )
-
-                Divider(Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_large)))
                 DarkThemeToggle(
                     darkThemeState = darkThemeState,
                     onCheckChange = darkThemeToggleAction

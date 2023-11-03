@@ -152,7 +152,7 @@ fun FishpondScreen(
         ) {
             Card(
                 modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_small)),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             ) {
                 Column(
                     modifier = Modifier

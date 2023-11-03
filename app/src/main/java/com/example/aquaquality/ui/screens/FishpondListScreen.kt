@@ -43,6 +43,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -54,10 +55,9 @@ import com.example.aquaquality.R
 import com.example.aquaquality.data.FishpondInfo
 import com.example.aquaquality.data.FishpondListUiState
 import com.example.aquaquality.data.FishpondScreenUiState
-import com.example.aquaquality.ui.components.ParameterMonitor
+import com.example.aquaquality.ui.components.*
 import com.example.aquaquality.ui.theme.AquaqualityTheme
 import com.example.aquaquality.ui.viewmodels.FishpondListViewModel
-import com.example.aquaquality.ui.components.*
 import com.example.aquaquality.ui.viewmodels.FishpondScreenViewModel
 
 
@@ -221,7 +221,7 @@ private fun FishpondCardList(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                    .background(Color.Transparent),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -238,7 +238,7 @@ private fun FishpondCardList(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .background(Color.Transparent)
             ) {
                 items(fishpondList) { fishpond ->
                     FishpondCard(
@@ -284,8 +284,8 @@ fun FishpondCard(
         modifier = modifier
             .fillMaxWidth()
             .clickable { onCardClick(fishpondInfo) },
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.inverseOnSurface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         var isCardMenuVisible by rememberSaveable {
             mutableStateOf(false)
@@ -295,16 +295,16 @@ fun FishpondCard(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(
-                        start = dimensionResource(id = R.dimen.padding_medium),
-                        top = dimensionResource(id = R.dimen.padding_small)
-                    ), verticalAlignment = Alignment.CenterVertically
+                    .background(MaterialTheme.colorScheme.primary), verticalAlignment = Alignment.CenterVertically
             ) {
                 fishpondInfo.name?.let {
                     Text(
                         text = it,
-                        modifier = Modifier.weight(1f),
-                        style = MaterialTheme.typography.titleMedium
+                        modifier = Modifier.weight(1f).padding(
+                            start = dimensionResource(id = R.dimen.padding_medium),
+                        ),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
                 IconButton(
@@ -315,7 +315,7 @@ fun FishpondCard(
                         contentColor = MaterialTheme.colorScheme.onSurface,
                     )
                 ) {
-                    Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
+                    Icon(imageVector = Icons.Default.MoreVert, contentDescription = null, tint = MaterialTheme.colorScheme.onPrimary)
                     DropdownMenu(
                         expanded = isCardMenuVisible,
                         onDismissRequest = { isCardMenuVisible = false },
@@ -338,26 +338,26 @@ fun FishpondCard(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(dimensionResource(id = R.dimen.padding_medium))
+                        .padding(dimensionResource(id = R.dimen.padding_small))
                 ) {
                     val isOffline = fishpondInfo.isOffline!!
-                    ParameterMonitor(
+                    ParameterMonitorLarge(
                         Icons.Default.Thermostat,
                         R.string.label_temperature,
                         if (isOffline) "--" else fishpondInfo.tempValue.toString(),
                         parameterValueFormat = R.string.parameter_temperature,
                         stringIndicatorStatus = if (isOffline) IndicatorStatus.OFFLINE.name else fishpondInfo.tempStatus!!
                     )
-                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.height_xs)))
-                    ParameterMonitor(
+                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
+                    ParameterMonitorLarge(
                         Icons.Default.Science,
                         R.string.label_pH,
                         if (isOffline) "--" else fishpondInfo.phValue.toString(),
                         parameterValueFormat = R.string.parameter_pH,
                         stringIndicatorStatus = if (isOffline) IndicatorStatus.OFFLINE.name else fishpondInfo.phStatus!!
                     )
-                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.height_xs)))
-                    ParameterMonitor(
+                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_medium)))
+                    ParameterMonitorLarge(
                         Icons.Default.Water,
                         R.string.label_turbidity,
                         if (isOffline) "--" else fishpondInfo.turbidityValue.toString(),

@@ -100,4 +100,8 @@
     <string name="message_delete_confirrm">Sigurado ka bang gusto mong tanggalin ang %s at lahat ng nauugnay na impormasyon nito? Ang gawaing ito ay hindi pwedeng baguhin.</string>
     <string name="message_disconnect">Sigurado ka bang gusto mong idiskonekta mula sa %s? Hindi magagamit ang real-time na pagsubaybay maliban kung nakakonekta ang isang device.</string>
     <string name="label_description">Description</string>
+    <string name="label_home">Home</string>
+    <string name="label_guide">Water Quality Guide</string>
+    <string name="label_settings">App Settings</string>
+    <string name="label_account">User Account</string>
 </resources>

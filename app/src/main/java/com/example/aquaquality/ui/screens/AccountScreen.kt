@@ -47,7 +47,7 @@ fun AccountScreen(userData: UserData?, onLogoutClick: () -> Unit, modifier: Modi
             .padding(dimensionResource(id = R.dimen.padding_medium))
     ) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-            Card(modifier = Modifier.size(175.dp), shape = CircleShape) {
+            Card(modifier = Modifier.size(175.dp), shape = CircleShape,elevation = CardDefaults.cardElevation(defaultElevation = 4.dp) ) {
                 if (userData?.profilePictureUrl != null) {
                     AsyncImage(
                         model = userData.profilePictureUrl,
@@ -71,7 +71,8 @@ fun AccountScreen(userData: UserData?, onLogoutClick: () -> Unit, modifier: Modi
                 .fillMaxWidth(),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.background
-            )
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         ) {
             var isLogoutDialogVisible by remember {
                 mutableStateOf(false)

@@ -2,6 +2,7 @@ package com.example.aquaquality.ui.screens
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -13,6 +14,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,17 +38,19 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.aquaquality.R
@@ -83,10 +87,6 @@ fun AquaQualityHomeScreen(
     var isHighPhSuggestionScreenVisible by rememberSaveable { mutableStateOf(false) }
     var isLowTurbSuggestionScreenVisible by rememberSaveable { mutableStateOf(false) }
     var isHighTurbSuggestionScreenVisible by rememberSaveable { mutableStateOf(false) }
-
-
-
-
 
 
     if (fishpondListUiState.isLowTempAlertVisible) {
@@ -151,11 +151,13 @@ fun AquaQualityHomeScreen(
                 fishpondListViewModel.toggleHighTurbAlert(false)
             })
     }
+    val pageTitleList: List<Int> = listOf(R.string.label_home, R.string.label_guide, R.string.label_settings, R.string.label_account)
     var currentScreenIndex by rememberSaveable { mutableStateOf(0) }
     var previousScreenIndex by rememberSaveable { mutableStateOf(0) }
     Scaffold(
         topBar = {
             AquaQualityAppBar(
+                pageTitle = pageTitleList[currentScreenIndex],
                 canNavigateBack = !fishpondListUiState.isShowingHomepage && currentScreenIndex == 0,
                 navigateUp = {
                     fishpondListViewModel.resetHomeScreenStates()
@@ -189,73 +191,75 @@ fun AquaQualityHomeScreen(
                 text = "Account"
             ),
         )
-        Column(modifier = Modifier.padding(innerPadding)) {
-            var showNotificationReminder by rememberSaveable {
-                mutableStateOf(!isPermissionGranted)
-            }
+        Box(modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant)) {
+            Column(modifier = Modifier.padding(innerPadding)) {
+                var showNotificationReminder by rememberSaveable {
+                    mutableStateOf(!isPermissionGranted)
+                }
 
-            val transitionToRight =
-                slideInHorizontally(initialOffsetX = { fullWidth -> fullWidth }) with slideOutHorizontally(
-                    targetOffsetX = { fullWidth -> -fullWidth })
-            val transitionToLeft =
-                slideInHorizontally(initialOffsetX = { fullWidth -> -fullWidth }) with slideOutHorizontally(
-                    targetOffsetX = { fullWidth -> fullWidth })
+                val transitionToRight =
+                    slideInHorizontally(initialOffsetX = { fullWidth -> fullWidth }) with slideOutHorizontally(
+                        targetOffsetX = { fullWidth -> -fullWidth })
+                val transitionToLeft =
+                    slideInHorizontally(initialOffsetX = { fullWidth -> -fullWidth }) with slideOutHorizontally(
+                        targetOffsetX = { fullWidth -> fullWidth })
 
-            val swipeableModifier =
-                Modifier
-                    .weight(1f)
+                val swipeableModifier =
+                    Modifier
+                        .weight(1f)
 
-            AnimatedVisibility(
-                visible = showNotificationReminder, enter = slideInVertically() + fadeIn(),
-                exit = slideOutVertically() + fadeOut()
-            ) {
-                PermissionReminder(
-                    onConfirmClick = {
-                        onPermissionTurnOn()
-                        showNotificationReminder = false
-                    },
-                    onDismissClick = { showNotificationReminder = false })
-            }
+                AnimatedVisibility(
+                    visible = showNotificationReminder, enter = slideInVertically() + fadeIn(),
+                    exit = slideOutVertically() + fadeOut()
+                ) {
+                    PermissionReminder(
+                        onConfirmClick = {
+                            onPermissionTurnOn()
+                            showNotificationReminder = false
+                        },
+                        onDismissClick = { showNotificationReminder = false })
+                }
 
-            AnimatedContent(
-                targetState = currentScreenIndex,
-                modifier = swipeableModifier,
-                transitionSpec = {
-                    if (previousScreenIndex < currentScreenIndex) {
-                        transitionToRight
-                    } else {
-                        transitionToLeft
+                AnimatedContent(
+                    targetState = currentScreenIndex,
+                    modifier = swipeableModifier,
+                    transitionSpec = {
+                        if (previousScreenIndex < currentScreenIndex) {
+                            transitionToRight
+                        } else {
+                            transitionToLeft
+                        }
+                    }
+                ) { targetState ->
+                    when (targetState) {
+                        0 -> FishpondListScreen(
+                            fishpondListViewModel = fishpondListViewModel,
+                            uiState = fishpondListUiState,
+                            exitApp = exitApp,
+                            fishpondScreenViewModel = fishpondScreenViewModel,
+                            fishpondScreenUiState = fishpondScreenUiState
+                        )
+
+                        1 -> ReferencesScreen()
+                        2 -> SettingsScreen(
+                            afterSaveAction = afterSaveAction,
+                            darkThemeState = darkThemeState,
+                            darkThemeToggleAction = darkThemeToggleAction,
+                            onLanguageChange = onLanguageChange,
+                            currentLanguageCode = currentLanguageCode
+                        )
+
+                        3 -> AccountScreen(userData = userData, onLogoutClick = onLogoutClick)
                     }
                 }
-            ) { targetState ->
-                when (targetState) {
-                    0 -> FishpondListScreen(
-                        fishpondListViewModel = fishpondListViewModel,
-                        uiState = fishpondListUiState,
-                        exitApp = exitApp,
-                        fishpondScreenViewModel = fishpondScreenViewModel,
-                        fishpondScreenUiState = fishpondScreenUiState
-                    )
 
-                    1 -> ReferencesScreen()
-                    2 -> SettingsScreen(
-                        afterSaveAction = afterSaveAction,
-                        darkThemeState = darkThemeState,
-                        darkThemeToggleAction = darkThemeToggleAction,
-                        onLanguageChange = onLanguageChange,
-                        currentLanguageCode = currentLanguageCode
-                    )
-
-                    3 -> AccountScreen(userData = userData, onLogoutClick = onLogoutClick)
-                }
+                AquaQualityBottomNavigationBar(
+                    navigationItemContentList = navigationItemContentList,
+                    onTabClick = {
+                        previousScreenIndex = currentScreenIndex
+                        currentScreenIndex = it
+                    })
             }
-
-            AquaQualityBottomNavigationBar(
-                navigationItemContentList = navigationItemContentList,
-                onTabClick = {
-                    previousScreenIndex = currentScreenIndex
-                    currentScreenIndex = it
-                })
         }
     }
 
@@ -332,11 +336,12 @@ fun AquaQualityHomeScreen(
 
 @Composable
 fun AquaQualityAppBar(
+    modifier: Modifier = Modifier,
+    @StringRes pageTitle: Int = R.string.app_name,
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
     onRefreshClick: () -> Unit,
     currentScreenIndex: Int,
-    modifier: Modifier = Modifier
 ) {
     val appBarColor =
         if (canNavigateBack) {
@@ -348,7 +353,7 @@ fun AquaQualityAppBar(
     TopAppBar(
         title = {
             Text(
-                stringResource(R.string.app_name),
+                stringResource(pageTitle),
                 style = MaterialTheme.typography.titleMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
@@ -365,7 +370,7 @@ fun AquaQualityAppBar(
                 }
             }
         },
-        modifier = modifier,
+        modifier = modifier.shadow(elevation = 4.dp),
         navigationIcon = {
             if (canNavigateBack) {
                 IconButton(onClick = navigateUp) {
@@ -385,7 +390,7 @@ private fun AquaQualityBottomNavigationBar(
     onTabClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    NavigationBar(modifier = modifier, containerColor = MaterialTheme.colorScheme.background) {
+    NavigationBar(modifier = modifier.shadow(elevation = 4.dp), containerColor = MaterialTheme.colorScheme.background) {
         for (navItem in navigationItemContentList) {
             NavigationBarItem(
                 selected = false,
