@@ -299,7 +299,7 @@ class FishpondScreenViewModel : ViewModel() {
                             val time = timeList[index]
                             _uiState.update { currentState ->
                                 currentState.copy(
-                                    dayTempMaxAnomalyTimeList = uiState.value.dayTempMaxAnomalyTimeList.plus(time)
+                                    dayTempMaxAnomalyTimeList = uiState.value.dayTempMaxAnomalyTimeList.plus(Pair(time, value))
                                 )
                             }
                         }
@@ -310,7 +310,7 @@ class FishpondScreenViewModel : ViewModel() {
                             val time = timeList[index]
                             _uiState.update { currentState ->
                                 currentState.copy(
-                                    dayTempMinAnomalyTimeList = uiState.value.dayTempMinAnomalyTimeList.plus(time)
+                                    dayTempMinAnomalyTimeList = uiState.value.dayTempMinAnomalyTimeList.plus(Pair(time, value))
                                 )
                             }
                         }
@@ -341,7 +341,7 @@ class FishpondScreenViewModel : ViewModel() {
                             val time = timeList[index]
                             _uiState.update { currentState ->
                                 currentState.copy(
-                                    dayPhMaxAnomalyTimeList = uiState.value.dayPhMaxAnomalyTimeList.plus(time)
+                                    dayPhMaxAnomalyTimeList = uiState.value.dayPhMaxAnomalyTimeList.plus(Pair(time, value))
                                 )
                             }
                         }
@@ -352,7 +352,7 @@ class FishpondScreenViewModel : ViewModel() {
                             val time = timeList[index]
                             _uiState.update { currentState ->
                                 currentState.copy(
-                                    dayPhMinAnomalyTimeList = uiState.value.dayPhMinAnomalyTimeList.plus(time)
+                                    dayPhMinAnomalyTimeList = uiState.value.dayPhMinAnomalyTimeList.plus(Pair(time, value))
                                 )
                             }
                         }
@@ -383,7 +383,7 @@ class FishpondScreenViewModel : ViewModel() {
                             val time = timeList[index]
                             _uiState.update { currentState ->
                                 currentState.copy(
-                                    dayTurbMaxAnomalyTimeList = uiState.value.dayTurbMaxAnomalyTimeList.plus(time)
+                                    dayTurbMaxAnomalyTimeList = uiState.value.dayTurbMaxAnomalyTimeList.plus(Pair(time, value))
                                 )
                             }
                         }
@@ -394,7 +394,7 @@ class FishpondScreenViewModel : ViewModel() {
                             val time = timeList[index]
                             _uiState.update { currentState ->
                                 currentState.copy(
-                                    dayTurbMinAnomalyTimeList = uiState.value.dayTurbMinAnomalyTimeList.plus(time)
+                                    dayTurbMinAnomalyTimeList = uiState.value.dayTurbMinAnomalyTimeList.plus(Pair(time, value))
                                 )
                             }
                         }
@@ -477,6 +477,9 @@ class FishpondScreenViewModel : ViewModel() {
             createTempFloatEntryList(valueList = uiState.value.tempValueList)
             createPhFloatEntryList(valueList = uiState.value.phValueList)
             createTurbFloatEntryList(valueList = uiState.value.turbidityValueList)
+            generateDayTempAnomalyTimeReport()
+            generateDayPhAnomalyTimeReport()
+            generateDayTurbAnomalyTimeReport()
 
             tempChartEntryModelProducer = ChartEntryModelProducer(uiState.value.tempEntryList)
             phChartEntryModelProducer = ChartEntryModelProducer(uiState.value.phEntryList)

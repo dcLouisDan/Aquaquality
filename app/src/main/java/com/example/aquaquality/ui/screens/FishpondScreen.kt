@@ -13,6 +13,7 @@ import androidx.compose.animation.with
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -41,6 +42,7 @@ import androidx.compose.material.icons.filled.SensorsOff
 import androidx.compose.material.icons.filled.Thermostat
 import androidx.compose.material.icons.filled.Water
 import androidx.compose.material.icons.filled.Wifi
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -82,6 +84,7 @@ import com.example.aquaquality.ui.components.DataTable
 import com.example.aquaquality.ui.components.DisconnectDeviceDialog
 import com.example.aquaquality.ui.components.IndicatorStatus
 import com.example.aquaquality.ui.components.ParameterMonitor
+import com.example.aquaquality.ui.components.ReportDialog
 import com.example.aquaquality.ui.components.SegmentedControl
 import com.example.aquaquality.ui.components.rememberMarker
 import com.example.aquaquality.ui.theme.AquaqualityTheme
@@ -464,12 +467,70 @@ private fun DataGraphList(
     uiState: FishpondScreenUiState,
     fishpondScreenViewModel: FishpondScreenViewModel
 ) {
+    var isTempReportVisible by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var isPhReportVisible by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var isTurbReportVisible by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    if (isTempReportVisible) {
+        ReportDialog(
+            parameterLabel = stringResource(id = R.string.label_temperature),
+            minHourList = uiState.dayTempMinAnomalyTimeList,
+            maxHourList = uiState.dayTempMaxAnomalyTimeList,
+            onDismissRequest = {
+                isTempReportVisible = false
+            },
+            unit = "℃"
+        )
+    }
+
+    if (isPhReportVisible) {
+        ReportDialog(
+            parameterLabel = stringResource(id = R.string.label_pH),
+            minHourList = uiState.dayPhMinAnomalyTimeList,
+            maxHourList = uiState.dayPhMaxAnomalyTimeList,
+            onDismissRequest = {
+                isPhReportVisible = false
+            },
+            unit = ""
+        )
+    }
+
+    if (isTurbReportVisible) {
+        ReportDialog(
+            parameterLabel = stringResource(id = R.string.label_turbidity),
+            minHourList = uiState.dayTurbMinAnomalyTimeList,
+            maxHourList = uiState.dayTurbMaxAnomalyTimeList,
+            onDismissRequest = {
+                isTurbReportVisible = false
+            },
+            unit = "NTU"
+        )
+    }
+
     DataGraph(
         chartTitle = R.string.label_wUnit_temperature,
         timeList = uiState.timeList,
         valueList = uiState.tempValueList,
         chartEntryModelProducer = fishpondScreenViewModel.tempChartEntryModelProducer
     )
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(dimensionResource(id = R.dimen.padding_small)),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Button(onClick = { isTempReportVisible = true }) {
+            Text(text = "View Temperature Day Report", color = MaterialTheme.colorScheme.onPrimary)
+        }
+    }
     Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
 
     DataGraph(
@@ -478,6 +539,16 @@ private fun DataGraphList(
         valueList = uiState.phValueList,
         chartEntryModelProducer = fishpondScreenViewModel.phChartEntryModelProducer
     )
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(dimensionResource(id = R.dimen.padding_small)),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Button(onClick = { isPhReportVisible = true }) {
+            Text(text = "View pH Level Day Report", color = MaterialTheme.colorScheme.onPrimary)
+        }
+    }
     Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
 
     DataGraph(
@@ -486,12 +557,72 @@ private fun DataGraphList(
         valueList = uiState.turbidityValueList,
         chartEntryModelProducer = fishpondScreenViewModel.turbidityChartEntryModelProducer
     )
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(dimensionResource(id = R.dimen.padding_small)),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Button(onClick = { isTurbReportVisible = true }) {
+            Text(text = "View Turbidity Day Report", color = MaterialTheme.colorScheme.onPrimary)
+        }
+    }
 }
 
 @Composable
 private fun DataTableList(
     uiState: FishpondScreenUiState
 ) {
+
+    var isTempReportVisible by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var isPhReportVisible by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var isTurbReportVisible by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    if (isTempReportVisible) {
+        ReportDialog(
+            parameterLabel = stringResource(id = R.string.label_temperature),
+            minHourList = uiState.dayTempMinAnomalyTimeList,
+            maxHourList = uiState.dayTempMaxAnomalyTimeList,
+            onDismissRequest = {
+                isTempReportVisible = false
+            },
+            unit = "℃"
+        )
+    }
+
+    if (isPhReportVisible) {
+        ReportDialog(
+            parameterLabel = stringResource(id = R.string.label_pH),
+            minHourList = uiState.dayPhMinAnomalyTimeList,
+            maxHourList = uiState.dayPhMaxAnomalyTimeList,
+            onDismissRequest = {
+                isPhReportVisible = false
+            },
+            unit = ""
+        )
+    }
+
+    if (isTurbReportVisible) {
+        ReportDialog(
+            parameterLabel = stringResource(id = R.string.label_turbidity),
+            minHourList = uiState.dayTurbMinAnomalyTimeList,
+            maxHourList = uiState.dayTurbMaxAnomalyTimeList,
+            onDismissRequest = {
+                isTurbReportVisible = false
+            },
+            unit = "NTU"
+        )
+    }
+
     DataTable(
         columnItems = listOf(
             stringResource(R.string.label_time),
@@ -499,6 +630,16 @@ private fun DataTableList(
         ),
         rowItems = listOf(uiState.timeList, uiState.tempValueList)
     )
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(dimensionResource(id = R.dimen.padding_small)),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Button(onClick = { isTempReportVisible = true }) {
+            Text(text = "View Temperature Day Report", color = MaterialTheme.colorScheme.onPrimary)
+        }
+    }
     Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
     DataTable(
         columnItems = listOf(
@@ -507,6 +648,16 @@ private fun DataTableList(
         ),
         rowItems = listOf(uiState.timeList, uiState.phValueList)
     )
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(dimensionResource(id = R.dimen.padding_small)),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Button(onClick = { isPhReportVisible = true }) {
+            Text(text = "View pH Level Day Report", color = MaterialTheme.colorScheme.onPrimary)
+        }
+    }
     Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
     DataTable(
         columnItems = listOf(
@@ -515,6 +666,16 @@ private fun DataTableList(
         ),
         rowItems = listOf(uiState.timeList, uiState.turbidityValueList)
     )
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(dimensionResource(id = R.dimen.padding_small)),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Button(onClick = { isTurbReportVisible = true }) {
+            Text(text = "View Turbidity Day Report", color = MaterialTheme.colorScheme.onPrimary)
+        }
+    }
 }
 
 @Composable

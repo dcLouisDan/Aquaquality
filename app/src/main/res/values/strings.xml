@@ -103,4 +103,7 @@
     <string name="label_guide">Water Quality Guide</string>
     <string name="label_settings">App Settings</string>
     <string name="label_account">User Account</string>
+    <string name="report_item_temp">At %s, with a value of %.2f %s</string>
+    <string name="report_normal_temp">The water %s in the fishpond was normal all throughout this day.</string>
+    <string name="report_temp_header">\tThe fishpond’s water %s was found to be anomalous during the following times:</string>
 </resources>

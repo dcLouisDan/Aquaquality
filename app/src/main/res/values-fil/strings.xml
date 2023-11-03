@@ -15,10 +15,10 @@
     <string name="parameter_temperature">%s℃</string>
     <string name="parameter_pH">%s</string>
     <string name="parameter_turbidity">%s NTU</string>
-    <string name="label_temperature">Temperatura</string>
+    <string name="label_temperature">Temperature</string>
     <string name="label_pH">pH</string>
     <string name="label_turbidity">Turbidity</string>
-    <string name="label_wUnit_temperature">Temperatura (℃)</string>
+    <string name="label_wUnit_temperature">Temperature (℃)</string>
     <string name="label_wUnit_pH">pH</string>
     <string name="label_wUnit_turbidity">Turbidity (NTU)</string>
     <string name="label_save_changes">Save Changes</string>
@@ -104,4 +104,7 @@
     <string name="label_guide">Water Quality Guide</string>
     <string name="label_settings">App Settings</string>
     <string name="label_account">User Account</string>
+    <string name="report_item_temp">Sa oras na %s, na may sukat na %.2f %s</string>
+    <string name="report_normal_temp">Normal ang %s ng tubig sa fishpond sa buong araw na ito.</string>
+    <string name="report_temp_header">\tNapag-alamang hindi normal ang %s ng tubig ng fishpond sa mga sumusunod na oras:</string>
 </resources>
