@@ -106,5 +106,9 @@
     <string name="label_account">User Account</string>
     <string name="report_item_temp">Sa oras na %s, na may sukat na %.2f %s</string>
     <string name="report_normal_temp">Normal ang %s ng tubig sa fishpond sa buong araw na ito.</string>
-    <string name="report_temp_header">\tNapag-alamang hindi normal ang %s ng tubig ng fishpond sa mga sumusunod na oras:</string>
+    <string name="report_temp_header_low">\tAng %s ng tubig ng fishpond ay mas mababa sa inirerekmodang sukat na %s %s sa mga sumusunod na oras:</string>
+    <string name="report_temp_header_high">\tAng %s ng tubig ng fishpond ay mas mataas sa inirerekmodang sukat na %s %s sa mga sumusunod na oras:</string>
+    <string name="view_temperature_day_report">Tignan ang Day Report sa Temperatura</string>
+    <string name="view_turbidity_day_report">Tignan ang Day Report sa Turbidity</string>
+    <string name="view_ph_level_day_report">Tignan ang Day Report sa pH</string>
 </resources>

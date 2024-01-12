@@ -30,6 +30,12 @@ data class FishpondScreenUiState(
     val deviceKeyList: List<String> = emptyList(),
     val isConnectionSuccess: Boolean = false,
     val isDisconnectionSuccess: Boolean = false,
+    val minTemp: String = "",
+    val maxTemp: String = "",
+    val minPh: String = "",
+    val maxPh: String = "",
+    val minTurb: String = "",
+    val maxTurb: String = "",
 )
 enum class ConnectingStatus {
     AVAILABLE, LOADING, CONNECTED

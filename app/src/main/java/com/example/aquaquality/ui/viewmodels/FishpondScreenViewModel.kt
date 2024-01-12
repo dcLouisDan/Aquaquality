@@ -268,6 +268,17 @@ class FishpondScreenViewModel : ViewModel() {
                     settingsRef.setValue(SettingsInfo())
                     SettingsInfo()
                 }
+
+                _uiState.update { currentState ->
+                    currentState.copy(
+                        minTemp = settings.minTemp.toString(),
+                        maxTemp = settings.maxTemp.toString(),
+                        minPh = settings.minPh.toString(),
+                        maxPh = settings.maxPh.toString(),
+                        minTurb = settings.minTurb.toString(),
+                        maxTurb = settings.maxTurb.toString()
+                    )
+                }
                 Log.i("Settings", "Updated Settings: $settings")
                 callback(settings)
             }
@@ -295,22 +306,26 @@ class FishpondScreenViewModel : ViewModel() {
                     min = settingsInfo.minTemp!!,
                     onMax = {
                         val index = tempValueList.indexOf(value)
-                        if (index != -1){
+                        if (index != -1) {
                             val time = timeList[index]
                             _uiState.update { currentState ->
                                 currentState.copy(
-                                    dayTempMaxAnomalyTimeList = uiState.value.dayTempMaxAnomalyTimeList.plus(Pair(time, value))
+                                    dayTempMaxAnomalyTimeList = uiState.value.dayTempMaxAnomalyTimeList.plus(
+                                        Pair(time, value)
+                                    )
                                 )
                             }
                         }
                     },
                     onMin = {
                         val index = tempValueList.indexOf(value)
-                        if (index != -1){
+                        if (index != -1) {
                             val time = timeList[index]
                             _uiState.update { currentState ->
                                 currentState.copy(
-                                    dayTempMinAnomalyTimeList = uiState.value.dayTempMinAnomalyTimeList.plus(Pair(time, value))
+                                    dayTempMinAnomalyTimeList = uiState.value.dayTempMinAnomalyTimeList.plus(
+                                        Pair(time, value)
+                                    )
                                 )
                             }
                         }
@@ -337,22 +352,26 @@ class FishpondScreenViewModel : ViewModel() {
                     min = settingsInfo.minPh!!,
                     onMax = {
                         val index = phValueList.indexOf(value)
-                        if (index != -1){
+                        if (index != -1) {
                             val time = timeList[index]
                             _uiState.update { currentState ->
                                 currentState.copy(
-                                    dayPhMaxAnomalyTimeList = uiState.value.dayPhMaxAnomalyTimeList.plus(Pair(time, value))
+                                    dayPhMaxAnomalyTimeList = uiState.value.dayPhMaxAnomalyTimeList.plus(
+                                        Pair(time, value)
+                                    )
                                 )
                             }
                         }
                     },
                     onMin = {
                         val index = phValueList.indexOf(value)
-                        if (index != -1){
+                        if (index != -1) {
                             val time = timeList[index]
                             _uiState.update { currentState ->
                                 currentState.copy(
-                                    dayPhMinAnomalyTimeList = uiState.value.dayPhMinAnomalyTimeList.plus(Pair(time, value))
+                                    dayPhMinAnomalyTimeList = uiState.value.dayPhMinAnomalyTimeList.plus(
+                                        Pair(time, value)
+                                    )
                                 )
                             }
                         }
@@ -379,22 +398,26 @@ class FishpondScreenViewModel : ViewModel() {
                     min = settingsInfo.minTurb!!,
                     onMax = {
                         val index = turbValueList.indexOf(value)
-                        if (index != -1){
+                        if (index != -1) {
                             val time = timeList[index]
                             _uiState.update { currentState ->
                                 currentState.copy(
-                                    dayTurbMaxAnomalyTimeList = uiState.value.dayTurbMaxAnomalyTimeList.plus(Pair(time, value))
+                                    dayTurbMaxAnomalyTimeList = uiState.value.dayTurbMaxAnomalyTimeList.plus(
+                                        Pair(time, value)
+                                    )
                                 )
                             }
                         }
                     },
                     onMin = {
                         val index = turbValueList.indexOf(value)
-                        if (index != -1){
+                        if (index != -1) {
                             val time = timeList[index]
                             _uiState.update { currentState ->
                                 currentState.copy(
-                                    dayTurbMinAnomalyTimeList = uiState.value.dayTurbMinAnomalyTimeList.plus(Pair(time, value))
+                                    dayTurbMinAnomalyTimeList = uiState.value.dayTurbMinAnomalyTimeList.plus(
+                                        Pair(time, value)
+                                    )
                                 )
                             }
                         }
@@ -403,7 +426,6 @@ class FishpondScreenViewModel : ViewModel() {
             }
         }
     }
-
 
 
     suspend fun fetchHistoryList(dateKey: String): List<HistoryLog> {
@@ -454,8 +476,10 @@ class FishpondScreenViewModel : ViewModel() {
                 Log.i("History Log List Item", "Item: $log")
                 val timeString: String = if (log.hour == 0) {
                     "12 am"
-                } else if (log.hour!! > 0 && log.hour <= 12) {
+                } else if (log.hour!! > 0 && log.hour < 12) {
                     "${log.hour} am"
+                } else if (log.hour == 12) {
+                    "${log.hour} nn"
                 } else {
                     "${log.hour - 12} pm"
                 }

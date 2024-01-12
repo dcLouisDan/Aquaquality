@@ -105,5 +105,9 @@
     <string name="label_account">User Account</string>
     <string name="report_item_temp">At %s, with a value of %.2f %s</string>
     <string name="report_normal_temp">The water %s in the fishpond was normal all throughout this day.</string>
-    <string name="report_temp_header">\tThe fishpond’s water %s was found to be anomalous during the following times:</string>
+    <string name="report_temp_header_low">\tThe fishpond’s water %s was below the minimum value of %s %s during the following times:</string>
+    <string name="report_temp_header_high">\tThe fishpond’s water %s was above the maximum value of %s %s during the following times:</string>
+    <string name="view_temperature_day_report">View Temperature Day Report</string>
+    <string name="view_turbidity_day_report">View Turbidity Day Report</string>
+    <string name="view_ph_level_day_report">View pH Level Day Report</string>
 </resources>

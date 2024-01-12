@@ -254,10 +254,11 @@ fun ReportDialog(
     parameterLabel: String,
     minHourList: List<Pair<String, Number>>,
     maxHourList: List<Pair<String, Number>>,
+    minValue: String,
+    maxValue: String,
     unit: String,
     onDismissRequest: () -> Unit
 ) {
-    val hourList = minHourList + maxHourList
     AlertDialog(
         modifier = Modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
@@ -287,11 +288,12 @@ fun ReportDialog(
             }
         },
         text = {
-            if (hourList.isEmpty()) {
+            if (minHourList.isEmpty() && maxHourList.isEmpty()) {
                 Text(
                     text = stringResource(R.string.report_normal_temp, parameterLabel.lowercase()),
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onBackground
+                    color = MaterialTheme.colorScheme.onBackground,
+                    modifier = Modifier.fillMaxSize()
                 )
             } else {
                 Column(
@@ -299,37 +301,79 @@ fun ReportDialog(
                         .fillMaxSize()
                         .verticalScroll(rememberScrollState())
                 ) {
-                    Text(
-                        text = stringResource(
-                            R.string.report_temp_header,
-                            parameterLabel.lowercase()
-                        ),
-                        textAlign = TextAlign.Justify,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
-                    for (hour in hourList) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
-                            Icon(
-                                imageVector = Icons.Filled.Circle,
-                                contentDescription = null,
-                                modifier = Modifier.size(8.dp)
-                            )
-                            Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_small)))
-                            Text(
-                                text = stringResource(
-                                    R.string.report_item_temp,
-                                    hour.first,
-                                    hour.second.toFloat(),
-                                    unit
-                                ),
-                                textAlign = TextAlign.Left,
-                                color = MaterialTheme.colorScheme.onBackground,
-                            )
+                    if (minHourList.isNotEmpty()) {
+                        Text(
+                            text = stringResource(
+                                R.string.report_temp_header_low,
+                                parameterLabel.lowercase(),
+                                minValue,
+                                unit
+                            ),
+                            textAlign = TextAlign.Justify,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
+                        for (hour in minHourList) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
+                                Icon(
+                                    imageVector = Icons.Filled.Circle,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(8.dp)
+                                )
+                                Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_small)))
+                                Text(
+                                    text = stringResource(
+                                        R.string.report_item_temp,
+                                        hour.first,
+                                        hour.second.toFloat(),
+                                        unit
+                                    ),
+                                    textAlign = TextAlign.Left,
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                )
+                            }
+                        }
+                    Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_xl)))
+                    }
+                    if (maxHourList.isNotEmpty()) {
+                        Text(
+                            text = stringResource(
+                                R.string.report_temp_header_high,
+                                parameterLabel.lowercase(),
+                                maxValue,
+                                unit
+                            ),
+                            textAlign = TextAlign.Justify,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Spacer(modifier = Modifier.height(dimensionResource(id = R.dimen.padding_small)))
+                        for (hour in maxHourList) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_medium)))
+                                Icon(
+                                    imageVector = Icons.Filled.Circle,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(8.dp)
+                                )
+                                Spacer(modifier = Modifier.width(dimensionResource(id = R.dimen.padding_small)))
+                                Text(
+                                    text = stringResource(
+                                        R.string.report_item_temp,
+                                        hour.first,
+                                        hour.second.toFloat(),
+                                        unit
+                                    ),
+                                    textAlign = TextAlign.Left,
+                                    color = MaterialTheme.colorScheme.onBackground,
+                                )
+                            }
                         }
                     }
                 }
@@ -364,8 +408,10 @@ fun ReportPreview() {
     AquaqualityTheme {
         ReportDialog(
             parameterLabel = stringResource(id = R.string.label_pH),
-            minHourList = listOf(Pair("1PM", 26f)),
-            maxHourList = listOf(Pair("2PM", 34f)),
+            minHourList = emptyList(),
+            maxHourList = emptyList(),
+            minValue = "6.5",
+            maxValue = "8.5",
             onDismissRequest = {},
             unit = ""
         )

@@ -484,6 +484,8 @@ private fun DataGraphList(
             parameterLabel = stringResource(id = R.string.label_temperature),
             minHourList = uiState.dayTempMinAnomalyTimeList,
             maxHourList = uiState.dayTempMaxAnomalyTimeList,
+            minValue = uiState.minTemp,
+            maxValue = uiState.maxTemp,
             onDismissRequest = {
                 isTempReportVisible = false
             },
@@ -496,6 +498,8 @@ private fun DataGraphList(
             parameterLabel = stringResource(id = R.string.label_pH),
             minHourList = uiState.dayPhMinAnomalyTimeList,
             maxHourList = uiState.dayPhMaxAnomalyTimeList,
+            minValue = uiState.minPh,
+            maxValue = uiState.maxPh,
             onDismissRequest = {
                 isPhReportVisible = false
             },
@@ -508,6 +512,8 @@ private fun DataGraphList(
             parameterLabel = stringResource(id = R.string.label_turbidity),
             minHourList = uiState.dayTurbMinAnomalyTimeList,
             maxHourList = uiState.dayTurbMaxAnomalyTimeList,
+            minValue = uiState.minTurb,
+            maxValue = uiState.maxTurb,
             onDismissRequest = {
                 isTurbReportVisible = false
             },
@@ -528,7 +534,7 @@ private fun DataGraphList(
         horizontalArrangement = Arrangement.Center
     ) {
         Button(onClick = { isTempReportVisible = true }) {
-            Text(text = "View Temperature Day Report", color = MaterialTheme.colorScheme.onPrimary)
+            Text(text = "View Temperature Day Report", color = MaterialTheme.colorScheme.onPrimary, textAlign = TextAlign.Center)
         }
     }
     Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
@@ -546,7 +552,7 @@ private fun DataGraphList(
         horizontalArrangement = Arrangement.Center
     ) {
         Button(onClick = { isPhReportVisible = true }) {
-            Text(text = "View pH Level Day Report", color = MaterialTheme.colorScheme.onPrimary)
+            Text(text = "View pH Level Day Report", color = MaterialTheme.colorScheme.onPrimary, textAlign = TextAlign.Center)
         }
     }
     Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
@@ -565,7 +571,7 @@ private fun DataGraphList(
         horizontalArrangement = Arrangement.Center
     ) {
         Button(onClick = { isTurbReportVisible = true }) {
-            Text(text = "View Turbidity Day Report", color = MaterialTheme.colorScheme.onPrimary)
+            Text(text = "View Turbidity Day Report", color = MaterialTheme.colorScheme.onPrimary, textAlign = TextAlign.Center)
         }
     }
 }
@@ -592,6 +598,8 @@ private fun DataTableList(
             parameterLabel = stringResource(id = R.string.label_temperature),
             minHourList = uiState.dayTempMinAnomalyTimeList,
             maxHourList = uiState.dayTempMaxAnomalyTimeList,
+            minValue = uiState.minTemp,
+            maxValue = uiState.maxTemp,
             onDismissRequest = {
                 isTempReportVisible = false
             },
@@ -604,6 +612,8 @@ private fun DataTableList(
             parameterLabel = stringResource(id = R.string.label_pH),
             minHourList = uiState.dayPhMinAnomalyTimeList,
             maxHourList = uiState.dayPhMaxAnomalyTimeList,
+            minValue = uiState.minPh,
+            maxValue = uiState.maxPh,
             onDismissRequest = {
                 isPhReportVisible = false
             },
@@ -616,6 +626,8 @@ private fun DataTableList(
             parameterLabel = stringResource(id = R.string.label_turbidity),
             minHourList = uiState.dayTurbMinAnomalyTimeList,
             maxHourList = uiState.dayTurbMaxAnomalyTimeList,
+            minValue = uiState.minTurb,
+            maxValue = uiState.maxTurb,
             onDismissRequest = {
                 isTurbReportVisible = false
             },
@@ -637,7 +649,7 @@ private fun DataTableList(
         horizontalArrangement = Arrangement.Center
     ) {
         Button(onClick = { isTempReportVisible = true }) {
-            Text(text = "View Temperature Day Report", color = MaterialTheme.colorScheme.onPrimary)
+            Text(text = stringResource(R.string.view_temperature_day_report), color = MaterialTheme.colorScheme.onPrimary, textAlign = TextAlign.Center)
         }
     }
     Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
@@ -655,14 +667,14 @@ private fun DataTableList(
         horizontalArrangement = Arrangement.Center
     ) {
         Button(onClick = { isPhReportVisible = true }) {
-            Text(text = "View pH Level Day Report", color = MaterialTheme.colorScheme.onPrimary)
+            Text(text = stringResource(R.string.view_ph_level_day_report), color = MaterialTheme.colorScheme.onPrimary, textAlign = TextAlign.Center)
         }
     }
     Divider(modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_medium)))
     DataTable(
         columnItems = listOf(
             stringResource(R.string.label_time),
-            stringResource(id = R.string.label_wUnit_pH)
+            stringResource(id = R.string.label_wUnit_turbidity)
         ),
         rowItems = listOf(uiState.timeList, uiState.turbidityValueList)
     )
@@ -673,7 +685,7 @@ private fun DataTableList(
         horizontalArrangement = Arrangement.Center
     ) {
         Button(onClick = { isTurbReportVisible = true }) {
-            Text(text = "View Turbidity Day Report", color = MaterialTheme.colorScheme.onPrimary)
+            Text(text = stringResource(R.string.view_turbidity_day_report), color = MaterialTheme.colorScheme.onPrimary, textAlign = TextAlign.Center)
         }
     }
 }
